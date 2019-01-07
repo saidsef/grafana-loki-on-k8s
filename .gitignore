@@ -1,0 +1,9 @@
+.uptodate
+.pkg
+.cache
+*.output
+mixin/vendor/
+cmd/loki/loki
+cmd/promtail/promtail
+/loki
+/promtail
