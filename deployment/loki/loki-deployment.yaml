@@ -1,0 +1,35 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loki
+  labels:
+    name: loki
+    group: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: loki
+  template:
+    metadata:
+      labels:
+        name: loki
+    spec:
+      containers:
+      - name: loki
+        image: grafana/loki:master
+        args:
+        - -config.file=/etc/loki/local-config.yaml
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3100
+          protocol: TCP
+          name: loki
+        resources:
+          requests:
+            cpu: "0.2"
+            memory: "10Mi"
+          limits:
+            cpu: "0.4"
+            memory: "20Mi"

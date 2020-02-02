@@ -11,13 +11,13 @@ Loki is a horizontally-scalable, highly-available, multi-tenant log aggregation 
 
 ```shell
 
-kubectl apply -f ./
+kubectl apply -k ./deployment
 
 ```
 
 # Configuration
 
-Once all the services have been deployed and are up and running, access `Grafana Lofin Dashboard` via `Grafana Service - kubectl get svc -n logs`
+Once all the services have been deployed and are up and running, access `Grafana Login Dashboard` via `Grafana Service - kubectl get svc -n logs`
 
 Create `Loki` datasource, URL address is `http://loki:3100` and then select explore from right hand menu.
 
