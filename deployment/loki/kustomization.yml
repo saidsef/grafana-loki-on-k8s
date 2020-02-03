@@ -14,5 +14,6 @@ resources:
   - statefulset.yml
 
 secretGenerator:
-  - files:
-    - secret.yml
+  - name: loki
+    files:
+      - secret.yml
