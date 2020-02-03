@@ -5,8 +5,8 @@ metadata:
   name: loki
   labels:
     app: loki
-  annotations: {}
 spec:
+  volumeClaimTemplates: []
   podManagementPolicy: OrderedReady
   replicas: 1
   selector:
@@ -32,7 +32,6 @@ spec:
         runAsGroup: 10001
         runAsNonRoot: true
         runAsUser: 10001
-      initContainers: []
       containers:
         - name: loki
           image: "grafana/loki:v1.3.0"
@@ -41,10 +40,9 @@ spec:
             - "-config.file=/etc/loki/loki.yaml"
           volumeMounts:
             - name: config
-              mountPath: /etc/loki
+              mountPath: "/etc/loki"
             - name: storage
               mountPath: "/data"
-              subPath: 
           ports:
             - name: http-metrics
               containerPort: 3100
@@ -59,13 +57,8 @@ spec:
               path: /ready
               port: http-metrics
             initialDelaySeconds: 45
-          resources: {}
           securityContext:
             readOnlyRootFilesystem: true
-          # env:
-      nodeSelector: {}
-      affinity: {}
-      tolerations: []
       terminationGracePeriodSeconds: 4800
       volumes:
         - name: config
