@@ -12,7 +12,6 @@ spec:
   selector:
     matchLabels:
       app: loki
-      release: loki
   serviceName: loki-headless
   updateStrategy:
     type: RollingUpdate
@@ -20,8 +19,6 @@ spec:
     metadata:
       labels:
         app: loki
-        name: loki
-        release: loki
       annotations:
         prometheus.io/port: http-metrics
         prometheus.io/scrape: "true"
@@ -34,7 +31,7 @@ spec:
         runAsUser: 10001
       containers:
         - name: loki
-          image: "grafana/loki:v1.3.0"
+          image: grafana/loki:latest
           imagePullPolicy: IfNotPresent
           args:
             - "-config.file=/etc/loki/loki.yaml"
