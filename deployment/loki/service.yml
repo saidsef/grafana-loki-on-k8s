@@ -5,6 +5,9 @@ metadata:
   name: loki-headless
   labels:
     app: loki
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "3100"
 spec:
   clusterIP: None
   ports:
@@ -14,7 +17,6 @@ spec:
       targetPort: http-metrics
   selector:
     app: loki
-    release: loki
 ---
 apiVersion: v1
 kind: Service
@@ -22,7 +24,9 @@ metadata:
   name: loki
   labels:
     app: loki
-  annotations: {}
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "3100"
 spec:
   type: ClusterIP
   ports:
@@ -32,4 +36,3 @@ spec:
       targetPort: http-metrics
   selector:
     app: loki
-    release: loki
