@@ -11,6 +11,7 @@ spec:
   volumes:
     - 'configMap'
     - 'emptyDir'
+    - 'hostPath'
     - 'persistentVolumeClaim'
     - 'secret'
   hostNetwork: false
