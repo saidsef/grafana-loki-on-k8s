@@ -7,13 +7,16 @@ commonLabels:
 
 resources:
   - account.yml
+  - daemonset.yml
+  - promtail-cm.yml
   - psp.yml
   - role.yml
   - rolebinding.yml
+  - secret.yml
   - service.yml
   - statefulset.yml
 
-secretGenerator:
-  - name: loki
-    files:
-      - secret.yml
+# secretGenerator:
+#   - name: loki
+#     files:
+#       - secret.yml

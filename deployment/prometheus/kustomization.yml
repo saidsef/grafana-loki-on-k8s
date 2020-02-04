@@ -6,12 +6,14 @@ commonLabels:
   app: prometheus
 
 resources:
+  - prometheus-cm.yml
   - account.yml
   - deployment.yml
   - rbac.yml
   - service.yml
 
-configMapGenerator:
-  - name: prometheus
-    files:
-      - prometheus-cm.yml
+# configMapGenerator:
+#   - name: prometheus
+#     files:
+#       - prometheus-cm.yml
+
