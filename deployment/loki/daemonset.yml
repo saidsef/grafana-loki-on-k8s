@@ -1,0 +1,85 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: promtail
+  labels:
+    app: promtail
+spec:
+  selector:
+    matchLabels:
+      app: promtail
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: promtail
+      annotations:
+        prometheus.io/port: http-metrics
+        prometheus.io/scrape: "true"
+    spec:
+      serviceAccount: prometheus
+      serviceAccountName: prometheus
+      securityContext:
+        fsGroup: 10001
+        runAsGroup: 10001
+        runAsNonRoot: true
+        runAsUser: 10001
+      containers:
+        - name: promtail
+          image: grafana/promtail:latest
+          imagePullPolicy: IfNotPresent
+          args:
+          - -config.file=/etc/promtail/kubernetes-config.yaml
+          env:
+          - name: HOSTNAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          ports:
+            - name: http-metrics
+              containerPort: 3101
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 200m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          livenessProbe:
+            httpGet:
+              path: /ready
+              port: http-metrics
+            initialDelaySeconds: 45
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http-metrics
+            initialDelaySeconds: 45
+          volumeMounts:
+          - name: config-volume
+            mountPath: /etc/promtail
+          - name: run
+            mountPath: /run/promtail
+          - mountPath: /var/lib/docker/containers
+            name: docker
+            readOnly: true
+          - mountPath: /var/log/pods
+            name: pods
+            readOnly: true
+      terminationGracePeriodSeconds: 4800
+      volumes:
+        - name: config-volume
+          configMap:
+            name: promtail
+        - name: run
+          hostPath:
+            path: /run/promtail
+        - hostPath:
+            path: /var/lib/docker/containers
+          name: docker
+        - hostPath:
+            path: /var/log/pods
+          name: pods
