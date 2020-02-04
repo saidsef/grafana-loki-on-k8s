@@ -7,7 +7,7 @@ Loki is a horizontally-scalable, highly-available, multi-tenant log aggregation 
  - Kubernetes Cluster
  - Kubectl CLI
 
-# Deployment
+## Deployment
 
 ```shell
 
@@ -15,7 +15,7 @@ kubectl apply -k ./deployment
 
 ```
 
-# Configuration
+## Configuration
 
 Once all the services have been deployed and are up and running, access `Grafana Login Dashboard` via `Grafana Service - kubectl get svc -n logs`
 
