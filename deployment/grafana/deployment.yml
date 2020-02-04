@@ -1,0 +1,47 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: grafana
+  name: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana:master
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: GF_EXPLORE_ENABLED
+          value: "true"
+        - name: LOKI_ADDR
+          value: "http://loki:3100"
+        ports:
+        - containerPort: 3000
+        resources:
+          requests:
+            cpu: 100m
+            memory: "512Mi"
+          limits:
+            cpu: 200m
+            memory: "1Gi"
+        volumeMounts:
+          - name: grafana-storage
+            mountPath: /var/lib/grafana
+          - name: grafana-datastore
+            mountPath: /etc/grafana/provisioning/datasources
+            readOnly: false
+      volumes:
+        - name: grafana-storage
+          emptyDir: {}
+        - name: grafana-datastore
+          configMap:
+            name: grafana-datasource
