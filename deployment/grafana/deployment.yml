@@ -15,9 +15,10 @@ spec:
       labels:
         app: grafana
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: grafana
-        image: grafana/grafana:master
+        image: docker.io/grafana/grafana:master
         imagePullPolicy: IfNotPresent
         env:
         - name: GF_EXPLORE_ENABLED

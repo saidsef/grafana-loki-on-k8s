@@ -6,7 +6,6 @@ metadata:
   labels:
     app: loki
 spec:
-  volumeClaimTemplates: []
   podManagementPolicy: OrderedReady
   replicas: 1
   selector:
@@ -23,15 +22,10 @@ spec:
         prometheus.io/port: http-metrics
         prometheus.io/scrape: "true"
     spec:
-      serviceAccountName: loki
-      securityContext:
-        fsGroup: 10001
-        runAsGroup: 10001
-        runAsNonRoot: true
-        runAsUser: 10001
+      automountServiceAccountToken: false
       containers:
         - name: loki
-          image: grafana/loki:latest
+          image: docker.io/grafana/loki:latest
           imagePullPolicy: IfNotPresent
           args:
             - "-config.file=/etc/loki/loki.yaml"
@@ -39,7 +33,11 @@ spec:
             - name: config
               mountPath: "/etc/loki"
             - name: storage
-              mountPath: "/data"
+              mountPath: "/data:z"
+              subPath: data
+            - name: storage
+              mountPath: "/wal:z"
+              subPath: wal
           ports:
             - name: http-metrics
               containerPort: 3100
@@ -54,12 +52,19 @@ spec:
               path: /ready
               port: http-metrics
             initialDelaySeconds: 45
-          securityContext:
-            readOnlyRootFilesystem: true
-      terminationGracePeriodSeconds: 4800
+          # securityContext:
+          #   allowPrivilegeEscalation: false
+          #   privileged: false
+          #   readOnlyRootFilesystem: false
+          #   runAsGroup: 10001
+          #   runAsNonRoot: true
+          #   runAsUser: 10001
+      terminationGracePeriodSeconds: 60
       volumes:
         - name: config
-          secret:
-            secretName: loki
+          configMap:
+            name: loki
+            defaultMode: 0755
         - name: storage
-          emptyDir: {}
+          emptyDir:
+            sizeLimit: 5Gi

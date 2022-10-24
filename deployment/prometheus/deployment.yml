@@ -16,7 +16,7 @@ spec:
       serviceAccountName: prometheus
       containers:
         - name: prometheus
-          image: prom/prometheus:latest
+          image: docker.io/prom/prometheus:latest
           imagePullPolicy: IfNotPresent
           args:
             - '--storage.tsdb.retention.time=2h'

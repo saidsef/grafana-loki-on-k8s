@@ -8,3 +8,4 @@ bases:
   - grafana/
   - loki/
   - prometheus/
+  - promtail

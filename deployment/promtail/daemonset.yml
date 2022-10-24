@@ -19,16 +19,10 @@ spec:
         prometheus.io/port: http-metrics
         prometheus.io/scrape: "true"
     spec:
-      serviceAccount: prometheus
-      serviceAccountName: prometheus
-      securityContext:
-        fsGroup: 10001
-        runAsGroup: 10001
-        runAsNonRoot: true
-        runAsUser: 10001
+      serviceAccountName: promtail
       containers:
         - name: promtail
-          image: grafana/promtail:latest
+          image: docker.io/grafana/promtail:latest
           imagePullPolicy: IfNotPresent
           args:
           - -config.file=/etc/promtail/kubernetes-config.yaml
@@ -63,13 +57,26 @@ spec:
             mountPath: /etc/promtail
           - name: run
             mountPath: /run/promtail
-          - mountPath: /var/lib/docker/containers
-            name: docker
+          - name: varlog
+            mountPath: /var/log
             readOnly: true
-          - mountPath: /var/log/pods
-            name: pods
+          - name: varlibdockercontainers
+            mountPath: /var/lib/docker/containers
             readOnly: true
-      terminationGracePeriodSeconds: 4800
+          - name: mntpods
+            mountPath: /mnt/kubelet/pods
+            readOnly: true
+          - name: mntlibdockercontainers
+            mountPath: /mnt/docker/containers
+            readOnly: true
+          securityContext:
+            privileged: true
+            runAsUser: 0
+            allowPrivilegeEscalation: true
+            capabilities:
+              add:
+                - SYS_ADMIN
+      terminationGracePeriodSeconds: 60
       volumes:
         - name: config-volume
           configMap:
@@ -77,9 +84,15 @@ spec:
         - name: run
           hostPath:
             path: /run/promtail
-        - hostPath:
+        - name: varlog
+          hostPath:
+            path: /var/log
+        - name: mntlibdockercontainers
+          hostPath:
+            path: /mnt/docker/containers
+        - name: mntpods
+          hostPath:
+            path: /mnt/kubelet/pods
+        - name: varlibdockercontainers
+          hostPath:
             path: /var/lib/docker/containers
-          name: docker
-        - hostPath:
-            path: /var/log/pods
-          name: pods
