@@ -6,6 +6,7 @@ metadata:
   labels:
     app: promtail
 spec:
+  revisionHistoryLimit: 1
   selector:
     matchLabels:
       app: promtail

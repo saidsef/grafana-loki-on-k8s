@@ -6,6 +6,7 @@ metadata:
   labels:
     app: loki
 spec:
+  revisionHistoryLimit: 1
   podManagementPolicy: OrderedReady
   replicas: 1
   selector:
@@ -67,4 +68,4 @@ spec:
             defaultMode: 0755
         - name: storage
           emptyDir:
-            sizeLimit: 5Gi
+            sizeLimit: "2Gi"

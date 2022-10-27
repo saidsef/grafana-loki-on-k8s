@@ -4,6 +4,7 @@ kind: Deployment
 metadata:
   name: prometheus
 spec:
+  revisionHistoryLimit: 1
   replicas: 1
   selector:
     matchLabels:
@@ -49,4 +50,5 @@ spec:
           configMap:
             name: prometheus
         - name: data-volume
-          emptyDir: {}
+          emptyDir:
+            sizeLimit: "1Gi"
