@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: loki
+  name: promtail
   labels:
-    app: loki
+    app: promtail
   annotations: {}
