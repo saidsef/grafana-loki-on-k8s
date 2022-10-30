@@ -6,6 +6,7 @@ metadata:
     app: grafana
   name: grafana
 spec:
+  revisionHistoryLimit: 1
   replicas: 1
   selector:
     matchLabels:
@@ -15,9 +16,10 @@ spec:
       labels:
         app: grafana
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: grafana
-        image: grafana/grafana:master
+        image: docker.io/grafana/grafana:master
         imagePullPolicy: IfNotPresent
         env:
         - name: GF_EXPLORE_ENABLED
@@ -37,11 +39,17 @@ spec:
           - name: grafana-storage
             mountPath: /var/lib/grafana
           - name: grafana-datastore
-            mountPath: /etc/grafana/provisioning/datasources
+            mountPath: /etc/grafana/provisioning/datasources/datasource.yaml
+            subPath: datasource.yaml
+            readOnly: false
+          - name: grafana-datastore
+            mountPath: /etc/grafana/provisioning/dashboards/dashboardproviders.yaml
+            subPath: dashboardproviders.yaml
             readOnly: false
       volumes:
-        - name: grafana-storage
-          emptyDir: {}
         - name: grafana-datastore
           configMap:
             name: grafana-datasource
+        - name: grafana-storage
+          emptyDir:
+            sizeLimit: "1Gi"
