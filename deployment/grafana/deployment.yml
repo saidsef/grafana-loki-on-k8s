@@ -28,6 +28,7 @@ spec:
           value: "http://loki:3100"
         ports:
         - containerPort: 3000
+          name: http
         resources:
           requests:
             cpu: 100m
@@ -42,10 +43,20 @@ spec:
             mountPath: /etc/grafana/provisioning/datasources/datasource.yaml
             subPath: datasource.yaml
             readOnly: false
-          - name: grafana-datastore
-            mountPath: /etc/grafana/provisioning/dashboards/dashboardproviders.yaml
-            subPath: dashboardproviders.yaml
-            readOnly: false
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsGroup: 65534
+          runAsUser: 65534
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+              - ALL
+            add:
+              - NET_BIND_SERVICE
       volumes:
         - name: grafana-datastore
           configMap:

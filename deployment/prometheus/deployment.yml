@@ -15,24 +15,26 @@ spec:
         app: prometheus
     spec:
       serviceAccountName: prometheus
+      automountServiceAccountToken: true
       containers:
         - name: prometheus
           image: docker.io/prom/prometheus:latest
           imagePullPolicy: IfNotPresent
           args:
-            - '--storage.tsdb.retention.time=2h'
+            - '--storage.tsdb.retention.time=24h'
             - '--config.file=/etc/prometheus/prometheus.yml'
+            - '--storage.tsdb.path=/prometheus/data/'
           ports:
             - containerPort: 9090
               name: http
           livenessProbe:
             httpGet:
               path: /-/healthy
-              port: 9090
+              port: http
           readinessProbe:
             httpGet:
               path: /-/ready
-              port: 9090
+              port: http
           resources:
             requests:
               cpu: 100m
@@ -45,10 +47,19 @@ spec:
               mountPath: /etc/prometheus
             - name: data-volume
               mountPath: /prometheus/data
+          securityContext:
+            allowPrivilegeEscalation: false
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsGroup: 65534
+            runAsUser: 65534
+            seccompProfile:
+              type: RuntimeDefault
       volumes:
         - name: config-volume
           configMap:
             name: prometheus
         - name: data-volume
           emptyDir:
-            sizeLimit: "1Gi"
+            sizeLimit: "5Gi"
