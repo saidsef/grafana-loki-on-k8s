@@ -21,6 +21,7 @@ spec:
         prometheus.io/scrape: "true"
     spec:
       serviceAccountName: promtail
+      automountServiceAccountToken: true
       containers:
         - name: promtail
           image: docker.io/grafana/promtail:latest
@@ -74,6 +75,8 @@ spec:
             privileged: true
             runAsUser: 0
             allowPrivilegeEscalation: true
+            seccompProfile:
+              type: RuntimeDefault
             capabilities:
               add:
                 - SYS_ADMIN
