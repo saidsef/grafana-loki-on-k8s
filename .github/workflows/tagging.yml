@@ -1,0 +1,56 @@
+name: Tagging
+on:
+  workflow_run:
+    workflows:
+      - CI
+    types:
+      - completed
+    branch:
+      - main
+  workflow_dispatch:
+
+env:
+  COMMIT_MSG: ${{ github.event.head_commit.message }}
+
+jobs:
+  tagging:
+    runs-on: ubuntu-latest
+    if: ${{ contains(github.ref, 'main') }}
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Fetch remote tags
+        run: git fetch origin +refs/tags/*:refs/tags/*
+      - name: Set Tag Value
+        run: |
+          echo "DATE=v$(echo `date +'%Y.%m'`)" >> $GITHUB_ENV
+          echo "CHANGELOG=`git log --oneline $(git describe --tags @ --abbrev=0 @^ | head -n 1)..@`" >> $GITHUB_ENV
+      - name: Create Tag
+        uses: actions/github-script@v6
+        if: ${{ env.DATE }}
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            let tagExists = [];
+            try {
+              await github.rest.git.createRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: "refs/tags/${{ env.DATE }}",
+                message: "${{ env.CHANGELOG }}",
+                sha: context.sha
+              });
+            } catch (e) {
+              console.log("Tag already exists: " + e)
+              tagExists.push(e);
+            }
+
+            if (tagExists.length > 0) {
+              await github.rest.git.updateRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: "tags/${{ env.DATE }}",
+                message: "${{ env.CHANGELOG }}",
+                sha: context.sha
+              });
+            }
