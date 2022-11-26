@@ -4,7 +4,7 @@ kind: Service
 metadata:
   name: grafana
   labels:
-    app: grafana
+    app.kubernetes.io/name: grafana
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "3000"
@@ -14,4 +14,4 @@ spec:
     port: 3000
     targetPort: 3000
   selector:
-    app: grafana
+    app.kubernetes.io/name: grafana
