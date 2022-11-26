@@ -4,6 +4,7 @@
   metadata:
     name: grafana-datasource
     labels:
+      app.kubernetes.io/name: grafana
       grafana_datasource: '1'
   data:
     datasource.yaml: |-
