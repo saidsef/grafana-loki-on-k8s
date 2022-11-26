@@ -8,7 +8,6 @@ metadata:
 spec:
   revisionHistoryLimit: 1
   podManagementPolicy: OrderedReady
-  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: loki
