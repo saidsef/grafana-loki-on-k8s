@@ -4,7 +4,7 @@ kind: ConfigMap
 metadata:
   name: prometheus
   labels:
-    app: prometheus
+    app.kubernetes.io/name: prometheus
 data:
   prometheus.yml: |-
     global:

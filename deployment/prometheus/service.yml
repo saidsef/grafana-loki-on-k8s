@@ -4,13 +4,13 @@ kind: Service
 metadata:
   name: prometheus
   labels:
-    app: prometheus
+    app.kubernetes.io/name: prometheus
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "9090"
 spec:
   selector:
-    app: prometheus
+    app.kubernetes.io/name: prometheus
   ports:
     - name: http
       protocol: TCP
