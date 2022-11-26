@@ -4,21 +4,21 @@ kind: StatefulSet
 metadata:
   name: loki
   labels:
-    app: loki
+    app.kubernetes.io/name: loki
 spec:
   revisionHistoryLimit: 1
   podManagementPolicy: OrderedReady
   replicas: 1
   selector:
     matchLabels:
-      app: loki
+      app.kubernetes.io/name: loki
   serviceName: loki-headless
   updateStrategy:
     type: RollingUpdate
   template:
     metadata:
       labels:
-        app: loki
+        app.kubernetes.io/name: loki
       annotations:
         prometheus.io/port: http-metrics
         prometheus.io/scrape: "true"
