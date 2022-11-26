@@ -4,7 +4,7 @@ kind: Service
 metadata:
   name: loki
   labels:
-    app: loki
+    app.kubernetes.io/name: loki
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "3100"
@@ -16,4 +16,4 @@ spec:
       name: http-metrics
       targetPort: http-metrics
   selector:
-    app: loki
+    app.kubernetes.io/name: loki
