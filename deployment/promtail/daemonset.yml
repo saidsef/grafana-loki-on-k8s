@@ -4,18 +4,18 @@ kind: DaemonSet
 metadata:
   name: promtail
   labels:
-    app: promtail
+    app.kubernetes.io/name: promtail
 spec:
   revisionHistoryLimit: 1
   selector:
     matchLabels:
-      app: promtail
+      app.kubernetes.io/name: promtail
   updateStrategy:
     type: RollingUpdate
   template:
     metadata:
       labels:
-        app: promtail
+        app.kubernetes.io/name: promtail
       annotations:
         prometheus.io/port: http-metrics
         prometheus.io/scrape: "true"
