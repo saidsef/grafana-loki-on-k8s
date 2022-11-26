@@ -4,7 +4,7 @@ kind: ConfigMap
 metadata:
   name: promtail
   labels:
-    app: promtail
+    app.kubernetes.io/name: promtail
 data:
   kubernetes-config.yaml: |-
     server:
