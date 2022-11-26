@@ -4,6 +4,7 @@ kind: Kustomization
 
 commonLabels:
   app.kubernetes.io/name: prometheus
+  app.kubernetes.io/created-by: kustomizer
 
 resources:
   - prometheus-cm.yml

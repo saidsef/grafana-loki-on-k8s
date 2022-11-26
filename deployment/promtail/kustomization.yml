@@ -4,6 +4,7 @@ kind: Kustomization
 
 commonLabels:
   app.kubernetes.io/name: promtail
+  app.kubernetes.io/created-by: kustomizer
 
 resources:
   - account.yml
