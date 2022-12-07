@@ -73,16 +73,13 @@ spec:
             readOnly: true
           securityContext:
             privileged: true
-            runAsUser: 0
-            allowPrivilegeEscalation: true
             readOnlyRootFilesystem: true
+            runAsUser: 0
             seccompProfile:
               type: RuntimeDefault
             capabilities:
               drop:
                 - ALL
-              add:
-                - SYS_ADMIN
       terminationGracePeriodSeconds: 60
       volumes:
         - name: config-volume
