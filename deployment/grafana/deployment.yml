@@ -17,6 +17,10 @@ spec:
         app.kubernetes.io/name: grafana
     spec:
       automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsGroup: 65534
+        runAsUser: 65534
       containers:
       - name: grafana
         image: docker.io/grafana/grafana:9.3.1
@@ -47,9 +51,6 @@ spec:
           allowPrivilegeEscalation: false
           privileged: false
           readOnlyRootFilesystem: true
-          runAsNonRoot: true
-          runAsGroup: 65534
-          runAsUser: 65534
           seccompProfile:
             type: RuntimeDefault
           capabilities:

@@ -75,9 +75,12 @@ spec:
             privileged: true
             runAsUser: 0
             allowPrivilegeEscalation: true
+            readOnlyRootFilesystem: true
             seccompProfile:
               type: RuntimeDefault
             capabilities:
+              drop:
+                - ALL
               add:
                 - SYS_ADMIN
       terminationGracePeriodSeconds: 60
