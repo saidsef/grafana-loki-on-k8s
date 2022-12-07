@@ -24,7 +24,7 @@ spec:
       automountServiceAccountToken: true
       containers:
         - name: promtail
-          image: docker.io/grafana/promtail:latest
+          image: docker.io/grafana/promtail:main
           imagePullPolicy: IfNotPresent
           args:
           - -config.file=/etc/promtail/kubernetes-config.yaml
@@ -75,9 +75,12 @@ spec:
             privileged: true
             runAsUser: 0
             allowPrivilegeEscalation: true
+            readOnlyRootFilesystem: true
             seccompProfile:
               type: RuntimeDefault
             capabilities:
+              drop:
+                - ALL
               add:
                 - SYS_ADMIN
       terminationGracePeriodSeconds: 60

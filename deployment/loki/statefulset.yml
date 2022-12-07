@@ -23,9 +23,13 @@ spec:
         prometheus.io/scrape: "true"
     spec:
       automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsGroup: 10001
+        runAsUser: 10001
       containers:
         - name: loki
-          image: docker.io/grafana/loki:latest
+          image: docker.io/grafana/loki:main
           imagePullPolicy: IfNotPresent
           args:
             - "-config.file=/etc/loki/loki.yaml"
@@ -58,9 +62,6 @@ spec:
             allowPrivilegeEscalation: false
             privileged: false
             readOnlyRootFilesystem: true
-            runAsNonRoot: true
-            runAsGroup: 10001
-            runAsUser: 10001
             seccompProfile:
               type: RuntimeDefault
             capabilities:
