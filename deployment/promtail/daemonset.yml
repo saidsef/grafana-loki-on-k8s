@@ -71,6 +71,10 @@ spec:
           - name: mntlibdockercontainers
             mountPath: /mnt/docker/containers
             readOnly: true
+          - name: tmp
+            mountPath: /tmp
+            subPath: tmp
+            readOnly: false
           securityContext:
             privileged: true
             readOnlyRootFilesystem: true
@@ -100,3 +104,6 @@ spec:
         - name: varlibdockercontainers
           hostPath:
             path: /var/lib/docker/containers
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi
