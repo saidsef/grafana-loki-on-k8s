@@ -71,18 +71,19 @@ spec:
           - name: mntlibdockercontainers
             mountPath: /mnt/docker/containers
             readOnly: true
+          - name: tmp
+            mountPath: /tmp
+            subPath: tmp
+            readOnly: false
           securityContext:
             privileged: true
-            runAsUser: 0
-            allowPrivilegeEscalation: true
             readOnlyRootFilesystem: true
+            runAsUser: 0
             seccompProfile:
               type: RuntimeDefault
             capabilities:
               drop:
                 - ALL
-              add:
-                - SYS_ADMIN
       terminationGracePeriodSeconds: 60
       volumes:
         - name: config-volume
@@ -103,3 +104,6 @@ spec:
         - name: varlibdockercontainers
           hostPath:
             path: /var/lib/docker/containers
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi
