@@ -33,10 +33,12 @@ spec:
             - name: config
               mountPath: "/etc/loki"
             - name: storage
-              mountPath: "/data:z"
+              mountPath: "/data"
               subPath: data
+              readOnly: false
             - name: storage
-              mountPath: "/wal:z"
+              mountPath: "/wal"
+              readOnly: false
               subPath: wal
           ports:
             - name: http-metrics
