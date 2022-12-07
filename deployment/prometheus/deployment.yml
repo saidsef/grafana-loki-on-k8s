@@ -18,7 +18,7 @@ spec:
       automountServiceAccountToken: true
       containers:
         - name: prometheus
-          image: docker.io/prom/prometheus:latest
+          image: docker.io/prom/prometheus:v2.40.5
           imagePullPolicy: IfNotPresent
           args:
             - '--storage.tsdb.retention.time=24h'

@@ -24,7 +24,7 @@ spec:
       automountServiceAccountToken: true
       containers:
         - name: promtail
-          image: docker.io/grafana/promtail:latest
+          image: docker.io/grafana/promtail:main
           imagePullPolicy: IfNotPresent
           args:
           - -config.file=/etc/promtail/kubernetes-config.yaml

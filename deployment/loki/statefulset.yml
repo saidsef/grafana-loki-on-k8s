@@ -25,7 +25,7 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: loki
-          image: docker.io/grafana/loki:latest
+          image: docker.io/grafana/loki:main
           imagePullPolicy: IfNotPresent
           args:
             - "-config.file=/etc/loki/loki.yaml"
