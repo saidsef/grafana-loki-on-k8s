@@ -12,9 +12,4 @@ resources:
   - deployment.yml
   - rbac.yml
   - service.yml
-
-# configMapGenerator:
-#   - name: prometheus
-#     files:
-#       - prometheus-cm.yml
-
+  - secret.yml

@@ -22,7 +22,7 @@ spec:
         runAsNonRoot: true
       containers:
         - name: prometheus
-          image: docker.io/prom/prometheus:v2.40.5
+          image: docker.io/prom/prometheus:v2.41.0
           imagePullPolicy: IfNotPresent
           args:
             - '--storage.tsdb.retention.time=24h'

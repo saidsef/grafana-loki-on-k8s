@@ -10,8 +10,3 @@ resources:
   - loki-cm.yml
   - service.yml
   - statefulset.yml
-
-# secretGenerator:
-#   - name: loki
-#     files:
-#       - secret.yml
