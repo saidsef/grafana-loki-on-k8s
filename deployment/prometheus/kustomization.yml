@@ -11,4 +11,5 @@ resources:
   - deployment.yml
   - prometheus-cm.yml
   - rbac.yml
+  - secret.yml
   - service.yml
