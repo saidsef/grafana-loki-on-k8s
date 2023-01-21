@@ -7,8 +7,10 @@
 I am assuming you are already familiar with [Grafana](https://grafana.com/oss/grafana/) and [Prometheus](https://prometheus.io/docs/prometheus/latest/getting_started/)
 
 ## Prerequisites
-- Kubernetes Cluster >= v1.22
+- Kubernetes Cluster >= v1.23
 - Familiarity with Grafana, Prometheus, Loki and Promtail
+- ...
+- Profit?
 
 ## Deployment
 
@@ -18,10 +20,10 @@ kubectl apply -k ./deployment
 
 This will deploy the following services in `monitoring` namespace:
 
-- Grafana - with Prometheus and Loki as data sources
+- Grafana - preconfigured with Prometheus and Loki as data sources
 - Prometheus
 - Loki
-- Promtail - with configuration that will push data to Loki
+- Promtail - preconfigured to push data to Loki
 
 ## Configuration
 

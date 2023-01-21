@@ -10,8 +10,3 @@ resources:
   - grafana-cm.yml
   - deployment.yml
   - service.yml
-
-# configMapGenerator:
-#   - name: grafana-datasource
-#     files:
-#       - grafana-cm.yml
