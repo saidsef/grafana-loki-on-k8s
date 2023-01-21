@@ -25,7 +25,7 @@ data:
       reject_old_samples_max_age: 168h
     schema_config:
       configs:
-      - from: "2023-01-01"
+      - from: "2020-05-15"
         index:
           period: 168h
           prefix: index_
