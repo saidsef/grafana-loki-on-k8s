@@ -11,8 +11,4 @@ resources:
   - daemonset.yml
   - promtail-cm.yml
   - rbac.yml
-
-# secretGenerator:
-#   - name: loki
-#     files:
-#       - secret.yml
+  - service.yml

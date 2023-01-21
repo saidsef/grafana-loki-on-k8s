@@ -20,10 +20,6 @@ jobs:
     steps:
     - name: Check out repository code
       uses: actions/checkout@v3
-    - name: Set Tag Name
-      run: |
-        echo "TAG=$(echo ${GITHUB_REF##*/})" >> $GITHUB_ENV
-        echo "DATE=v$(echo `date +'%Y.%m'`)" >> $GITHUB_ENV
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:

@@ -7,14 +7,9 @@ commonLabels:
   app.kubernetes.io/created-by: kustomizer
 
 resources:
-  - prometheus-cm.yml
   - account.yml
   - deployment.yml
+  - prometheus-cm.yml
   - rbac.yml
+  - secret.yml
   - service.yml
-
-# configMapGenerator:
-#   - name: prometheus
-#     files:
-#       - prometheus-cm.yml
-
