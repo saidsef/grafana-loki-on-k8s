@@ -7,11 +7,6 @@ commonLabels:
   app.kubernetes.io/created-by: kustomizer
 
 resources:
-  - grafana-cm.yml
   - deployment.yml
+  - grafana-cm.yml
   - service.yml
-
-# configMapGenerator:
-#   - name: grafana-datasource
-#     files:
-#       - grafana-cm.yml

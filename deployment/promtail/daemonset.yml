@@ -24,7 +24,7 @@ spec:
       automountServiceAccountToken: true
       containers:
         - name: promtail
-          image: docker.io/grafana/promtail:main
+          image: docker.io/grafana/promtail:2.7.1
           imagePullPolicy: IfNotPresent
           args:
           - -config.file=/etc/promtail/kubernetes-config.yaml
@@ -35,7 +35,7 @@ spec:
                 fieldPath: spec.nodeName
           ports:
             - name: http-metrics
-              containerPort: 3101
+              containerPort: 9080
               protocol: TCP
           resources:
             limits:

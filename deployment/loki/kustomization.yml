@@ -8,10 +8,6 @@ commonLabels:
 
 resources:
   - loki-cm.yml
+  - secret.yml
   - service.yml
   - statefulset.yml
-
-# secretGenerator:
-#   - name: loki
-#     files:
-#       - secret.yml
