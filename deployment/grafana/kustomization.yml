@@ -7,6 +7,6 @@ commonLabels:
   app.kubernetes.io/created-by: kustomizer
 
 resources:
-  - grafana-cm.yml
-  - deployment.yml
-  - service.yml
+- grafana-cm.yml
+- deployment.yml
+- service.yml

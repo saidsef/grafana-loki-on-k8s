@@ -7,7 +7,7 @@ commonLabels:
   app.kubernetes.io/created-by: kustomizer
 
 resources:
-  - account.yml
-  - daemonset.yml
-  - promtail-cm.yml
-  - rbac.yml
+- account.yml
+- daemonset.yml
+- promtail-cm.yml
+- rbac.yml

@@ -7,6 +7,6 @@ commonLabels:
   app.kubernetes.io/created-by: kustomizer
 
 resources:
-  - loki-cm.yml
-  - service.yml
-  - statefulset.yml
+- loki-cm.yml
+- service.yml
+- statefulset.yml
