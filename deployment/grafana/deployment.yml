@@ -23,7 +23,7 @@ spec:
         runAsUser: 65534
       containers:
       - name: grafana
-        image: docker.io/grafana/grafana:9.3.2
+        image: docker.io/grafana/grafana:10.0.1
         imagePullPolicy: IfNotPresent
         env:
         - name: GF_EXPLORE_ENABLED
