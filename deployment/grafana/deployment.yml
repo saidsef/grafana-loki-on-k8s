@@ -30,6 +30,8 @@ spec:
           value: "true"
         - name: LOKI_ADDR
           value: "http://loki:3100"
+        - name: GF_FEATURE_TOGGLES_ENABLE
+          value: "publicDashboards"
         ports:
         - containerPort: 3000
           name: http
