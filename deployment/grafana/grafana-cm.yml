@@ -15,10 +15,29 @@
         access: proxy
         orgId: 1
         url: http://prometheus:9090
-  
+
       - name: Loki
         type: loki
         access: proxy
         url: http://loki:3100
         jsonData:
           maxLines: 1000
+
+      - name: Tempo
+        type: tempo
+        access: proxy
+        url: http://tempo:3100
+        jsonData:
+          httpMethod: GET
+          tracesToLogs:
+            datasourceUid: Loki
+          tracesToLogsV2:
+            datasourceUid: Loki
+          tracesToMetrics:
+            datasourceUid: Prometheus
+          serviceMap:
+            datasourceUid: Prometheus
+          nodeGraph:
+            enabled: true
+          lokiSearch:
+            datasourceUid: Loki

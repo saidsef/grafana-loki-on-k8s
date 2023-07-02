@@ -1,0 +1,13 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+commonLabels:
+  app.kubernetes.io/name: tempo
+  app.kubernetes.io/created-by: kustomizer
+
+resources:
+- account.yml
+- tempo-cm.yml
+- service.yml
+- statefulset.yml

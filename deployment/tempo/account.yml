@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tempo
+  labels:
+    app.kubernetes.io/name: tempo
+automountServiceAccountToken: true
