@@ -14,6 +14,12 @@ data:
     compactor:
       compaction:
         block_retention: 24h
+    metrics_generator:
+      storage:
+        path: /var/tempo/generator/wal
+        remote_write:
+          - url: http://prometheus-server/api/v1/write
+            send_exemplars: true
     distributor:
       receivers:
         jaeger:

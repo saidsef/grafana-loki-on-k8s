@@ -65,7 +65,9 @@ spec:
         - name: tempo-storage
           mountPath: /var/tempo/traces
           subPath: traces
-
+        - name: tempo-storage
+          mountPath: /var/tempo/generator/wal
+          subPath: generator
         securityContext:
           allowPrivilegeEscalation: false
           privileged: false
