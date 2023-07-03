@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: tempo
+  labels:
+    app.kubernetes.io/name: tempo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tempo
+  serviceName: tempo-headless
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: tempo
+    spec:
+      serviceAccountName: tempo
+      automountServiceAccountToken: true
+      containers:
+      - args:
+        - -config.file=/conf/tempo.yaml
+        - -mem-ballast-size-mbs=1024
+        image: grafana/tempo:2.1.1
+        imagePullPolicy: IfNotPresent
+        name: tempo
+        ports:
+        - containerPort: 3100
+          name: prom-metrics
+        - containerPort: 6831
+          name: jaeger-thrift-c
+          protocol: UDP
+        - containerPort: 6832
+          name: jaeger-thrift-b
+          protocol: UDP
+        - containerPort: 14268
+          name: jaeger-thrift-h
+        - containerPort: 14250
+          name: jaeger-grpc
+        - containerPort: 9411
+          name: zipkin
+        - containerPort: 55680
+          name: otlp-legacy
+        - containerPort: 4317
+          name: otlp-grpc
+        - containerPort: 55681
+          name: otlp-httplegacy
+        - containerPort: 4318
+          name: otlp-http
+        - containerPort: 55678
+          name: opencensus
+        resources:
+          requests:
+            cpu: 100m
+            memory: "1Gi"
+          limits:
+            cpu: 100m
+            memory: "1Gi"
+        volumeMounts:
+        - mountPath: /conf
+          name: tempo-conf
+        - name: tempo-storage
+          mountPath: /var/tempo/wal
+          subPath: wal
+        - name: tempo-storage
+          mountPath: /var/tempo/traces
+          subPath: traces
+        - name: tempo-storage
+          mountPath: /var/tempo/generator/wal
+          subPath: generator
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
+          readOnlyRootFilesystem: true
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+              - ALL
+      volumes:
+        - name: tempo-storage
+          emptyDir:
+            sizeLimit: "5Gi"
+        - configMap:
+            name: tempo
+          name: tempo-conf

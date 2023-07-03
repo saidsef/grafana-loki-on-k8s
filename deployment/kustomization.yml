@@ -17,4 +17,5 @@ bases:
 - grafana/
 - loki/
 - prometheus/
-- promtail
+- promtail/
+- tempo/
