@@ -25,13 +25,6 @@ spec:
       - name: grafana
         image: docker.io/grafana/grafana:10.0.1
         imagePullPolicy: IfNotPresent
-        env:
-        - name: GF_EXPLORE_ENABLED
-          value: "true"
-        - name: LOKI_ADDR
-          value: "http://loki:3100"
-        - name: GF_FEATURE_TOGGLES_ENABLE
-          value: "publicDashboards"
         ports:
         - containerPort: 3000
           name: http
@@ -58,8 +51,6 @@ spec:
           capabilities:
             drop:
               - ALL
-            add:
-              - NET_BIND_SERVICE
       volumes:
         - name: grafana-datastore
           configMap:
