@@ -4,6 +4,9 @@ metadata:
   name: tempo
   labels:
     app.kubernetes.io/name: tempo
+  annotations:
+    prometheus.io/port: prom-metrics
+    prometheus.io/scrape: "true"
 spec:
   replicas: 1
   selector:

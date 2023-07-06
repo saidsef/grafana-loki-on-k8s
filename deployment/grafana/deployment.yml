@@ -5,6 +5,9 @@ metadata:
   name: grafana
   labels:
     app.kubernetes.io/name: grafana
+  annotations:
+    prometheus.io/port: http
+    prometheus.io/scrape: "true"
 spec:
   revisionHistoryLimit: 1
   replicas: 1
