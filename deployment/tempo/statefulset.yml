@@ -83,7 +83,7 @@ spec:
       volumes:
         - name: tempo-storage
           emptyDir:
-            sizeLimit: "5Gi"
+            sizeLimit: "10Gi"
         - configMap:
             name: tempo
           name: tempo-conf
