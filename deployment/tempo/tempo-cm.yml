@@ -45,9 +45,13 @@ data:
     storage:
       trace:
         backend: local
+        block:
+          version: vParquet
+          v2_encoding: zstd
         local:
           path: /var/tempo/traces
         wal:
+          v2_encoding: snappy
           path: /var/tempo/wal
     querier: {}
     query_frontend: {}
