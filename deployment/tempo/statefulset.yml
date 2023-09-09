@@ -24,7 +24,7 @@ spec:
       - args:
         - -config.file=/conf/tempo.yaml
         - -mem-ballast-size-mbs=1024
-        image: grafana/tempo:2.2.1
+        image: grafana/tempo:2.2.2
         imagePullPolicy: IfNotPresent
         name: tempo
         ports:

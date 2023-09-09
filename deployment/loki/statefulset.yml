@@ -29,7 +29,7 @@ spec:
         runAsUser: 10001
       containers:
         - name: loki
-          image: docker.io/grafana/loki:2.8.4
+          image: docker.io/grafana/loki:2.9.0
           imagePullPolicy: IfNotPresent
           args:
             - "-config.file=/etc/loki/loki.yaml"
