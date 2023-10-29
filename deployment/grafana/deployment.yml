@@ -26,7 +26,7 @@ spec:
         runAsUser: 65534
       containers:
       - name: grafana
-        image: docker.io/grafana/grafana:10.1.1
+        image: docker.io/grafana/grafana:10.2.0
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3000
