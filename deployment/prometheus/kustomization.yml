@@ -1,10 +1,6 @@
----
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-commonLabels:
-  app.kubernetes.io/name: prometheus
-  app.kubernetes.io/created-by: kustomizer
 
 resources:
 - prometheus-cm.yml
@@ -13,3 +9,8 @@ resources:
 - rbac.yml
 - service.yml
 - secret.yml
+labels:
+- includeSelectors: true
+  pairs:
+    app.kubernetes.io/created-by: kustomizer
+    app.kubernetes.io/name: prometheus

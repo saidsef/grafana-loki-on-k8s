@@ -98,9 +98,11 @@ spec:
         - name: mntlibdockercontainers
           hostPath:
             path: /mnt/docker/containers
+            type: DirectoryOrCreate
         - name: mntpods
           hostPath:
             path: /mnt/kubelet/pods
+            type: DirectoryOrCreate
         - name: varlibdockercontainers
           hostPath:
             path: /var/lib/docker/containers
