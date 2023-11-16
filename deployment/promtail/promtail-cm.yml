@@ -6,7 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/name: promtail
 data:
-  kubernetes-config.yaml: |-
+  config.yaml: |-
     server:
       http_listen_port: 3101
       grpc_listen_port: 0
