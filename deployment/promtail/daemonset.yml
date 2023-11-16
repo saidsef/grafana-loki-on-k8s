@@ -26,8 +26,6 @@ spec:
         - name: promtail
           image: docker.io/grafana/promtail:2.9.2
           imagePullPolicy: IfNotPresent
-          args:
-          - -config.file=/etc/promtail/kubernetes-config.yaml
           env:
           - name: HOSTNAME
             valueFrom:
@@ -65,12 +63,6 @@ spec:
           - name: varlibdockercontainers
             mountPath: /var/lib/docker/containers
             readOnly: true
-          - name: mntpods
-            mountPath: /mnt/kubelet/pods
-            readOnly: true
-          - name: mntlibdockercontainers
-            mountPath: /mnt/docker/containers
-            readOnly: true
           - name: tmp
             mountPath: /tmp
             subPath: tmp
@@ -95,14 +87,6 @@ spec:
         - name: varlog
           hostPath:
             path: /var/log
-        - name: mntlibdockercontainers
-          hostPath:
-            path: /mnt/docker/containers
-            type: DirectoryOrCreate
-        - name: mntpods
-          hostPath:
-            path: /mnt/kubelet/pods
-            type: DirectoryOrCreate
         - name: varlibdockercontainers
           hostPath:
             path: /var/lib/docker/containers
