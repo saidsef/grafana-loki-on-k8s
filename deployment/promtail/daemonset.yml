@@ -26,8 +26,6 @@ spec:
         - name: promtail
           image: docker.io/grafana/promtail:2.9.2
           imagePullPolicy: IfNotPresent
-          args:
-          - -config.file=/etc/promtail/kubernetes-config.yaml
           env:
           - name: HOSTNAME
             valueFrom:
