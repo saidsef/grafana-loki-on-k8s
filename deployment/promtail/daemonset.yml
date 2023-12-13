@@ -24,7 +24,7 @@ spec:
       automountServiceAccountToken: true
       containers:
         - name: promtail
-          image: docker.io/grafana/promtail:2.9.2
+          image: docker.io/grafana/promtail:2.9.3
           imagePullPolicy: IfNotPresent
           env:
           - name: HOSTNAME
