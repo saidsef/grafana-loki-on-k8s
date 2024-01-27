@@ -1,7 +1,6 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-
 resources:
 - prometheus-cm.yml
 - account.yml
@@ -9,6 +8,7 @@ resources:
 - rbac.yml
 - service.yml
 - secret.yml
+
 labels:
 - includeSelectors: true
   pairs:

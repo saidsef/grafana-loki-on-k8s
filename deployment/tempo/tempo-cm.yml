@@ -14,6 +14,11 @@ data:
     compactor:
       compaction:
         block_retention: 24h
+        compaction_window: 1h
+    memberlist:
+      bind_addr:
+        - '::'
+      abort_if_cluster_join_fails: false
     metrics_generator:
       storage:
         path: /var/tempo/generator/wal
@@ -54,8 +59,13 @@ data:
           path: /var/tempo/traces
         wal:
           v2_encoding: snappy
+          search_encoding: snappy
           path: /var/tempo/wal
-    querier: {}
+    querier:
+      max_concurrent_queries: 20
+      frontend_worker:
+        frontend_address: 0.0.0.0:9095
     query_frontend: {}
     overrides:
+      metrics_generator_processors: [service-graphs, span-metrics]
       per_tenant_override_config: /conf/overrides.yaml
