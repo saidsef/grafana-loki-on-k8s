@@ -1,0 +1,271 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mimir
+  labels:
+    app.kubernetes.io/name: mimir
+data:
+  mimir.yaml: |
+    target: all
+    multitenancy_enabled: true
+    no_auth_tenant: anonymous
+    shutdown_delay: 0s
+    max_separate_metrics_groups_per_user: 1000
+    enable_go_runtime_metrics: true
+    api:
+        skip_label_name_validation_header_enabled: false
+        enable_otel_metadata_translation: false
+        alertmanager_http_prefix: /alertmanager
+        prometheus_http_prefix: /prometheus
+    server:
+        http_listen_network: tcp
+        http_listen_address: "0.0.0.0"
+        http_listen_port: 8080
+        http_listen_conn_limit: 0
+        grpc_listen_network: tcp
+        grpc_listen_address: "0.0.0.0"
+        grpc_listen_port: 9095
+        grpc_listen_conn_limit: 0
+    querier:
+        query_store_after: 12h0m0s
+        max_query_into_future: 10m0s
+        shuffle_sharding_ingesters_enabled: true
+        prefer_streaming_chunks_from_ingesters: true
+        prefer_streaming_chunks_from_store_gateways: false
+        streaming_chunks_per_ingester_series_buffer_size: 256
+        streaming_chunks_per_store_gateway_series_buffer_size: 256
+        minimize_ingester_requests: true
+        minimize_ingester_requests_hedging_delay: 3s
+        max_concurrent: 20
+        timeout: 2m0s
+        max_samples: 50000000
+        default_evaluation_interval: 1m0s
+        lookback_delta: 5m0s
+    ingester_client:
+        report_grpc_codes_in_instrumentation_label_enabled: false
+    ingester:
+        ring:
+            kvstore:
+                store: memberlist
+                prefix: collectors/
+    flusher:
+        exit_after_flush: true
+    frontend:
+        log_queries_longer_than: 0s
+        log_query_request_headers: ""
+        max_body_size: 10485760
+        query_stats_enabled: true
+        max_outstanding_per_tenant: 100
+        querier_forget_delay: 0s
+        scheduler_address: ""
+        scheduler_dns_lookup_period: 10s
+        scheduler_worker_concurrency: 5
+        split_queries_by_interval: 24h0m0s
+        align_queries_with_step: false
+        results_cache:
+            backend: ""
+            compression: ""
+        cache_results: false
+        max_retries: 5
+        not_running_timeout: 0s
+        parallelize_shardable_queries: false
+        cache_unaligned_requests: false
+        query_sharding_target_series_per_shard: 0
+        query_result_response_format: protobuf
+        downstream_url: ""
+    blocks_storage:
+        backend: filesystem
+        filesystem:
+            dir: blocks
+        bucket_store:
+            sync_dir: /data/tsdb-sync/
+            sync_interval: 15m0s
+            max_concurrent: 100
+            tenant_sync_concurrency: 10
+            block_sync_concurrency: 20
+            meta_sync_concurrency: 20
+            index_cache:
+                backend: inmemory
+                inmemory:
+                    max_size_bytes: 1073741824
+            chunks_cache:
+                backend: ""
+                max_get_range_requests: 3
+                attributes_ttl: 168h0m0s
+                attributes_in_memory_max_items: 50000
+                subrange_ttl: 24h0m0s
+            ignore_deletion_mark_delay: 1h0m0s
+            bucket_index:
+                update_on_error_interval: 1m0s
+                idle_timeout: 1h0m0s
+                max_stale_period: 1h0m0s
+            ignore_blocks_within: 10h0m0s
+            series_hash_cache_max_size_bytes: 1073741824
+            index_header_lazy_loading_enabled: true
+            index_header_lazy_loading_idle_timeout: 1h0m0s
+            partitioner_max_gap_bytes: 524288
+            postings_offsets_in_mem_sampling: 32
+            index_header:
+                max_idle_file_handles: 1
+                eager_loading_startup_enabled: true
+                lazy_loading_enabled: true
+                lazy_loading_idle_timeout: 1h0m0s
+                lazy_loading_concurrency: 4
+                sparse_persistence_enabled: true
+                verify_on_load: false
+            streaming_series_batch_size: 5000
+            series_selection_strategy: worst-case
+            series_selection_strategies:
+                worst_case_series_preference: 0.75
+        tsdb:
+            dir: /data/tsdb/
+            block_ranges_period:
+                - 2h0m0s
+            retention_period: 13h0m0s
+            ship_interval: 1m0s
+            ship_concurrency: 10
+            head_compaction_interval: 1m0s
+            head_compaction_concurrency: 1
+            head_compaction_idle_timeout: 1h0m0s
+            head_chunks_write_buffer_size_bytes: 4194304
+            head_chunks_end_time_variance: 0
+            stripe_size: 16384
+            wal_compression_enabled: false
+            wal_segment_size_bytes: 134217728
+            wal_replay_concurrency: 0
+            flush_blocks_on_shutdown: false
+            close_idle_tsdb_timeout: 13h0m0s
+            memory_snapshot_on_shutdown: false
+            head_chunks_write_queue_size: 1000000
+            series_hash_cache_max_size_bytes: 367001600
+            out_of_order_capacity_max: 32
+            head_postings_for_matchers_cache_ttl: 10s
+            head_postings_for_matchers_cache_size: 100
+            head_postings_for_matchers_cache_max_bytes: 10485760
+            head_postings_for_matchers_cache_force: false
+            block_postings_for_matchers_cache_ttl: 10s
+            block_postings_for_matchers_cache_size: 100
+            block_postings_for_matchers_cache_max_bytes: 10485760
+            block_postings_for_matchers_cache_force: false
+            early_head_compaction_min_in_memory_series: 0
+            early_head_compaction_min_estimated_series_reduction_percentage: 15
+    compactor:
+        block_ranges:
+            - 2h0m0s
+            - 12h0m0s
+            - 24h0m0s
+        block_sync_concurrency: 8
+        meta_sync_concurrency: 20
+        data_dir: /data/data-compactor/
+        compaction_interval: 1h0m0s
+        compaction_retries: 3
+        compaction_concurrency: 1
+        first_level_compaction_wait_period: 25m0s
+        cleanup_interval: 15m0s
+        cleanup_concurrency: 20
+        deletion_delay: 12h0m0s
+        tenant_cleanup_delay: 6h0m0s
+        max_compaction_time: 1h0m0s
+        no_blocks_file_cleanup_enabled: false
+        max_opening_blocks_concurrency: 1
+        max_closing_blocks_concurrency: 1
+        symbols_flushers_concurrency: 1
+        max_block_upload_validation_concurrency: 1
+        sharding_ring:
+            kvstore:
+                store: memberlist
+                prefix: collectors/
+        compaction_jobs_order: smallest-range-oldest-blocks-first
+    store_gateway:
+        sharding_ring:
+            kvstore:
+                store: memberlist
+                prefix: collectors/
+            unregister_on_shutdown: true
+    tenant_federation:
+        enabled: false
+        max_concurrent: 16
+    activity_tracker:
+        filepath: /data/metrics-activity.log
+        max_entries: 1024
+    ruler:
+        external_url: ""
+        evaluation_interval: 1m0s
+        poll_interval: 10m0s
+        rule_path: /data/data-ruler/
+        alertmanager_url: ""
+        alertmanager_refresh_interval: 1m0s
+        notification_queue_capacity: 10000
+        notification_timeout: 10s
+        for_outage_tolerance: 1h0m0s
+        for_grace_period: 2m0s
+        resend_delay: 1m0s
+        ring:
+            kvstore:
+                store: memberlist
+                prefix: rulers/
+        enable_api: true
+        enabled_tenants: ""
+        disabled_tenants: ""
+        query_stats_enabled: false
+        query_frontend:
+            address: ""
+            query_result_response_format: protobuf
+        tenant_federation:
+            enabled: false
+    ruler_storage:
+        backend: filesystem
+        filesystem:
+            dir: ruler
+        local:
+            directory: "/data/ruler"
+        cache: {}
+    alertmanager:
+        data_dir: /data/alertmanager/
+        retention: 120h0m0s
+        external_url: http://0.0.0.0:8080/alertmanager
+        poll_interval: 15s
+        max_recv_msg_size: 104857600
+        sharding_ring:
+            kvstore:
+                store: memberlist
+                prefix: alertmanagers/
+        fallback_config_file: ""
+        peer_timeout: 15s
+        enable_api: true
+        max_concurrent_get_requests_per_tenant: 0
+        persist_interval: 15m0s
+        enable_state_cleanup: true
+    alertmanager_storage:
+        backend: filesystem
+        filesystem:
+            dir: alertmanager
+        local:
+            path: "/data/alarm"
+    memberlist:
+        randomize_node_name: true
+    query_scheduler:
+        max_outstanding_requests_per_tenant: 100
+        querier_forget_delay: 0s
+        service_discovery_mode: dns
+        ring:
+            kvstore:
+                store: memberlist
+                prefix: collectors/
+        max_used_instances: 0
+    usage_stats:
+        enabled: true
+        installation_mode: custom
+    overrides_exporter:
+        ring:
+            enabled: false
+            kvstore:
+                store: memberlist
+                prefix: collectors/
+        enabled_metrics: ingestion_rate,ingestion_burst_size,max_global_series_per_user,max_global_series_per_metric,max_global_exemplars_per_user,max_fetched_chunks_per_query,max_fetched_series_per_query,max_fetched_chunk_bytes_per_query,ruler_max_rules_per_rule_group,ruler_max_rule_groups_per_tenant
+    common:
+        storage:
+            backend: filesystem
+            filesystem:
+                dir: "/data/common"
+    timeseries_unmarshal_caching_optimization_enabled: true
