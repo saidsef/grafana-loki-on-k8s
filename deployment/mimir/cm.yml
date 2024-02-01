@@ -48,8 +48,11 @@ data:
             kvstore:
                 store: memberlist
                 prefix: collectors/
+            replication_factor: 1
     flusher:
         exit_after_flush: true
+    limits:
+        out_of_order_time_window: 5m
     frontend:
         log_queries_longer_than: 0s
         log_query_request_headers: ""
@@ -181,6 +184,7 @@ data:
             kvstore:
                 store: memberlist
                 prefix: collectors/
+            replication_factor: 1
             unregister_on_shutdown: true
     tenant_federation:
         enabled: false
@@ -230,6 +234,7 @@ data:
             kvstore:
                 store: memberlist
                 prefix: alertmanagers/
+            replication_factor: 1
         fallback_config_file: ""
         peer_timeout: 15s
         enable_api: true
