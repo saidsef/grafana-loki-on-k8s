@@ -7,14 +7,14 @@ metadata:
 data:
   mimir.yaml: |
     target: all
-    multitenancy_enabled: true
+    multitenancy_enabled: false
     no_auth_tenant: anonymous
     shutdown_delay: 0s
     max_separate_metrics_groups_per_user: 1000
     enable_go_runtime_metrics: true
     api:
         skip_label_name_validation_header_enabled: false
-        enable_otel_metadata_translation: false
+        enable_otel_metadata_translation: true
         alertmanager_http_prefix: /alertmanager
         prometheus_http_prefix: /prometheus
     server:
@@ -130,7 +130,7 @@ data:
             head_chunks_write_buffer_size_bytes: 4194304
             head_chunks_end_time_variance: 0
             stripe_size: 16384
-            wal_compression_enabled: false
+            wal_compression_enabled: true
             wal_segment_size_bytes: 134217728
             wal_replay_concurrency: 0
             flush_blocks_on_shutdown: false
@@ -207,7 +207,7 @@ data:
         enable_api: true
         enabled_tenants: ""
         disabled_tenants: ""
-        query_stats_enabled: false
+        query_stats_enabled: true
         query_frontend:
             address: ""
             query_result_response_format: protobuf
