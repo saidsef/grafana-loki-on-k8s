@@ -3,7 +3,7 @@ kind: Kustomization
 
 resources:
 - account.yml
-- tempo-cm.yml
+- cm.yml
 - service.yml
 - statefulset.yml
 

@@ -4,7 +4,7 @@ kind: Kustomization
 resources:
 - account.yml
 - daemonset.yml
-- promtail-cm.yml
+- cm.yml
 - rbac.yml
 
 labels:
