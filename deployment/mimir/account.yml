@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mimir
+  labels:
+    app.kubernetes.io/name: mimir
+automountServiceAccountToken: false

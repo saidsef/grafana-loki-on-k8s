@@ -9,8 +9,10 @@ data:
   prometheus.yml: |-
     global:
       scrape_interval: 5s
+      remote_write:
+      - name: mimir
+        url: http://mimir/api/v1/push
     scrape_configs:
-
     # scrape config for AppMesh Envoy sidecar
     - job_name: 'appmesh-envoy'
       metrics_path: /stats/prometheus

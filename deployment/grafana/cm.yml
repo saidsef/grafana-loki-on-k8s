@@ -10,11 +10,28 @@
     datasource.yaml: |-
       apiVersion: 1
       datasources:
+      - name: Mimir
+        type: prometheus
+        access: proxy
+        orgId: 1
+        url: http://mimir/prometheus
+        jsonData:
+          manageAlerts: true
+          maxLines: 1000
+          prometheusType: Mimir
+
       - name: Prometheus
         type: prometheus
         access: proxy
         orgId: 1
         url: http://prometheus:9090
+        jsonData:
+          exemplarTraceIdDestinations:
+          - name: traceID
+            datasourceUid: Tempo
+          manageAlerts: true
+          prometheusType: Prometheus
+          maxLines: 1000
 
       - name: Loki
         type: loki

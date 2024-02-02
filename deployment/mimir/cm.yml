@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mimir
+  labels:
+    app.kubernetes.io/name: mimir
+data:
+  mimir.yaml: |
+    activity_tracker:
+        filepath: /data/metrics-activity.log
+    alertmanager:
+        data_dir: /data/alertmanager/
+        sharding_ring:
+            replication_factor: 1
+    alertmanager_storage:
+        local:
+            path: /data/alarm
+    api:
+        enable_otel_metadata_translation: true
+    blocks_storage:
+        bucket_store:
+            sync_dir: /data/tsdb-sync/
+        tsdb:
+            dir: /data/tsdb/
+            wal_compression_enabled: true
+    common:
+        storage:
+            filesystem:
+                dir: /data/common
+    compactor:
+        data_dir: /data/data-compactor/
+    distributor:
+        ha_tracker:
+            enable_ha_tracker: true
+        write_requests_buffer_pooling_enabled: true
+    enable_go_runtime_metrics: true
+    ingester:
+        ring:
+            replication_factor: 1
+    limits:
+        out_of_order_time_window: 5m
+        native_histograms_ingestion_enabled: true
+        cardinality_analysis_enabled: true
+    multitenancy_enabled: false
+    ruler:
+        query_stats_enabled: true
+        rule_path: /data/data-ruler/
+    ruler_storage:
+        local:
+            directory: /data/ruler
+    server:
+        grpc_listen_address: 0.0.0.0
+        http_listen_address: 0.0.0.0
+    store_gateway:
+        sharding_ring:
+            replication_factor: 1
+    usage_stats:
+        enabled: false
