@@ -11,8 +11,22 @@ data:
     providers:
       - name: default # A uniquely identifiable name for the provider
         type: file
+        allowUiUpdates: false
+        disableDeletion: false
+        editable: true
+        updateIntervalSeconds: 10
         options:
           path: /var/lib/grafana/dashboards
+          foldersFromFilesStructure: true
+    dashboards:
+      default:
+        NodeJS:
+          gnetId: 19062
+          datasource: Prometheus
+        Requests:
+          gnetId: 20371
+          datasource: Prometheus
+
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -27,7 +41,7 @@ data:
     - name: Mimir
       type: prometheus
       access: proxy
-      orgId: 1
+      editable: true
       url: http://mimir/prometheus
       jsonData:
         manageAlerts: true
@@ -39,8 +53,9 @@ data:
     - name: Prometheus
       type: prometheus
       access: proxy
-      orgId: 1
-      url: http://prometheus:9090
+      editable: true
+      isDefault: true
+      url: http://prometheus-server
       jsonData:
         exemplarTraceIdDestinations:
         - name: traceID
@@ -54,15 +69,22 @@ data:
     - name: Loki
       type: loki
       access: proxy
+      editable: true
       url: http://loki:3100
       jsonData:
         maxLines: 1000
+        derivedFields:
+          - datasourceUid: Tempo
+            matcherRegex: '"trace_id":"(.+?)"'
+            name: TraceID
+            url: "$${__value.raw}"
   tempo.yaml: |-
     apiVersion: 1
     datasources:
     - name: Tempo
       type: tempo
       access: proxy
+      editable: true
       url: http://tempo:3100
       jsonData:
         httpMethod: GET

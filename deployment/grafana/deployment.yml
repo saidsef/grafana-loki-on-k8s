@@ -18,6 +18,9 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: grafana
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: http
     spec:
       automountServiceAccountToken: false
       securityContext:
@@ -33,18 +36,7 @@ spec:
           args:
             - -c
             - >-
-              for d in 20371 19062; do 
-                curl https://grafana.com/api/dashboards/$d/revisions/lastest/download -L -O /var/lib/grafana/dashboards/$d.json ;
-              done
-          securityContext:
-            allowPrivilegeEscalation: false
-            privileged: false
-            readOnlyRootFilesystem: true
-            seccompProfile:
-              type: RuntimeDefault
-            capabilities:
-              drop:
-                - ALL
+              which curl
           volumeMounts:
             - name: grafana-storage
               mountPath: /var/lib/grafana
@@ -73,7 +65,7 @@ spec:
           - name: grafana-storage
             mountPath: /var/lib/grafana/dashboards
             subPath: dashboards
-          - name: dashbords
+          - name: dashboards
             mountPath: /etc/grafana/provisioning/dashboards/dashboards.yml
             subPath: dashboards.yml
           - name: datasources

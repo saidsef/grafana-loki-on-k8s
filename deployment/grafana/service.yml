@@ -5,9 +5,6 @@ metadata:
   name: grafana
   labels:
     app.kubernetes.io/name: grafana
-  annotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "3000"
 spec:
   ports:
   - name: grafana
