@@ -17,6 +17,9 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: mimir
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: http
     spec:
       serviceAccountName: mimir
       automountServiceAccountToken: true

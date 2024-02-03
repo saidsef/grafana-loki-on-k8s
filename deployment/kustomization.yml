@@ -9,9 +9,9 @@ commonAnnotations:
   pod-security.kubernetes.io/warn-version: latest
 
 resources:
-- grafana/
 - loki/
 - prometheus/
 - promtail/
 - tempo/
 - mimir/
+- grafana/

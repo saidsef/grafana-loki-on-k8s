@@ -13,6 +13,9 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: prometheus
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: http
     spec:
       serviceAccountName: prometheus
       automountServiceAccountToken: true

@@ -18,12 +18,32 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: grafana
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: http
     spec:
       automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
         runAsGroup: 65534
         runAsUser: 65534
+      initContainers:
+        - name: curl
+          image: docker.io/curlimages/curl:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+          args:
+            - -c
+            - >-
+              which curl
+          volumeMounts:
+            - name: grafana-storage
+              mountPath: /var/lib/grafana
+              subPath: grafana
+            - name: grafana-storage
+              mountPath: /var/lib/grafana/dashboards
+              subPath: dashboards
       containers:
       - name: grafana
         image: docker.io/grafana/grafana:10.3.1
@@ -41,9 +61,28 @@ spec:
         volumeMounts:
           - name: grafana-storage
             mountPath: /var/lib/grafana
-          - name: grafana-datastore
-            mountPath: /etc/grafana/provisioning/datasources/datasource.yaml
-            subPath: datasource.yaml
+            subPath: grafana
+          - name: grafana-storage
+            mountPath: /var/lib/grafana/dashboards
+            subPath: dashboards
+          - name: dashboards
+            mountPath: /etc/grafana/provisioning/dashboards/dashboards.yml
+            subPath: dashboards.yml
+          - name: datasources
+            mountPath: /etc/grafana/provisioning/datasources/mimir.yaml
+            subPath: mimir.yaml
+            readOnly: false
+          - name: datasources
+            mountPath: /etc/grafana/provisioning/datasources/prometheus.yaml
+            subPath: prometheus.yaml
+            readOnly: false
+          - name: datasources
+            mountPath: /etc/grafana/provisioning/datasources/loki.yaml
+            subPath: loki.yaml
+            readOnly: false
+          - name: datasources
+            mountPath: /etc/grafana/provisioning/datasources/tempo.yaml
+            subPath: tempo.yaml
             readOnly: false
         securityContext:
           allowPrivilegeEscalation: false
@@ -55,9 +94,12 @@ spec:
             drop:
               - ALL
       volumes:
-        - name: grafana-datastore
+        - name: dashboards
           configMap:
-            name: grafana-datasource
+            name: dashboards
+        - name: datasources
+          configMap:
+            name: datasources
         - name: grafana-storage
           emptyDir:
             sizeLimit: "1Gi"
