@@ -1,60 +1,80 @@
 ---
-  apiVersion: v1
-  kind: ConfigMap
-  metadata:
-    name: grafana-datasource
-    labels:
-      app.kubernetes.io/name: grafana
-      grafana_datasource: '1'
-  data:
-    datasource.yaml: |-
-      apiVersion: 1
-      datasources:
-      - name: Mimir
-        type: prometheus
-        access: proxy
-        orgId: 1
-        url: http://mimir/prometheus
-        jsonData:
-          manageAlerts: true
-          maxLines: 1000
-          prometheusType: Mimir
-
-      - name: Prometheus
-        type: prometheus
-        access: proxy
-        orgId: 1
-        url: http://prometheus:9090
-        jsonData:
-          exemplarTraceIdDestinations:
-          - name: traceID
-            datasourceUid: Tempo
-          manageAlerts: true
-          prometheusType: Prometheus
-          maxLines: 1000
-
-      - name: Loki
-        type: loki
-        access: proxy
-        url: http://loki:3100
-        jsonData:
-          maxLines: 1000
-
-      - name: Tempo
-        type: tempo
-        access: proxy
-        url: http://tempo:3100
-        jsonData:
-          httpMethod: GET
-          tracesToLogs:
-            datasourceUid: Loki
-          tracesToLogsV2:
-            datasourceUid: Loki
-          tracesToMetrics:
-            datasourceUid: Prometheus
-          serviceMap:
-            datasourceUid: Prometheus
-          nodeGraph:
-            enabled: true
-          lokiSearch:
-            datasourceUid: Loki
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboards
+  labels:
+    app.kubernetes.io/name: grafana
+data:
+  dashboards.yml: |-
+    apiVersion: 1
+    providers:
+      - name: default # A uniquely identifiable name for the provider
+        type: file
+        options:
+          path: /var/lib/grafana/dashboards
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: datasources
+  labels:
+    app.kubernetes.io/name: grafana
+data:
+  mimir.yaml: |-
+    apiVersion: 1
+    datasources:
+    - name: Mimir
+      type: prometheus
+      access: proxy
+      orgId: 1
+      url: http://mimir/prometheus
+      jsonData:
+        manageAlerts: true
+        maxLines: 1000
+        prometheusType: Mimir
+  prometheus.yaml: |-
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      access: proxy
+      orgId: 1
+      url: http://prometheus:9090
+      jsonData:
+        exemplarTraceIdDestinations:
+        - name: traceID
+          datasourceUid: Tempo
+        manageAlerts: true
+        prometheusType: Prometheus
+        maxLines: 1000
+  loki.yaml: |-
+    apiVersion: 1
+    datasources:
+    - name: Loki
+      type: loki
+      access: proxy
+      url: http://loki:3100
+      jsonData:
+        maxLines: 1000
+  tempo.yaml: |-
+    apiVersion: 1
+    datasources:
+    - name: Tempo
+      type: tempo
+      access: proxy
+      url: http://tempo:3100
+      jsonData:
+        httpMethod: GET
+        tracesToLogs:
+          datasourceUid: Loki
+        tracesToLogsV2:
+          datasourceUid: Loki
+        tracesToMetrics:
+          datasourceUid: Prometheus
+        serviceMap:
+          datasourceUid: Prometheus
+        nodeGraph:
+          enabled: true
+        lokiSearch:
+          datasourceUid: Loki
