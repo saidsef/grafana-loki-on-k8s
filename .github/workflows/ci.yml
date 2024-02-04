@@ -44,13 +44,8 @@ jobs:
       - name: Run K8s test
         run: |
           kubectl cluster-info
-          export NS=`cat deployment/kustomization.yml  | grep namespace | awk '{ print $2 }'`
-          if [ -z "$NS" ]; then
-            export NS='monitoring'
-          fi
-          kubectl create namespace $NS
-          kubectl kustomize deployment/ | kubectl apply -n $NS -f - 
-          kubectl get all -n $NS
+          kubectl apply -k deployment/
+          kubectl get all -A
 
   auto-approve:
     runs-on: ubuntu-latest
