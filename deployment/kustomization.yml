@@ -9,6 +9,7 @@ commonAnnotations:
   pod-security.kubernetes.io/warn-version: latest
 
 resources:
+- namespace.yml
 - loki/
 - prometheus/
 - promtail/
