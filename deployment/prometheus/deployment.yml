@@ -58,6 +58,9 @@ spec:
           volumeMounts:
             - name: config-volume
               mountPath: /etc/prometheus
+            - name: config-volume
+              mountPath: /etc/config/alerting_rules.yml
+              subPath: alerting_rules.yml
             - name: data-volume
               mountPath: /prometheus/data
           securityContext:
