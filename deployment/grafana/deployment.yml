@@ -46,7 +46,7 @@ spec:
               subPath: dashboards
       containers:
       - name: grafana
-        image: docker.io/grafana/grafana:10.3.1
+        image: docker.io/grafana/grafana:10.3.3
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3000
