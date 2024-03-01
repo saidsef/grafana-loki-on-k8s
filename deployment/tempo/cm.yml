@@ -68,4 +68,4 @@ data:
     query_frontend: {}
     overrides:
       metrics_generator_processors: [service-graphs, span-metrics]
-      per_tenant_override_config: /conf/overrides.yaml
+      # per_tenant_override_config: /conf/overrides.yaml
