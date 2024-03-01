@@ -1,4 +1,4 @@
-# Grafana, Prometheus, Loki, Promtail, Tempo and Mimir
+# Grafana, Prometheus, Loki, Promtail, Tempo and Mimir (LGTM)
 
 [Loki](https://grafana.com/oss/loki/) is a horizontally-scalable, highly-available, multi-tenant log aggregation system inspired by Prometheus. It is designed to be very cost effective and easy to operate, as it does not index the contents of the logs, but rather a set of labels for each log stream.
 
@@ -42,7 +42,7 @@ Here is [how to guide from Grafana / Loki](https://grafana.com/docs/loki/latest/
 
 ## Why make or use this?
 
-This is an attempt to demystify the different components of [Grafana Stack](https://github.com/grafana/helm-charts), deploying the full stack can seem overwhelming, breaking it down to smaller composable pieces will hopefully help you better understand each service and its configuration.
+This is an attempt to demystify the different components of [LGTM Stack](https://github.com/grafana/helm-charts/tree/main/charts), deploying the full stack can seem overwhelming, breaking it down to smaller composable pieces will hopefully help you better understand each service and its configuration.
 
 ## Source
 
