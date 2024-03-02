@@ -5,8 +5,6 @@ metadata:
   labels:
     app.kubernetes.io/name: tempo
 data:
-  overrides.yaml: |
-    overrides: {}
   tempo.yaml: |
     multitenancy_enabled: false
     usage_report:
@@ -67,5 +65,6 @@ data:
         frontend_address: 0.0.0.0:9095
     query_frontend: {}
     overrides:
-      metrics_generator_processors: [service-graphs, span-metrics]
-      # per_tenant_override_config: /conf/overrides.yaml
+      user_configurable_overrides:
+        api:
+          check_for_conflicting_runtime_overrides: true
