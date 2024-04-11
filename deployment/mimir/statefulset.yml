@@ -22,7 +22,7 @@ spec:
         prometheus.io/port: http
     spec:
       serviceAccountName: mimir
-      automountServiceAccountToken: true
+      automountServiceAccountToken: false
       containers:
       - args:
         - -config.file=/conf/mimir.yaml
