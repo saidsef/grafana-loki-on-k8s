@@ -13,8 +13,7 @@ data:
       reporting_enabled: true
     compactor:
       compaction:
-        block_retention: 24h
-        compaction_window: 1h
+        block_retention: 24h0m0s
     memberlist:
       bind_addr:
         - '::'
@@ -43,6 +42,9 @@ data:
               endpoint: 0.0.0.0:4317
             http:
               endpoint: 0.0.0.0:4318
+        zipkin: {}
+        opencensus: {}
+        kafka: {}
     ingester: {}
     server:
       http_listen_port: 3100
