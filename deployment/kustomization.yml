@@ -16,4 +16,4 @@ resources:
 - tempo/
 - mimir/
 - grafana/
-- pyroscope/
+# - pyroscope/
