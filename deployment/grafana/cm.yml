@@ -47,6 +47,14 @@ data:
         manageAlerts: true
         maxLines: 1000
         prometheusType: Mimir
+  pyroscope.yaml: |-
+    apiVersion: 1
+    datasources:
+    - name: Pyroscope
+      type: Grafana Pyroscope
+      access: proxy
+      editable: true
+      url: http://pyroscope:4040/
   prometheus.yaml: |-
     apiVersion: 1
     datasources:
