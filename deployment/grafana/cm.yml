@@ -51,10 +51,12 @@ data:
     apiVersion: 1
     datasources:
     - name: Pyroscope
-      type: pyroscope
+      type: grafana-pyroscope-datasource
       access: proxy
       editable: true
       url: http://pyroscope:4040/
+      jsonData:
+        minStep: '15s'
   prometheus.yaml: |-
     apiVersion: 1
     datasources:
