@@ -51,7 +51,7 @@ data:
     apiVersion: 1
     datasources:
     - name: Pyroscope
-      type: Grafana Pyroscope
+      type: pyroscope
       access: proxy
       editable: true
       url: http://pyroscope:4040/
