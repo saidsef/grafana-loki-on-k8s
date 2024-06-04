@@ -52,9 +52,9 @@ data:
       trace:
         backend: local
         block:
-          # There vParquet3 is a performance gain for TraceQL queries containing duration. it will also be a prerequisite for TraceQL structural operators
+          # There vParquet4 is a performance gain for TraceQL queries containing duration. it will also be a prerequisite for TraceQL structural operators
           # For full details: https://github.com/grafana/tempo/pull/2244
-          version: vParquet3
+          version: vParquet4
           v2_encoding: zstd
         local:
           path: /var/tempo/traces
