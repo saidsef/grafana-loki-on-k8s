@@ -93,7 +93,7 @@ data:
           severity: warning
         annotations:
           description: Sudden Drop In 200s
-          summary: Sudden drop in traffic for {{ $labels.host }}, method {{ $lables.method }} and status {{ $labels.status }}
+          summary: "Sudden drop in traffic for {{ $labels.host }}, method {{ $lables.method }} and status {{ $labels.status }}""
 
   alerts: |
     {}
