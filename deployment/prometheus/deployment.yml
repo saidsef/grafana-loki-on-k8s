@@ -33,10 +33,10 @@ spec:
             - '--storage.tsdb.path=/prometheus/data/'
             - '--web.console.libraries=/etc/prometheus/console_libraries'
             - '--web.console.templates=/etc/prometheus/consoles'
-            - '--enable-feature=otlp-write-receiver,promql-experimental-functions,new-service-discovery-manager'
+            - '--enable-feature=concurrent-rule-eval,otlp-write-receiver,promql-experimental-functions,new-service-discovery-manager,exemplar-storage,auto-gomaxprocs'
             - '--web.enable-remote-write-receiver'
-            - '--enable-feature=exemplar-storage'
             - '--web.enable-lifecycle'
+            - '--log.format=json'
           ports:
             - containerPort: 9090
               name: http
