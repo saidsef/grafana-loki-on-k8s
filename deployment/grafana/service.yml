@@ -9,6 +9,6 @@ spec:
   ports:
   - name: grafana
     port: 3000
-    targetPort: 3000
+    targetPort: http
   selector:
     app.kubernetes.io/name: grafana
