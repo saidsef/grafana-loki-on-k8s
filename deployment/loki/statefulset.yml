@@ -21,6 +21,7 @@ spec:
       annotations:
         prometheus.io/port: http-metrics
         prometheus.io/scrape: "true"
+        filter.by.port.name: "true"
     spec:
       automountServiceAccountToken: false
       securityContext:
