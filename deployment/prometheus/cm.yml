@@ -50,17 +50,18 @@ data:
         for: 5m
         labels:
           severity: warning
-    groups:
+
     - name: UpDown
       rules:
       - alert: InstanceDown
         annotations:
-          description: '{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 5 minutes.''
+          description: '{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 5 minutes.'
           summary: 'Instance {{ $labels.instance }} down'
         expr: up == 0
         for: 5m
         labels:
           severity: critical
+
     # - name: NginxController
     #   rules:
     #   - alert: NGINXConfigFailed
