@@ -50,6 +50,7 @@ data:
         for: 5m
         labels:
           severity: warning
+    groups:
     - name: UpDown
       rules:
       - alert: InstanceDown
