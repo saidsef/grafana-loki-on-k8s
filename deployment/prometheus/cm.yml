@@ -62,40 +62,40 @@ data:
         labels:
           severity: critical
 
-    # - name: NginxController
-    #   rules:
-    #   - alert: NGINXConfigFailed
-    #     annotations:
-    #       description: 'Bad ingress config - nginx config test failed'
-    #       summary: 'Uninstall the latest ingress changes to allow config reloads to resume'
-    #     expr: count(nginx_ingress_controller_config_last_reload_successful == 0) > 0
-    #     for: 1m
-    #     labels:
-    #       severity: critical
-    #   - alert: NGINXTooMany500s
-    #     annotations:
-    #       description: 'Too many 5XXs'
-    #       summary: 'More than 3% of all requests returned 5XX, this requires your attention'
-    #     expr: 100 * ( sum( nginx_ingress_controller_requests{status=~"5.+"} ) / sum(nginx_ingress_controller_requests) ) > 3
-    #     for: 1m
-    #     labels:
-    #       severity: warning
-    #   - alert: NGINXTooMany400s
-    #     annotations:
-    #       description: 'Too many 4XXs'
-    #       summary: 'More than 3% of all requests returned 4XX, this requires your attention'
-    #     expr: 100 * ( sum( nginx_ingress_controller_requests{status=~"4.+"} ) / sum(nginx_ingress_controller_requests) ) > 3
-    #     for: 1m
-    #     labels:
-    #       severity: warning
-    #   - alert: NGINXSuddenDrop200s
-    #     annotations:
-    #       description: 'Sudden Drop In 200s'
-    #       summary: 'Sudden drop in traffic for {{ $labels.host }}, method {{ $lables.method }} and status {{ $labels.status }}'
-    #     expr: increase(nginx_ingress_controller_requests{status=~"2.+"}[5m]) < (increase(nginx_ingress_controller_requests{status=~"2.+"}[10m]) * 0.5)
-    #     for: 1m
-    #     labels:
-    #       severity: warning
+    - name: NginxController
+      rules:
+      - alert: NGINXConfigFailed
+        annotations:
+          description: 'Bad ingress config - nginx config test failed'
+          summary: 'Uninstall the latest ingress changes to allow config reloads to resume'
+        expr: count(nginx_ingress_controller_config_last_reload_successful == 0) > 0
+        for: 1m
+        labels:
+          severity: critical
+      - alert: NGINXTooMany500s
+        annotations:
+          description: 'Too many 5XXs'
+          summary: 'More than 3% of all requests returned 5XX, this requires your attention'
+        expr: 100 * ( sum( nginx_ingress_controller_requests{status=~"5.+"} ) / sum(nginx_ingress_controller_requests) ) > 3
+        for: 1m
+        labels:
+          severity: warning
+      - alert: NGINXTooMany400s
+        annotations:
+          description: 'Too many 4XXs'
+          summary: 'More than 3% of all requests returned 4XX, this requires your attention'
+        expr: 100 * ( sum( nginx_ingress_controller_requests{status=~"4.+"} ) / sum(nginx_ingress_controller_requests) ) > 3
+        for: 1m
+        labels:
+          severity: warning
+      - alert: NGINXSuddenDrop200s
+        annotations:
+          description: 'Sudden Drop In 200s'
+          summary: 'Sudden drop in traffic for {{ $labels.host }}, method {{ $lables.method }} and status {{ $labels.status }}'
+        expr: increase(nginx_ingress_controller_requests{status=~"2.+"}[5m]) < (increase(nginx_ingress_controller_requests{status=~"2.+"}[10m]) * 0.5)
+        for: 1m
+        labels:
+          severity: warning
 
   alerts: |
     {}
