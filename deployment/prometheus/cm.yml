@@ -108,7 +108,7 @@ data:
       url: http://mimir/api/v1/push
     rule_files:
     - /etc/config/recording_rules.yml
-    - /etc/config/alerting_rules.yml
+    # - /etc/config/alerting_rules.yml
     - /etc/config/rules
     - /etc/config/alerts
     scrape_configs:
