@@ -91,7 +91,7 @@ data:
       - alert: NGINXSuddenDrop200s
         annotations:
           description: 'Sudden Drop In 200s'
-          summary: 'Sudden drop in traffic for {{ $labels.host }}, method {{ $lables.method }} and status {{ $labels.status }}'
+          summary: 'Sudden drop in traffic for {{ $labels.host }}, method {{ $labels.method }} and status {{ $labels.status }}'
         expr: increase(nginx_ingress_controller_requests{status=~"2.+"}[5m]) < (increase(nginx_ingress_controller_requests{status=~"2.+"}[10m]) * 0.5)
         for: 1m
         labels:
