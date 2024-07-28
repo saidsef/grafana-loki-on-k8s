@@ -28,6 +28,7 @@ spec:
         # - '-config.file=/conf/mimir.yaml'
         - '-activity-tracker.filepath=/data/metrics-activity.log'
         - '-blocks-storage.bucket-store.sync-dir=/tsdb-sync/'
+        - '-blocks-storage.storage-prefix=blocks'
         - '-blocks-storage.tsdb.dir=/tsdb/'
         - '-blocks-storage.tsdb.wal-compression-enabled=true'
         - '-common.storage.backend=filesystem'
@@ -41,6 +42,7 @@ spec:
         - '-ruler-storage.local.directory=/rules'
         - '-ruler.rule-path=/ruler'
         - '-store-gateway.sharding-ring.replication-factor=1'
+        - '-log.level=debug'
         image: grafana/mimir:2.13.0
         imagePullPolicy: IfNotPresent
         name: mimir
