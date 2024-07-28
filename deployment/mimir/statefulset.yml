@@ -37,7 +37,7 @@ spec:
         - '-querier.cardinality-analysis-enabled=true'
         - '-ruler-storage.backend=local'
         - '-ruler-storage.local.directory=/rules'
-        - '-ruler.rule-path=/rules'
+        - '-ruler.rule-path=/ruler'
         - '-store-gateway.sharding-ring.replication-factor=1'
         image: grafana/mimir:2.13.0
         imagePullPolicy: IfNotPresent
@@ -61,6 +61,8 @@ spec:
           mountPath: /data
         - name: rules
           mountPath: /rules
+        - name: ruler
+          mountPath: /ruler
         - name: tsdb
           mountPath: /tsdb
         - name: tsdb-sync
@@ -81,6 +83,9 @@ spec:
           emptyDir:
             sizeLimit: "2Gi"
         - name: rules
+          emptyDir:
+            sizeLimit: "1Gi"
+        - name: ruler
           emptyDir:
             sizeLimit: "1Gi"
         - name: tsdb
