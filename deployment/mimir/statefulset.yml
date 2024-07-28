@@ -26,6 +26,7 @@ spec:
       containers:
       - args:
         # - '-config.file=/conf/mimir.yaml'
+        - '-target=all,overrides-exporter'
         - '-activity-tracker.filepath=/data/metrics-activity.log'
         - '-auth.multitenancy-enabled=false'
         - '-auth.no-auth-tenant=anonymous'
