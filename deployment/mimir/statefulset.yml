@@ -44,12 +44,13 @@ spec:
         - '-distributor.remote-timeout=5s'
         - '-ingester.ring.replication-factor=1'
         - '-ingester.push-circuit-breaker.request-timeout=10s'
-        - '-log.level=debug'
+        - '-log.level=warn'
         - '-querier.cardinality-analysis-enabled=true'
         - '-ruler-storage.backend=local'
         - '-ruler-storage.local.directory=/rules'
         - '-ruler.rule-path=/ruler'
         - '-store-gateway.sharding-ring.replication-factor=1'
+        - '-ingester.out-of-order-time-window=5m'
         image: grafana/mimir:2.13.0
         imagePullPolicy: IfNotPresent
         name: mimir
