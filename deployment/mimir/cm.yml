@@ -41,6 +41,7 @@ data:
         out_of_order_time_window: 5m
         native_histograms_ingestion_enabled: true
         cardinality_analysis_enabled: true
+        compactor_blocks_retention_period: 15d
     multitenancy_enabled: false
     ruler:
         query_stats_enabled: true

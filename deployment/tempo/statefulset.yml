@@ -53,12 +53,12 @@ spec:
         - containerPort: 55678
           name: opencensus
         resources:
-          requests:
-            cpu: 100m
-            memory: "1Gi"
           limits:
             cpu: 100m
             memory: "1Gi"
+          requests:
+            cpu: 50m
+            memory: "512Mi"
         volumeMounts:
         - mountPath: /conf
           name: tempo-conf
