@@ -27,6 +27,8 @@ spec:
       - args:
         # - '-config.file=/conf/mimir.yaml'
         - '-activity-tracker.filepath=/data/metrics-activity.log'
+        - '-auth.multitenancy-enabled=false'
+        - '-auth.no-auth-tenant=anonymous'
         - '-blocks-storage.bucket-store.sync-dir=/tsdb-sync/'
         - '-blocks-storage.storage-prefix=blocks'
         - '-blocks-storage.tsdb.dir=/tsdb/'
@@ -38,12 +40,12 @@ spec:
         - '-compactor.data-dir=/compactor/'
         - '-compactor.deletion-delay=1h'
         - '-distributor.ha-tracker.enable-for-all-users=true'
+        - '-log.level=debug'
         - '-querier.cardinality-analysis-enabled=true'
         - '-ruler-storage.backend=local'
         - '-ruler-storage.local.directory=/rules'
         - '-ruler.rule-path=/ruler'
         - '-store-gateway.sharding-ring.replication-factor=1'
-        - '-log.level=debug'
         image: grafana/mimir:2.13.0
         imagePullPolicy: IfNotPresent
         name: mimir
