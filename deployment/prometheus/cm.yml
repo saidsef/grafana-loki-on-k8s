@@ -96,7 +96,16 @@ data:
         for: 1m
         labels:
           severity: warning
-
+    - name: JVM
+      rules:
+      - alert: JvmMemoryFillingUp
+        annotations:
+          description: 'JVM memory filling up (instance {{ $labels.instance }})'
+          summary: 'JVM memory is filling up (> 80%)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}'
+        expr: (sum by (app_kubernetes_io_name) (jvm_memory_bytes_used{area="heap"}) / sum by (app_kubernetes_io_name)(jvm_memory_bytes_max{area="heap"})) * 100 > 80
+        for: 1m
+        labels:
+          severity: critical
   alerts: |
     {}
   allow-snippet-annotations: 'false'
