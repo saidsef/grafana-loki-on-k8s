@@ -28,7 +28,8 @@ spec:
         # - '-config.file=/conf/mimir.yaml'
         - '-common.storage.backend=filesystem'
         - '-common.storage.filesystem.dir=/data'
-        # - '-ruler-storage.backend=local'
+        - '-ruler-storage.backend=local'
+        - '-ruler-storage.local.directory=/data-rules/rules'
         - '-blocks-storage.tsdb.wal-compression-enabled=true'
         image: grafana/mimir:2.13.0
         imagePullPolicy: IfNotPresent
@@ -50,6 +51,10 @@ spec:
           name: conf
         - name: storage
           mountPath: /data
+          subPath: data
+        - name: storage
+          mountPath: /data-rules
+          subPath: rules
         securityContext:
           allowPrivilegeEscalation: false
           privileged: false
