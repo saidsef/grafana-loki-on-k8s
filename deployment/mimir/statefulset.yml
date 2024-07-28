@@ -26,18 +26,18 @@ spec:
       containers:
       - args:
         # - '-config.file=/conf/mimir.yaml'
+        - '-activity-tracker.filepath=/data/metrics-activity.log'
+        - '-blocks-storage.bucket-store.sync-dir=/tsdb-sync/'
+        - '-blocks-storage.tsdb.dir=/tsdb/'
+        - '-blocks-storage.tsdb.wal-compression-enabled=true'
         - '-common.storage.backend=filesystem'
         - '-common.storage.filesystem.dir=/data'
-        - '-compactor.data-dir=/data/data-compactor/'
+        - '-compactor.blocks-retention-period=15d'
+        - '-compactor.data-dir=/compactor/'
+        - '-querier.cardinality-analysis-enabled=true'
         - '-ruler-storage.backend=local'
         - '-ruler-storage.local.directory=/rules'
-        - '-blocks-storage.tsdb.wal-compression-enabled=true'
-        - '-blocks-storage.tsdb.dir=/tsdb/'
-        - '-blocks-storage.bucket-store.sync-dir=/tsdb-sync/'
-        - '-compactor.blocks-retention-period=15d'
-        - '-activity-tracker.filepath=/data/metrics-activity.log'
         - '-store-gateway.sharding-ring.replication-factor=1'
-        - '-querier.cardinality-analysis-enabled=true'
         image: grafana/mimir:2.13.0
         imagePullPolicy: IfNotPresent
         name: mimir
@@ -64,6 +64,8 @@ spec:
           mountPath: /tsdb
         - name: tsdb-sync
           mountPath: /tsdb-sync
+        - name: compactor
+          mountPath: /compactor
         securityContext:
           allowPrivilegeEscalation: false
           privileged: false
@@ -84,6 +86,9 @@ spec:
           emptyDir:
             sizeLimit: "5Gi"
         - name: tsdb-sync
+          emptyDir:
+            sizeLimit: "1Gi"
+        - name: compactor
           emptyDir:
             sizeLimit: "1Gi"
         - configMap:
