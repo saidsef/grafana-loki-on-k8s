@@ -31,8 +31,8 @@ spec:
         - '-ruler-storage.backend=local'
         - '-ruler-storage.local.directory=/rules'
         - '-blocks-storage.tsdb.wal-compression-enabled=true'
-        - '-blocks-storage.tsdb.dir=/data/tsdb/'
-        - '-blocks-storage.bucket-store.sync-dir=/data/tsdb-sync/'
+        - '-blocks-storage.tsdb.dir=/tsdb/'
+        - '-blocks-storage.bucket-store.sync-dir=/tsdb-sync/'
         - '-compactor.blocks-retention-period=15d'
         - '-activity-tracker.filepath=/data/metrics-activity.log'
         - '-store-gateway.sharding-ring.replication-factor=1'
@@ -59,6 +59,10 @@ spec:
           mountPath: /data
         - name: rules
           mountPath: /rules
+        - name: tsdb
+          mountPath: /tsdb
+        - name: tsdb-sync
+          mountPath: /tsdb-sync
         securityContext:
           allowPrivilegeEscalation: false
           privileged: false
@@ -71,8 +75,14 @@ spec:
       volumes:
         - name: data
           emptyDir:
-            sizeLimit: "10Gi"
+            sizeLimit: "2Gi"
         - name: rules
+          emptyDir:
+            sizeLimit: "1Gi"
+        - name: tsdb
+          emptyDir:
+            sizeLimit: "5Gi"
+        - name: tsdb-sync
           emptyDir:
             sizeLimit: "1Gi"
         - configMap:
