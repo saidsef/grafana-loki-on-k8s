@@ -28,6 +28,7 @@ spec:
         # - '-config.file=/conf/mimir.yaml'
         - '-common.storage.backend=filesystem'
         - '-common.storage.filesystem.dir=/data'
+        - '-compactor.data-dir=/data/data-compactor/'
         - '-ruler-storage.backend=local'
         - '-ruler-storage.local.directory=/rules'
         - '-blocks-storage.tsdb.wal-compression-enabled=true'
