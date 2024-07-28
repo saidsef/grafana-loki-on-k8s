@@ -31,6 +31,7 @@ spec:
         - '-ruler-storage.backend=local'
         - '-ruler-storage.local.directory=/rules'
         - '-blocks-storage.tsdb.wal-compression-enabled=true'
+        - '-activity_tracker.filepath=/data/metrics-activity.log'
         image: grafana/mimir:2.13.0
         imagePullPolicy: IfNotPresent
         name: mimir
