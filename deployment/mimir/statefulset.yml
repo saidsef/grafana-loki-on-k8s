@@ -32,7 +32,7 @@ spec:
         - '-ruler-storage.local.directory=/rules'
         - '-blocks-storage.tsdb.wal-compression-enabled=true'
         - '-blocks-storage.tsdb.dir=/data/tsdb/'
-        - '-blocks-storage.storage-prefix.sync_dir=/data/tsdb-sync/'
+        - '-blocks-storage.bucket-store.sync-dir=/data/tsdb-sync/'
         - '-blocks-storage.tsdb.retention-period=15d'
         - '-activity-tracker.filepath=/data/metrics-activity.log'
         - '-store-gateway.sharding-ring.replication-factor=1'
