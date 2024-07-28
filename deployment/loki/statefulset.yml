@@ -49,6 +49,13 @@ spec:
             - name: http-metrics
               containerPort: 3100
               protocol: TCP
+          resources:
+            limits:
+              cpu: 100m
+              memory: "1Gi"
+            requests:
+              cpu: 50m
+              memory: "512Mi"
           livenessProbe:
             httpGet:
               path: /ready

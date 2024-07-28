@@ -50,12 +50,12 @@ spec:
               path: /-/ready
               port: http
           resources:
-            requests:
-              cpu: 100m
-              memory: 512Mi
             limits:
-              cpu: 200m
+              cpu: 100m
               memory: 1Gi
+            requests:
+              cpu: 50m
+              memory: 512Mi
           volumeMounts:
             - name: config-volume
               mountPath: /etc/prometheus
