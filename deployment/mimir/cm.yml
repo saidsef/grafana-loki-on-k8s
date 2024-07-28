@@ -17,16 +17,6 @@ data:
             path: /data/alarm
     api:
         enable_otel_metadata_translation: true
-    blocks_storage:
-        bucket_store:
-            sync_dir: /data/tsdb-sync/
-        tsdb:
-            dir: /data/tsdb/
-            wal_compression_enabled: true
-    common:
-        storage:
-            filesystem:
-                dir: /data/storage
     compactor:
         data_dir: /data/data-compactor/
     distributor:
