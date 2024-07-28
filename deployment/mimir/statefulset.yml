@@ -37,6 +37,7 @@ spec:
         - '-querier.cardinality-analysis-enabled=true'
         - '-ruler-storage.backend=local'
         - '-ruler-storage.local.directory=/rules'
+        - '-ruler.rule-path=/rules'
         - '-store-gateway.sharding-ring.replication-factor=1'
         image: grafana/mimir:2.13.0
         imagePullPolicy: IfNotPresent
