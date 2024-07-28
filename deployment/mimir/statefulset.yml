@@ -33,7 +33,7 @@ spec:
         - '-blocks-storage.tsdb.wal-compression-enabled=true'
         - '-blocks-storage.tsdb.dir=/data/tsdb/'
         - '-blocks-storage.bucket-store.sync-dir=/data/tsdb-sync/'
-        - '-blocks-storage.tsdb.retention-period=15d'
+        - '-compactor.blocks-retention-period=15d'
         - '-activity-tracker.filepath=/data/metrics-activity.log'
         - '-store-gateway.sharding-ring.replication-factor=1'
         - '-querier.cardinality-analysis-enabled=true'
