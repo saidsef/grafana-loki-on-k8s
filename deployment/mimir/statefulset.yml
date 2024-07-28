@@ -37,6 +37,7 @@ spec:
         - '-compactor.cleanup-interval=1h'
         - '-compactor.data-dir=/compactor/'
         - '-compactor.deletion-delay=1h'
+        - '-distributor.ha-tracker.enable-for-all-users=true'
         - '-querier.cardinality-analysis-enabled=true'
         - '-ruler-storage.backend=local'
         - '-ruler-storage.local.directory=/rules'
