@@ -27,8 +27,8 @@ spec:
       - args:
         # - '-config.file=/conf/mimir.yaml'
         - '-common.storage.backend=filesystem'
-        - '-common.storage.filesystem=/data'
-        - '-ruler-storage.backend=local'
+        - '-common.storage.filesystem.dir=/data'
+        # - '-ruler-storage.backend=local'
         - '-blocks-storage.tsdb.wal-compression-enabled=true'
         image: grafana/mimir:2.13.0
         imagePullPolicy: IfNotPresent
