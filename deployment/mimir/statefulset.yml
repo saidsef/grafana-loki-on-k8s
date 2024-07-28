@@ -29,7 +29,7 @@ spec:
         - '-common.storage.backend=filesystem'
         - '-common.storage.filesystem.dir=/data'
         - '-ruler-storage.backend=local'
-        - '-ruler-storage.local.directory=/data-rules/rules'
+        - '-ruler-storage.local.directory=/rules'
         - '-blocks-storage.tsdb.wal-compression-enabled=true'
         image: grafana/mimir:2.13.0
         imagePullPolicy: IfNotPresent
