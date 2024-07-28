@@ -31,7 +31,12 @@ spec:
         - '-ruler-storage.backend=local'
         - '-ruler-storage.local.directory=/rules'
         - '-blocks-storage.tsdb.wal-compression-enabled=true'
-        - '--activity-tracker.filepath=/data/metrics-activity.log'
+        - '-blocks-storage.tsdb.dir=/data/tsdb/'
+        - '-blocks-storage.storage-prefix.sync_dir=/data/tsdb-sync/'
+        - '-blocks-storage.tsdb.retention-period=15d'
+        - '-activity-tracker.filepath=/data/metrics-activity.log'
+        - '-store-gateway.sharding-ring.replication-factor=1'
+        - '-querier.cardinality-analysis-enabled=true'
         image: grafana/mimir:2.13.0
         imagePullPolicy: IfNotPresent
         name: mimir
