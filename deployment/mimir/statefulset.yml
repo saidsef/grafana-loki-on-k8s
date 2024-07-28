@@ -25,7 +25,11 @@ spec:
       automountServiceAccountToken: false
       containers:
       - args:
-        - -config.file=/conf/mimir.yaml
+        # - '-config.file=/conf/mimir.yaml'
+        - '-common.storage.backend=filesystem'
+        - '-ruler-storage.local.directory=/data/storage'
+        - '-ruler-storage.backend=local'
+        - '-blocks-storage.tsdb.wal-compression-enabled=true'
         image: grafana/mimir:2.13.0
         imagePullPolicy: IfNotPresent
         name: mimir
