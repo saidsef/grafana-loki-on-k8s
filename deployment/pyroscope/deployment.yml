@@ -1,0 +1,87 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pyroscope
+  labels:
+    app.kubernetes.io/name: pyroscope
+  annotations:
+    prometheus.io/port: http
+    prometheus.io/scrape: "true"
+spec:
+  revisionHistoryLimit: 1
+  replicas: 1
+  selector:
+    matchLabels:
+        app.kubernetes.io/name: pyroscope
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pyroscope
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: http
+    spec:
+      automountServiceAccountToken: false
+      serviceAccountName: pyroscope
+      securityContext:
+        runAsNonRoot: true
+        runAsGroup: 10001
+        runAsUser: 10001
+      containers:
+      - name: pyroscope
+        image: docker.io/grafana/pyroscope:1.10.0
+        imagePullPolicy: IfNotPresent
+        args:
+          - "-target=all"
+          - "-self-profiling.disable-push=true"
+          - "-server.http-listen-port=4040"
+          - "-memberlist.cluster-label=pyroscope"
+          - "-memberlist.join=dns+pyroscope:7946"
+          - "-config.file=/etc/pyroscope/config.yaml"
+          - "-runtime-config.file=/etc/pyroscope/overrides/overrides.yaml"
+          - "-log.level=info"
+        ports:
+        - name: http
+          containerPort: 4040
+          protocol: TCP
+        - name: memberlist
+          containerPort: 7946
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 100m
+            memory: "512Mi"
+          limits:
+            cpu: 200m
+            memory: "1Gi"
+        volumeMounts:
+          - name: config
+            mountPath: /etc/pyroscope/config.yaml
+            subPath: config.yaml
+          - name: config
+            mountPath: /etc/pyroscope/overrides/
+          - name: storage
+            mountPath: /data
+          - name: storage
+            mountPath: /data-compactor
+            subPath: data-compactor
+          - name: storage
+            mountPath: /data-shared
+            subPath: data-shared
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
+          readOnlyRootFilesystem: true
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+              - ALL
+      volumes:
+        - name: config
+          configMap:
+            name: config
+        - name: storage
+          emptyDir:
+            sizeLimit: "2Gi"

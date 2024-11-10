@@ -102,6 +102,8 @@ data:
           datasourceUid: Loki
         tracesToLogsV2:
           datasourceUid: Loki
+        tracesToProfiles:
+          datasourceUid: Pyroscope
         tracesToMetrics:
           datasourceUid: Prometheus
         serviceMap:
