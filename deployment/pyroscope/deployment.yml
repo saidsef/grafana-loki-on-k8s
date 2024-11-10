@@ -26,8 +26,8 @@ spec:
       serviceAccountName: pyroscope
       securityContext:
         runAsNonRoot: true
-        runAsGroup: 65534
-        runAsUser: 65534
+        runAsGroup: 10001
+        runAsUser: 10001
       containers:
       - name: pyroscope
         image: docker.io/grafana/pyroscope:1.10.0
