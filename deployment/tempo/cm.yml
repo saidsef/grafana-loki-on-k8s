@@ -7,7 +7,6 @@ metadata:
 data:
   tempo.yaml: |
     target: all
-    autocomplete_filtering_enabled: true
     multitenancy_enabled: false
     usage_report:
       reporting_enabled: true
