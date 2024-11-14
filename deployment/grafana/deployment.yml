@@ -33,7 +33,7 @@ spec:
             - /bin/sh
           args:
             - -c
-            - >-
+            - |
               which curl
           volumeMounts:
             - name: grafana-storage
@@ -81,6 +81,10 @@ spec:
           - name: datasources
             mountPath: /etc/grafana/provisioning/datasources/tempo.yaml
             subPath: tempo.yaml
+            readOnly: false
+          - name: datasources
+            mountPath: /etc/grafana/provisioning/datasources/pyroscope.yaml
+            subPath: pyroscope.yaml
             readOnly: false
         securityContext:
           allowPrivilegeEscalation: false
