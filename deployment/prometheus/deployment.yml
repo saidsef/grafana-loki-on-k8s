@@ -25,7 +25,7 @@ spec:
         runAsNonRoot: true
       containers:
         - name: prometheus
-          image: docker.io/prom/prometheus:v2.55.1
+          image: docker.io/prom/prometheus:v3.0.0
           imagePullPolicy: IfNotPresent
           args:
             - '--storage.tsdb.retention.time=15d'
@@ -35,9 +35,12 @@ spec:
             - '--web.console.templates=/etc/prometheus/consoles'
             - '--enable-feature=concurrent-rule-eval,promql-experimental-functions,new-service-discovery-manager,exemplar-storage,remote-write-receiver,promql-per-step-stats'
             - '--web.enable-remote-write-receiver'
+            - '--web.enable-otlp-receiver'
             - '--web.enable-lifecycle'
             - '--log.level=warn'
             - '--log.format=json'
+            - '--no-auto-gomaxprocs'
+            - '--no-auto-gomemlimit'
           ports:
             - containerPort: 9090
               name: http
