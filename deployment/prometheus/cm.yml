@@ -10,16 +10,9 @@ data:
     groups:
     - name: http_request_duration
       rules:
-      - record: job:request_duration_seconds:rate
+      - record: job:request_duration_seconds:sum_rate5m
         expr: |
-          sum(rate(hubble_http_request_duration_seconds_bucket{
-            cluster=~"${cluster}",
-            destination_namespace=~"${destination_namespace}",
-            destination_workload=~"${destination_workload}",
-            reporter="${reporter}",
-            source_namespace=~"${source_namespace}",
-            source_workload=~"${source_workload}"
-          }[5m])) by (cluster, destination_namespace, destination_workload, le)
+          sum(rate(hubble_http_request_duration_seconds_bucket{}[5m])) by (cluster, destination_namespace, destination_workload, le)
     - name: Memory
       rules:
       - alert: ContainerUsedMemoryPercent
