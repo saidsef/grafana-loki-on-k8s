@@ -20,8 +20,8 @@ spec:
       serviceAccountName: prometheus
       automountServiceAccountToken: true
       securityContext:
-        runAsGroup: 65534
-        runAsUser: 65534
+        runAsGroup: 10001
+        runAsUser: 10001
         runAsNonRoot: true
       containers:
         - name: prometheus
