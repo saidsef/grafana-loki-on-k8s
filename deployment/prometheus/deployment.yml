@@ -20,12 +20,12 @@ spec:
       serviceAccountName: prometheus
       automountServiceAccountToken: true
       securityContext:
-        runAsGroup: 65534
-        runAsUser: 65534
+        runAsGroup: 10001
+        runAsUser: 10001
         runAsNonRoot: true
       containers:
         - name: prometheus
-          image: docker.io/prom/prometheus:v3.0.0
+          image: docker.io/prom/prometheus:v3.0.1
           imagePullPolicy: IfNotPresent
           args:
             - '--storage.tsdb.retention.time=15d'
