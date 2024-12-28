@@ -52,7 +52,7 @@ spec:
         - '-store-gateway.sharding-ring.replication-factor=1'
         - '-ingester.out-of-order-time-window=5m'
         - '-blocks-storage.bucket-store.ignore-blocks-within=0s'
-        image: grafana/mimir:2.14.1
+        image: grafana/mimir:2.14.2
         imagePullPolicy: IfNotPresent
         name: mimir
         ports:
