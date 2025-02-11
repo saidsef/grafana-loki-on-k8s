@@ -18,7 +18,9 @@ data:
         - '::'
       abort_if_cluster_join_fails: false
     metrics_generator:
-      processors:
+      processor:
+        local_blocks:
+          filter_server_spans: false
         service_graphs:
           enable_client_server_prefix: true
           enable_virtual_node_label: true
@@ -73,6 +75,7 @@ data:
         frontend_address: 0.0.0.0:9095
     query_frontend: {}
     overrides:
+      metrics_generator_processors: ['local-blocks']
       user_configurable_overrides:
         api:
           check_for_conflicting_runtime_overrides: true
