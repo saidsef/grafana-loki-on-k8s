@@ -102,8 +102,8 @@ data:
           datasourceUid: Loki
         tracesToLogsV2:
           datasourceUid: Loki
-          spanStartTimeShift: '-1h'
-          spanEndTimeShift: '1h'
+          spanStartTimeShift: '-15m'
+          spanEndTimeShift: '15m'
           filterByTraceID: true
         tracesToProfiles:
           datasourceUid: Pyroscope
