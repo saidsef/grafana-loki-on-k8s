@@ -68,7 +68,7 @@ data:
       url: http://prometheus-server
       jsonData:
         exemplarTraceIdDestinations:
-        - name: traceID
+        - name: trace_id
           datasourceUid: Tempo
         manageAlerts: true
         prometheusType: Prometheus
@@ -102,6 +102,9 @@ data:
           datasourceUid: Loki
         tracesToLogsV2:
           datasourceUid: Loki
+          spanStartTimeShift: '-15m'
+          spanEndTimeShift: '15m'
+          filterByTraceID: true
         tracesToProfiles:
           datasourceUid: Pyroscope
         tracesToMetrics:

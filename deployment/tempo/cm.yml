@@ -75,7 +75,10 @@ data:
         frontend_address: 0.0.0.0:9095
     query_frontend: {}
     overrides:
-      metrics_generator_processors: ['local-blocks']
+      defaults:
+        metrics_generator:
+          processors: [service-graphs, span-metrics] # local-blocks
+          generate_native_histograms: both
       user_configurable_overrides:
         api:
           check_for_conflicting_runtime_overrides: true
