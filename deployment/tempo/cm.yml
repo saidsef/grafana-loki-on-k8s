@@ -24,8 +24,8 @@ data:
         service_graphs:
           enable_client_server_prefix: true
           enable_virtual_node_label: true
-      span_metrics:
-        enable_target_info: true
+        span_metrics:
+          enable_target_info: true
       storage:
         path: /var/tempo/generator/wal
         remote_write:
