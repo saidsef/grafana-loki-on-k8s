@@ -30,10 +30,12 @@ spec:
         runAsUser: 10001
       containers:
         - name: loki
-          image: docker.io/grafana/loki:3.4.2
+          image: docker.io/grafana/loki:3.4.3
           imagePullPolicy: IfNotPresent
           args:
             - "-config.file=/etc/loki/loki.yaml"
+            - "-pattern-ingester.enabled=true"
+            - "-tracing.profiling-enabled=true"
           volumeMounts:
             - name: config
               mountPath: "/etc/loki"
