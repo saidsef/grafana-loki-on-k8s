@@ -51,21 +51,21 @@ spec:
               protocol: TCP
           resources:
             limits:
-              cpu: 100m
+              cpu: 150m
               memory: "1Gi"
             requests:
-              cpu: 50m
-              memory: "512Mi"
+              cpu: 100m
+              memory: "1Gi"
           livenessProbe:
             httpGet:
               path: /ready
               port: http-metrics
-            initialDelaySeconds: 45
+            initialDelaySeconds: 60
           readinessProbe:
             httpGet:
               path: /ready
               port: http-metrics
-            initialDelaySeconds: 45
+            initialDelaySeconds: 60
           securityContext:
             allowPrivilegeEscalation: false
             privileged: false

@@ -6,28 +6,20 @@ metadata:
     app.kubernetes.io/name: loki
 data:
   loki.yaml: |
-    target: all
     auth_enabled: false
     ingester:
       chunk_block_size: 262144
       chunk_idle_period: 3m
       chunk_retain_period: 1m
-      # lifecycler:
-      #   ring:
-      #     kvstore:
-      #       store: inmemory
-      #     replication_factor: 1
+      lifecycler:
+        ring:
+          kvstore:
+            store: inmemory
+          replication_factor: 1
     limits_config:
       reject_old_samples: true
       reject_old_samples_max_age: 168h
       allow_structured_metadata: false
-      volume_enabled: true
-    pattern_ingester:
-      enabled: true
-      # lifecycler:
-      #   ring:
-      #     kvstore:
-      #       store: inmemory
     schema_config:
       configs:
       - from: "2020-05-15"
@@ -41,10 +33,6 @@ data:
       http_listen_port: 3100
     common:
       path_prefix: /data
-      ring:
-        kvstore:
-          store: inmemory
-      replication_factor: 1
       storage:
         filesystem:
           chunks_directory: /data/chunks
@@ -57,9 +45,3 @@ data:
     table_manager:
       retention_deletes_enabled: true
       retention_period: 24h
-    # query_scheduler:
-    #   use_scheduler_ring: true
-    #   max_outstanding_requests_per_tenant: 1000
-    #   scheduler_ring:
-    #     kvstore:
-    #       store: inmemory
