@@ -34,8 +34,6 @@ spec:
           imagePullPolicy: IfNotPresent
           args:
             - "-config.file=/etc/loki/loki.yaml"
-            # - "-pattern-ingester.enabled=true"
-            # - "-tracing.profiling-enabled=true"
           volumeMounts:
             - name: config
               mountPath: "/etc/loki"
