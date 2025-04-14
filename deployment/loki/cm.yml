@@ -49,3 +49,7 @@ data:
     table_manager:
       retention_deletes_enabled: true
       retention_period: 24h
+    query_scheduler:
+      max_concurrent: 10
+      max_outstanding_per_tenant: 1000
+      max_outstanding_per_query: 1000
