@@ -33,6 +33,10 @@ data:
       http_listen_port: 3100
     common:
       path_prefix: /data
+      ring:
+        kvstore:
+          store: inmemory
+      replication_factor: 1
       storage:
         filesystem:
           chunks_directory: /data/chunks
