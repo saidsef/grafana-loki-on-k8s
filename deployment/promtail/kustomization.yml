@@ -6,9 +6,3 @@ resources:
 - daemonset.yml
 - cm.yml
 - rbac.yml
-
-labels:
-- includeSelectors: true
-  pairs:
-    app.kubernetes.io/created-by: kustomizer
-    app.kubernetes.io/name: promtail

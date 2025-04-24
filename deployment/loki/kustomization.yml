@@ -5,9 +5,3 @@ resources:
 - cm.yml
 - service.yml
 - statefulset.yml
-
-labels:
-- includeSelectors: true
-  pairs:
-    app.kubernetes.io/created-by: kustomizer
-    app.kubernetes.io/name: loki

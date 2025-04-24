@@ -5,9 +5,3 @@ resources:
 - cm.yml
 - deployment.yml
 - service.yml
-
-labels:
-- includeSelectors: true
-  pairs:
-    app.kubernetes.io/created-by: kustomizer
-    app.kubernetes.io/name: grafana

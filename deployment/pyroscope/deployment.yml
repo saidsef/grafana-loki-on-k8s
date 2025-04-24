@@ -45,6 +45,9 @@ spec:
         - name: http
           containerPort: 4040
           protocol: TCP
+        - name: grpc
+          containerPort: 9095
+          protocol: TCP
         - name: memberlist
           containerPort: 7946
           protocol: TCP

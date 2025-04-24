@@ -8,9 +8,3 @@ resources:
 - rbac.yml
 - service.yml
 - secret.yml
-
-labels:
-- includeSelectors: true
-  pairs:
-    app.kubernetes.io/created-by: kustomizer
-    app.kubernetes.io/name: prometheus
