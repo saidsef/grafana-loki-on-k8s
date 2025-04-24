@@ -77,7 +77,7 @@ data:
     overrides:
       defaults:
         metrics_generator:
-          processors: [service-graphs, span-metrics] # local-blocks
+          processors: [service-graphs, span-metrics, local-blocks]
           generate_native_histograms: both
       user_configurable_overrides:
         api:
