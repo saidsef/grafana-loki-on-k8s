@@ -15,6 +15,9 @@ spec:
     metadata:
       annotations:
         kubectl.kubernetes.io/default-container: alloy
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "12345"
+        filter.by.port.name: "true"
       labels:
         app.kubernetes.io/name: alloy
     spec:
@@ -30,6 +33,7 @@ spec:
             - --server.http.listen-addr=0.0.0.0:12345
             - --server.http.ui-path-prefix=/
             - --stability.level=generally-available
+            - --feature.community-components.enabled
           env:
             - name: ALLOY_DEPLOY_MODE
               value: "helm"
@@ -39,7 +43,7 @@ spec:
                   fieldPath: spec.nodeName
           ports:
             - containerPort: 12345
-              name: http-metrics
+              name: metrics
           readinessProbe:
             httpGet:
               path: /-/ready
