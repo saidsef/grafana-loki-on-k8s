@@ -10,6 +10,8 @@
 
 [Pyroscope](https://grafana.com/docs/pyroscope/latest/) is a multi-tenant, continuous profiling aggregation system, aligning its architectural design with Grafana Mimir, Grafana Loki, and Grafana Tempo. This integration enables a cohesive correlation of profiling data with existing metrics, logs, and traces.
 
+[Alloy](https://grafana.com/docs/alloy/latest/introduction/) is a flexible, high performance, vendor-neutral distribution of the OpenTelemetry Collector. It’s fully compatible with the most popular open source observability standards such as OpenTelemetry and Prometheus.
+
 I am assuming you are already familiar with [Grafana](https://grafana.com/oss/grafana/) and [Prometheus](https://prometheus.io/docs/prometheus/latest/getting_started/)
 
 ## Prerequisites
@@ -17,6 +19,48 @@ I am assuming you are already familiar with [Grafana](https://grafana.com/oss/gr
 - Familiarity with Grafana, Prometheus, Loki, Promtail, Tempo and Mimir
 - ...
 - Profit?
+
+## Architecture Diagram
+
++--------------------------------------------------------------------------------+
+|                                Visualization                                   |
+|                              +----------------+                                |
+|                              |    Grafana    |                                 |
+|                              +----------------+                                |
+|                                ▲    ▲    ▲                                     |
+|                                |    |    |                                     |
++---------------------+---------+-----+---+-------------+-----------------------+|
+|                     |         |         |             |                       ||
+|               +-----+-----+   |    +----+-----+  +----+------+    +---------+ ||
+|               |   Mimir   |   |    |   Loki   |  |  Tempo    |    |Pyroscope| ||
+|               |  Metrics  |   |    |   Logs   |  |  Traces   |    |Profiles | ||
+|               +-----+-----+   |    +----+-----+  +----+------+    +----+----+ ||
+|                     ▲         |        ▲            ▲                ▲        ||
+|                     |         |        |            |                |        ||
+|               +-----+-----+   |   +----+-----+      |                |        ||
+|               |Prometheus |   |   | Promtail |      |                |        ||
+|               +-----------+   |   +----------+      |                |        ||
+|                    ▲          |      ▲              |                |        ||
+|                    |          |      |              |                |        ||
++--------------------|----------|------|--------------|----------------|--------+|
+|                    |          |      |              |                |         |
+|              +-----+----------+------+--------------+----------------+-----+   |
+|              |                  Grafana Alloy                              |   |
+|              |        (Telemetry Collection & Processing)                  |   |
+|              +-------------------------------------------------------------+   |
+|                                       ▲                                        |
+|                                       |                                        |
+|                            +-----------------+                                 |
+|                            | Application(s)  |                                 |
+|                            |    Pod(s)       |                                 |
+|                            +-----------------+                                 |
+|                                                                                |
+|                              Kubernetes Cluster                                |
++--------------------------------------------------------------------------------+
+
+Legend: → Data Flow ▲ Query/Response Flow
+
+
 
 ## Deployment
 

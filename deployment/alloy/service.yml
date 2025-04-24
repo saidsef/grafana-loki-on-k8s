@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alloy
+  labels:
+    app.kubernetes.io/name: alloy
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: alloy
+  internalTrafficPolicy: Cluster
+  ports:
+    - name: metrics
+      port: 12345
+      targetPort: 12345
+      protocol: TCP
