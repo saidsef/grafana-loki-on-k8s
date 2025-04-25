@@ -22,8 +22,9 @@ I am assuming you are already familiar with [Grafana](https://grafana.com/oss/gr
 
 ## Architecture Diagram
 
+```ascii
 +--------------------------------------------------------------------------------+
-|                                Visualization                                   |
+|                                Visualisation                                   |
 |                              +----------------+                                |
 |                              |    Grafana    |                                 |
 |                              +----------------+                                |
@@ -59,8 +60,7 @@ I am assuming you are already familiar with [Grafana](https://grafana.com/oss/gr
 +--------------------------------------------------------------------------------+
 
 Legend: → Data Flow ▲ Query/Response Flow
-
-
+```
 
 ## Deployment
 
