@@ -55,10 +55,10 @@ spec:
         resources:
           limits:
             cpu: 100m
-            memory: "1Gi"
+            memory: "2Gi"
           requests:
             cpu: 50m
-            memory: "512Mi"
+            memory: "1Gi"
         volumeMounts:
         - mountPath: /conf
           name: tempo-conf
