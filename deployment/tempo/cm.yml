@@ -9,10 +9,13 @@ data:
     target: all
     multitenancy_enabled: false
     usage_report:
-      reporting_enabled: true
+      reporting_enabled: false
     compactor:
       compaction:
-        block_retention: 24h0m0s
+        block_retention: 24h
+        compacted_block_retention: 1h
+        compaction_cycle: 120s
+        compaction_window: 1h
     memberlist:
       bind_addr:
         - '::'
@@ -20,17 +23,24 @@ data:
     metrics_generator:
       processor:
         local_blocks:
-          filter_server_spans: false
+          filter_server_spans: true
+          flush_to_storage: true
         service_graphs:
           enable_client_server_prefix: true
           enable_virtual_node_label: true
+          enable_messaging_system_latency_histogram: true
         span_metrics:
           enable_target_info: true
+      traces_storage:
+        path: /var/tempo/generator/traces
       storage:
         path: /var/tempo/generator/wal
         remote_write:
-          - url: http://prometheus/api/v1/write
+          - url: http://prometheus-server/api/v1/write
             send_exemplars: true
+          - url: http://mimir/api/v1/write
+            send_native_histograms: true
+            name: mimir
     distributor:
       receivers:
         jaeger:
@@ -49,24 +59,22 @@ data:
               endpoint: 0.0.0.0:4317
             http:
               endpoint: 0.0.0.0:4318
-        zipkin: {}
-        opencensus: {}
-        kafka: {}
-    ingester: {}
     server:
+      grpc_listen_address: '0.0.0.0'
+      grpc_listen_port: 9095
+      http_listen_address: '0.0.0.0'
       http_listen_port: 3100
     storage:
       trace:
+        # redis:
+        #   endpoint: redis.storage.svc
+        #   expiration: 2
         backend: local
         block:
-          # There vParquet4 is a performance gain for TraceQL queries containing duration. it will also be a prerequisite for TraceQL structural operators
-          # For full details: https://github.com/grafana/tempo/pull/2244
           version: vParquet4
-          v2_encoding: zstd
         local:
           path: /var/tempo/traces
         wal:
-          v2_encoding: snappy
           search_encoding: snappy
           path: /var/tempo/wal
     querier:
