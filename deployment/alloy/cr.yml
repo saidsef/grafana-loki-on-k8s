@@ -18,17 +18,11 @@ rules:
       - nodes/proxy
       - nodes/metrics
       - pods
-      - services
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - pods
       - pods/log
+      - services
       - namespaces
+      - events
+      - configmaps
     verbs:
       - get
       - list
@@ -41,19 +35,10 @@ rules:
       - get
       - list
       - watch
-  - apiGroups: ["monitoring.coreos.com"]
+  - apiGroups: 
+      - "monitoring.coreos.com"
     resources:
       - prometheusrules
-    verbs:
-      - get
-      - list
-      - watch
-  - nonResourceURLs:
-      - /metrics
-    verbs:
-      - get
-  - apiGroups: ["monitoring.coreos.com"]
-    resources:
       - podmonitors
       - servicemonitors
       - probes
@@ -62,25 +47,16 @@ rules:
       - get
       - list
       - watch
-  - apiGroups:
-      - ""
+  - apiGroups: 
+      - "apps"
+      - "extensions"
     resources:
-      - events
+      - replicasets
     verbs:
       - get
       - list
       - watch
-  - apiGroups: [""]
-    resources:
-      - "configmaps"
-      - "secrets"
+  - nonResourceURLs:
+      - /metrics
     verbs:
       - get
-      - list
-      - watch
-  - apiGroups: ["apps"]
-    resources: ["replicasets"]
-    verbs: ["get", "list", "watch"]
-  - apiGroups: ["extensions"]
-    resources: ["replicasets"]
-    verbs: ["get", "list", "watch"]
