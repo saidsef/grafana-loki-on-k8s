@@ -7,13 +7,49 @@ metadata:
     app.kubernetes.io/name: alloy
 data:
   config.alloy: |-
+    livedebugging {
+      enabled = true
+    }
+
     logging {
-    	level  = "info"
-    	format = "logfmt"
+    	level  = "warn"
+    	format = "json"
+    }
+
+    discovery.process "all" {
+      join = discovery.kubernetes.pods.targets
+      refresh_interval = "60s"
+      discover_config {
+        cwd = true
+        exe = true
+        commandline = true
+        username = true
+        uid = true
+        cgroup_path = true
+        container_id = true
+      }
+    }
+
+    discovery.kubelet "pods" {
+      url  = string.format("https://%s:10250", sys.env("NODE_IP"))
+      bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+      // this is a local node, so we can skip TLS verification
+      tls_config {
+        insecure_skip_verify = true
+      }
     }
     
     discovery.kubernetes "pods" {
     	role = "pod"
+    }
+
+    discovery.relabel "all_targets_with_address" {
+      targets = array.concat(discovery.kubelet.pods.targets, discovery.kubernetes.pods.targets, discovery.kubernetes.nodes.targets, discovery.kubernetes.services.targets, discovery.kubernetes.endpointslices.targets, discovery.kubernetes.ingresses.targets, discovery.process.all.targets)
+      rule {
+        source_labels = ["__address__"]
+        regex        = ".+"
+        action       = "keep"
+      }
     }
     
     discovery.kubernetes "nodes" {
@@ -24,14 +60,90 @@ data:
     	role = "service"
     }
     
-    discovery.kubernetes "endpoints" {
-    	role = "endpoints"
-    }
-    
     discovery.kubernetes "endpointslices" {
     	role = "endpointslice"
     }
     
     discovery.kubernetes "ingresses" {
     	role = "ingress"
+    }
+
+    loki.write "loki" {
+      endpoint {
+        url = "http://loki:3100/loki/api/v1/push"
+      }
+    }
+
+    loki.source.kubernetes_events "cluster" {
+      forward_to = [loki.write.loki.receiver]
+    }
+
+    loki.source.podlogs "default" {
+      forward_to = [loki.write.loki.receiver]
+    }
+
+    loki.source.syslog "local" {
+      listener {
+        address  = "0.0.0.0:51893"
+        labels   = { component = "loki.source.syslog", protocol = "tcp" }
+      }
+
+      listener {
+        address  = "0.0.0.0:51898"
+        protocol = "udp"
+        labels   = { component = "loki.source.syslog", protocol = "udp"}
+      }
+
+      forward_to = [loki.write.loki.receiver]
+    }
+
+    prometheus.exporter.statsd "statsd" {}
+    prometheus.exporter.self "self" {}
+
+    prometheus.remote_write "prometheus" {
+      endpoint {
+        url = "http://prometheus-server/api/v1/write"
+      }
+    }
+
+    prometheus.remote_write "mimir" {
+      endpoint {
+        url = "http://mimir/api/v1/write"
+      }
+    }
+
+    prometheus.scrape "default" {
+      targets    = discovery.relabel.all_targets_with_address.output
+      forward_to = [prometheus.remote_write.prometheus.receiver, prometheus.remote_write.mimir.receiver]
+      extra_metrics = true
+    }
+
+    // Enable only if Pyroscope is deployed
+    // pyroscope.scrape "default" {
+    //   targets    = discovery.kubernetes.pods.targets
+    //   forward_to = [pyroscope.write.pyroscope.receiver]
+    // }
+
+    pyroscope.write "pyroscope" {
+      endpoint {
+        url = "http://pyroscope:4040"
+      }
+    }
+
+    otelcol.exporter.otlp "tempo" {
+      client {
+        endpoint = "tempo:4317"
+        tls {
+          insecure             = true
+          insecure_skip_verify = true
+        }
+      }
+    }
+
+    otelcol.processor.discovery "default" {
+      targets = array.concat(discovery.kubelet.pods.targets, discovery.kubernetes.nodes.targets)
+
+      output {
+        traces = [otelcol.exporter.otlp.tempo.input]
+      }
     }
