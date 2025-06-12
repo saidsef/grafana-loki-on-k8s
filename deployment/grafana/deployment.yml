@@ -104,4 +104,4 @@ spec:
             name: datasources
         - name: grafana-storage
           emptyDir:
-            sizeLimit: "1Gi"
+            sizeLimit: "2Gi"
