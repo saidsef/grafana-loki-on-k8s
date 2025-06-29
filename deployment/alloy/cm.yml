@@ -76,6 +76,15 @@ data:
 
     loki.source.kubernetes "pods" {
       targets    = discovery.kubernetes.pods.targets
+      forward_to = [loki.process.add_replay_label.receiver]
+    }
+
+    loki.process "add_replay_label" {
+      stage.static_labels {
+        values = {
+          replay = "true",
+        }
+      }
       forward_to = [loki.write.loki.receiver]
     }
 
