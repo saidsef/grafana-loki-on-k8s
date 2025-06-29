@@ -74,6 +74,11 @@ data:
       }
     }
 
+    loki.source.kubernetes "pods" {
+      targets    = discovery.kubernetes.pods.targets
+      forward_to = [loki.write.loki.receiver]
+    }
+
     loki.source.kubernetes_events "cluster" {
       forward_to = [loki.write.loki.receiver]
     }
