@@ -67,6 +67,8 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /etc/alloy
+            - name: tmp
+              mountPath: /tmp/alloy
         - name: config-reloader
           image: quay.io/prometheus-operator/prometheus-config-reloader:v0.81.0
           args:
@@ -84,3 +86,6 @@ spec:
         - name: config
           configMap:
             name: alloy
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi
