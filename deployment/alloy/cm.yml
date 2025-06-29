@@ -152,6 +152,11 @@ data:
       }
     }
 
+    pyroscope.ebpf "pods" {
+      forward_to = [ pyroscope.write.pyroscope.receiver ]
+      targets = discovery.relabel.pod_logs.output
+    }
+
     otelcol.exporter.otlp "tempo" {
       client {
         endpoint = "tempo:4317"
