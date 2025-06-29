@@ -43,6 +43,14 @@ data:
     	role = "pod"
     }
 
+    discovery.relabel "pod_logs" {
+      targets = discovery.kubelet.pods.targets
+      rule {
+        action = "labelmap"
+        regex  = "__meta_kubernetes_pod_label_(.+)"
+      }
+    }
+
     discovery.relabel "all_targets_with_address" {
       targets = array.concat(discovery.kubelet.pods.targets, discovery.kubernetes.pods.targets, discovery.kubernetes.nodes.targets, discovery.kubernetes.services.targets, discovery.kubernetes.endpointslices.targets, discovery.kubernetes.ingresses.targets, discovery.process.all.targets)
       rule {
@@ -72,6 +80,20 @@ data:
       endpoint {
         url = "http://loki:3100/loki/api/v1/push"
       }
+    }
+
+    loki.source.kubernetes "pods" {
+      targets    = discovery.relabel.pod_logs.output
+      forward_to = [loki.process.add_replay_label.receiver]
+    }
+
+    loki.process "add_replay_label" {
+      stage.static_labels {
+        values = {
+          replay = "true",
+        }
+      }
+      forward_to = [loki.write.loki.receiver]
     }
 
     loki.source.kubernetes_events "cluster" {
