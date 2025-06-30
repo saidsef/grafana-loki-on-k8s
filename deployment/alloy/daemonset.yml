@@ -55,9 +55,20 @@ spec:
               scheme: HTTP
             initialDelaySeconds: 10
             timeoutSeconds: 1
+          securityContext:
+            privileged: true
+            readOnlyRootFilesystem: true
+            runAsUser: 0
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
           volumeMounts:
             - name: config
               mountPath: /etc/alloy
+            - name: tmp
+              mountPath: /tmp/alloy
         - name: config-reloader
           image: quay.io/prometheus-operator/prometheus-config-reloader:v0.81.0
           args:
@@ -75,3 +86,6 @@ spec:
         - name: config
           configMap:
             name: alloy
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi
