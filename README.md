@@ -26,43 +26,91 @@ I am assuming you are already familiar with [Grafana](https://grafana.com/oss/gr
 ## Architecture Diagram
 
 ```ascii
-+--------------------------------------------------------------------------------+
-|                                Visualisation                                   |
-|                              +----------------+                                |
-|                              |    Grafana    |                                 |
-|                              +----------------+                                |
-|                                ▲    ▲    ▲                                     |
-|                                |    |    |                                     |
-+---------------------+---------+-----+---+-------------+-----------------------+|
-|                     |         |         |             |                       ||
-|               +-----+-----+   |    +----+-----+  +----+------+    +---------+ ||
-|               |   Mimir   |   |    |   Loki   |  |  Tempo    |    |Pyroscope| ||
-|               |  Metrics  |   |    |   Logs   |  |  Traces   |    |Profiles | ||
-|               +-----+-----+   |    +----+-----+  +----+------+    +----+----+ ||
-|                     ▲         |        ▲            ▲                ▲        ||
-|                     |         |        |            |                |        ||
-|               +-----+-----+   |   +----+-----+      |                |        ||
-|               |Prometheus |   |   | Promtail |      |                |        ||
-|               +-----------+   |   +----------+      |                |        ||
-|                    ▲          |      ▲              |                |        ||
-|                    |          |      |              |                |        ||
-+--------------------|----------|------|--------------|----------------|--------+|
-|                    |          |      |              |                |         |
-|              +-----+----------+------+--------------+----------------+-----+   |
-|              |                  Grafana Alloy                              |   |
-|              |        (Telemetry Collection & Processing)                  |   |
-|              +-------------------------------------------------------------+   |
-|                                       ▲                                        |
-|                                       |                                        |
-|                            +-----------------+                                 |
-|                            | Application(s)  |                                 |
-|                            |    Pod(s)       |                                 |
-|                            +-----------------+                                 |
-|                                                                                |
-|                              Kubernetes Cluster                                |
-+--------------------------------------------------------------------------------+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           GRAFANA DASHBOARD                                 │
+│  ┌─────────────────────────────────────────────────────────────────────────┐│
+│  │                         UNIFIED VISUALIZATION                           ││
+│  │  📊 Metrics  📝 Logs  🔗 Traces  🔥 Profiles  🚨 Alerts  📈 Dashboards    ││
+│  └─────────────────────────────────────────────────────────────────────────┘│
+└─────────────────────────────────┬───────────────────────────────────────────┘
+                                  │ Query APIs
+                                  ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          DATA SOURCE BACKENDS                               │
+│                                                                             │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐         │
+│  │ PROMETHEUS  │  │    MIMIR    │  │    LOKI     │  │    TEMPO    │         │
+│  │             │  │             │  │             │  │             │         │
+│  │ PromQL API  │  │ PromQL API  │  │ LogQL API   │  │ TraceQL API │         │
+│  │ /api/v1/    │  │ /api/v1/    │  │ /loki/api/  │  │ /api/v2/    │         │
+│  │             │◄─┤             │◄─┤             │◄─┤             │         │
+│  │ Short-term  │  │ Long-term   │  │ Log Aggr.   │  │ Distributed │         │
+│  │ Metrics     │  │ Metrics     │  │ & Search    │  │ Tracing     │         │
+│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘         │
+│                                                                             │
+│                           ┌─────────────┐                                   │
+│                           │ PYROSCOPE   │                                   │
+│                           │             │                                   │
+│                           │ Pprof API   │◄─────────────────────────────────-┤
+│                           │ /api/v1/    │                                   │
+│                           │             │                                   │
+│                           │ Continuous  │                                   │
+│                           │ Profiling   │                                   │
+│                           └─────────────┘                                   │
+└─────────────────────────────┬───────────────────────────────────────────────┘
+                              │ Data Collection
+                              ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                       TELEMETRY AGGREGATION                                 │
+│                    ┌─────────────────────────────────┐                      │
+│                    │         GRAFANA ALLOY           │                      │
+│                    │                                 │                      │
+│                    │ • OTEL Receiver (4317/4318)     │                      │
+│                    │ • Prometheus Scraper (9090)     │                      │
+│                    │ • Log Processor & Router        │                      │
+│                    │ • Trace Processor & Exporter    │                      │
+│                    │ • Profile Collector & Forwarder │                      │
+│                    └─────────────┬───────────────────┘                      │
+└──────────────────────────────────┼──────────────────────────────────────────┘
+                                   │ Telemetry Collection
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           KUBERNETES CLUSTER                                │
+│                                                                             │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐         │
+│  │ APPLICATION │  │ APPLICATION │  │ APPLICATION │  │OBSERVABILITY│         │
+│  │   POD A     │  │   POD B     │  │   POD C     │  │  SERVICES   │         │
+│  │             │  │             │  │             │  │             │         │
+│  │ /metrics    │  │ /metrics    │  │ /metrics    │  │ ConfigMaps  │         │
+│  │ stdout logs │  │ stdout logs │  │ stdout logs │  │ Services    │         │
+│  │ OTEL traces │  │ OTEL traces │  │ OTEL traces │  │ Ingress     │         │
+│  │ pprof/:6060 │  │ pprof/:6060 │  │ pprof/:6060 │  │ RBAC        │         │
+│  │             │  │             │  │             │  │ Secrets     │         │
+│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘         │
+└─────────────────────────────────────────────────────────────────────────────┘
 
-Legend: → Data Flow ▲ Query/Response Flow
+VISUALIZATION QUERIES:
+======================
+📊 Metrics Query:   Grafana → PromQL → Prometheus/Mimir
+📝 Logs Query:      Grafana → LogQL  → Loki
+🔗 Traces Query:    Grafana → TraceQL→ Tempo  
+🔥 Profiles Query:  Grafana → Pprof  → Pyroscope
+
+DATA COLLECTION FLOW:
+=====================
+Applications → Grafana Alloy / Promtail → Storage Backends → Grafana Dashboards
+
+GRAFANA DATASOURCES:
+====================
+┌─────────────────┬─────────────────┬──────────────────────────────────────┐
+│ DATASOURCE      │ QUERY LANGUAGE  │ ENDPOINT                             │
+├─────────────────┼─────────────────┼──────────────────────────────────────┤
+│ Prometheus      │ PromQL          │ http://prometheus-server:9090        │
+│ Mimir           │ PromQL          │ http://mimir:8080/prometheus         │
+│ Loki            │ LogQL           │ http://loki:3100                     │
+│ Tempo           │ TraceQL         │ http://tempo:3200                    │
+│ Pyroscope       │ Pprof           │ http://pyroscope:4100                │
+└─────────────────┴─────────────────┴──────────────────────────────────────┘
 ```
 
 ## Deployment
