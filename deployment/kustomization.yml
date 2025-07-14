@@ -12,9 +12,10 @@ resources:
 - namespace.yml
 - loki/
 - prometheus/
-- promtail/
+# - promtail/
 - tempo/
 - mimir/
 - grafana/
 - alloy/
 - pyroscope/
+- beyla/
