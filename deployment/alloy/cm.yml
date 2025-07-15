@@ -221,3 +221,25 @@ data:
         traces = [otelcol.exporter.otlp.tempo.input]
       }
     }
+
+    // OTelcol receiver for traces and metrics
+    otelcol.receiver.otlp "beyla" {
+      grpc {}
+      http {}
+
+      output {
+        metrics = [otelcol.processor.batch.beyla.input]
+        traces = [otelcol.processor.batch.beyla.input]
+      }
+    }
+
+    otelcol.processor.batch "beyla" {
+      output {
+        metrics = [otelcol.exporter.prometheus.beyla.input]
+        traces  = [otelcol.exporter.otlp.tempo.input]
+      }
+    }
+
+    otelcol.exporter.prometheus "beyla" {
+        forward_to = [prometheus.remote_write.prometheus.receiver, prometheus.remote_write.mimir.receiver]
+    }

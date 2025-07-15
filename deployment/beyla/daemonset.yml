@@ -24,7 +24,6 @@ spec:
       serviceAccountName: beyla
       hostPID: true
       hostNetwork: true
-      hostIPC: true
       dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: beyla
