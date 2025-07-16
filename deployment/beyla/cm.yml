@@ -8,7 +8,7 @@ metadata:
 data:
   beyla-config.yml: |
     open_port: 80,443,8000-8999
-    trace_printer: disabled # "json"
+    trace_printer: disabled
     log_level: WARN
     otel_metrics_export:
       endpoint: http://alloy:4317
@@ -37,7 +37,8 @@ data:
           exclude: ["db_statement"]
         http_client_request_duration:
           # report the default attribute set but exclude the Kubernetes Pod information
-          exclude: ["k8s.pod.*"]
+          # exclude: ["k8s.pod.*"]
+          include: ["*"]
     filter:
       network:
         k8s_dst_owner_name:
@@ -52,7 +53,7 @@ data:
       enable: false
       print_flows: false
     ebpf:
-      wakeup_len: 200
-      high_request_volume: true
-      traffic_control_backend: "tcx"
-      context_propagation: "headers" # "headers", "ip", "all"
+      wakeup_len: 50
+      # high_request_volume: true
+      traffic_control_backend: auto
+      context_propagation: "all"
