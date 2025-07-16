@@ -52,4 +52,7 @@ data:
       enable: false
       print_flows: false
     ebpf:
-      context_propagation: "all"
+      wakeup_len: 200
+      high_request_volume: true
+      traffic_control_backend: "tcx"
+      context_propagation: "headers" # "headers", "ip", "all"
