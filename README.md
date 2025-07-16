@@ -4,6 +4,9 @@
 
 [Alloy](https://grafana.com/docs/alloy/latest/introduction/) is a flexible, high performance, vendor-neutral distribution of the OpenTelemetry Collector. It’s fully compatible with the most popular open source observability standards such as OpenTelemetry and Prometheus.
 
+[Beyla](https://grafana.com/docs/beyla/latest/) Grafana Beyla uses eBPF to automatically inspect application executables and the OS networking layer, and capture trace spans related to web transactions and Rate Errors Duration (RED) metrics for Linux HTTP/S and gRPC services. *All data capture occurs without any modifications to application code or configuration*.
+> [Beyla](https://grafana.com/docs/beyla/latest/security/) needs access to various Linux interfaces to instrument applications, loading eBPF programs, and managing network interface filters, these operations require elevated permissions.
+
 [Promtail](https://grafana.com/docs/loki/latest/clients/promtail/) is an agent which ships the contents of local logs to a private Grafana Loki instance or Grafana Cloud.
 > [Alloy](https://grafana.com/docs/loki/latest/setup/migrate/migrate-to-alloy/) is a replacement for Promtil, it essentially replaces the log collector/scraper that traditionally used Promtail, Grafana Agent or OTel Agent. 
 
@@ -144,7 +147,7 @@ This is an attempt to demystify the different components of [LGTM Stack](https:/
 
 ## Source
 
-Our latest and greatest source of grafana-loki-on-k8s can be found on [GitHub]. Fork us!
+Our latest and greatest source of **grafana-loki-on-k8s* can be found on [GitHub](https://github.com/saidsef/grafana-loki-on-k8s/fork), Fork us!
 
 ## Contributing
 

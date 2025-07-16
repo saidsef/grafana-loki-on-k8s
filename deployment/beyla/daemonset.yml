@@ -22,8 +22,8 @@ spec:
         app.kubernetes.io/name: beyla
     spec:
       serviceAccountName: beyla
-      hostPID: true
-      hostNetwork: true
+      hostPID: true           # <-- Important. Required in DaemonSet mode so Beyla can discover all monitored processes
+      hostNetwork: true       # <-- Important. Required in DaemonSet mode so Beyla can see all network packets
       dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: beyla

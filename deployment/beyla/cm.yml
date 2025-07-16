@@ -45,8 +45,9 @@ data:
     # prometheus_export:
     #   path: /metrics
     #   port: 9090
-    # network:
-    #   enable: true
-    #   print_flows: true
+    # network: Memory and CPU usage increases as Beyla needs to generate more metrics from network traffic
+    network:
+      enable: false
+      print_flows: false
     ebpf:
       context_propagation: "all"
