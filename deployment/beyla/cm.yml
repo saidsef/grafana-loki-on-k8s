@@ -8,7 +8,7 @@ metadata:
 data:
   beyla-config.yml: |
     open_port: 80,443,8000-8999
-    trace_printer: json
+    trace_printer: disabled # "json"
     log_level: WARN
     otel_metrics_export:
       endpoint: http://alloy:4317

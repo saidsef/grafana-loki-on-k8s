@@ -175,7 +175,7 @@ data:
 
     prometheus.remote_write "mimir" {
       endpoint {
-        url = "http://mimir/api/v1/write"
+        url = "http://mimir/api/v1/push"
       }
     }
 
