@@ -46,8 +46,15 @@ spec:
                 fieldRef:
                   fieldPath: status.hostIP
           ports:
-            - containerPort: 12345
-              name: metrics
+            - name: metrics
+              containerPort: 12345
+              protocol: TCP
+            - name: otlp-grpc
+              containerPort: 4317
+              protocol: TCP
+            - name: otlp-http
+              containerPort: 4318
+              protocol: TCP
           readinessProbe:
             httpGet:
               path: /-/ready
