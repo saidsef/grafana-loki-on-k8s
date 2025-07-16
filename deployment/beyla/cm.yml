@@ -11,9 +11,11 @@ data:
     trace_printer: json
     log_level: WARN
     otel_metrics_export:
-      endpoint: http://alloy:4318
+      endpoint: http://alloy:4317
+      protocol: grpc
     otel_traces_export:
-      endpoint: http://alloy:4318
+      endpoint: http://alloy:4317
+      protocol: grpc
     discovery:
       services:
         - k8s_namespace: .
