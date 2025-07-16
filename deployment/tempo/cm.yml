@@ -38,7 +38,7 @@ data:
         remote_write:
           - url: http://prometheus-server/api/v1/write
             send_exemplars: true
-          - url: http://mimir/api/v1/write
+          - url: http://mimir/api/v1/push
             send_native_histograms: true
             name: mimir
     distributor:

@@ -15,3 +15,11 @@ spec:
       port: 12345
       targetPort: 12345
       protocol: TCP
+    - name: grpc-tempo-otlp
+      port: 4317
+      protocol: TCP
+      targetPort: 4317
+    - name: http-tempo-otlp
+      port: 4318
+      protocol: TCP
+      targetPort: 4318

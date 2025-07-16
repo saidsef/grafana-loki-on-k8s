@@ -1,0 +1,77 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: beyla
+  labels:
+    app.kubernetes.io/name: beyla
+spec:
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: beyla
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        filter.by.port.name: "true"
+      labels:
+        app.kubernetes.io/name: beyla
+    spec:
+      serviceAccountName: beyla
+      hostPID: true           # <-- Important. Required in DaemonSet mode so Beyla can discover all monitored processes
+      hostNetwork: true       # <-- Important. Required in DaemonSet mode so Beyla can see all network packets
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+        - name: beyla
+          image: docker.io/grafana/beyla:2.2.4
+          imagePullPolicy: IfNotPresent
+          ports:
+          - name: metrics
+            containerPort: 9090
+            protocol: TCP
+          env:
+            - name: BEYLA_CONFIG_PATH
+              value: "/etc/beyla/config/beyla-config.yml"
+            - name: BEYLA_KUBE_METADATA_ENABLE
+              value: "autodetect"
+            - name: BEYLA_KUBE_CLUSTER_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          securityContext:
+            runAsUser: 0
+            privileged: true
+            readOnlyRootFilesystem: true
+            capabilities:
+              add:
+                - BPF                 # <-- Important. Required for most eBPF probes to function correctly.
+                - SYS_PTRACE          # <-- Important. Allows Beyla to access the container namespaces and inspect executables.
+                - NET_RAW             # <-- Important. Allows Beyla to use socket filters for http requests.
+                - CHECKPOINT_RESTORE  # <-- Important. Allows Beyla to open ELF files.
+                - DAC_READ_SEARCH     # <-- Important. Allows Beyla to open ELF files.
+                - PERFMON             # <-- Important. Allows Beyla to load BPF programs.
+                - NET_ADMIN           # <-- Important. Allows Beyla to inject HTTP and TCP context propagation information.
+          resources:
+            limits:
+              cpu: 100m
+              memory: 768Mi
+            requests:
+              cpu: 50m
+              memory: 512Mi
+          volumeMounts:
+            - mountPath: /etc/beyla/config
+              name: beyla-config
+            - name: cgroup
+              mountPath: /sys/fs/cgroup # <-- Important. Allows Beyla to monitor all newly sockets to track outgoing requests. 
+              readOnly: true
+      volumes:
+        - name: beyla-config
+          configMap:
+            name: beyla
+        - name: cgroup
+          hostPath:
+            path: /sys/fs/cgroup

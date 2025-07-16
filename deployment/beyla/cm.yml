@@ -1,0 +1,59 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: beyla
+  labels:
+    app.kubernetes.io/name: beyla
+data:
+  beyla-config.yml: |
+    open_port: 80,443,8000-8999
+    trace_printer: disabled
+    log_level: WARN
+    otel_metrics_export:
+      endpoint: http://alloy:4317
+      protocol: grpc
+    otel_traces_export:
+      endpoint: http://alloy:4317
+      protocol: grpc
+    discovery:
+      services:
+        - k8s_namespace: .
+      exclude_services:
+        - exe_path: ".*alloy.*|.*otelcol.*|.*beyla.*"
+    attributes:
+      kubernetes:
+        enable: true
+      select:
+        beyla_network_flow_bytes:
+          # limit the beyla_network_flow_bytes attributes to only the three attributes
+          include:
+            - beyla.ip
+            - src.name
+            - dst.port
+        sql_client_duration:
+          # report all the possible attributes but db_statement
+          include: ["*"]
+          exclude: ["db_statement"]
+        http_client_request_duration:
+          # report the default attribute set but exclude the Kubernetes Pod information
+          # exclude: ["k8s.pod.*"]
+          include: ["*"]
+    filter:
+      network:
+        k8s_dst_owner_name:
+          not_match: '{kube*,*jaeger-agent*,*prometheus*,*promtail*,*grafana-agent*}'
+        k8s_src_owner_name:
+          not_match: '{kube*,*jaeger-agent*,*prometheus*,*promtail*,*grafana-agent*}'
+    # prometheus_export:
+    #   path: /metrics
+    #   port: 9090
+    # network: Memory and CPU usage increases as Beyla needs to generate more metrics from network traffic
+    network:
+      enable: false
+      print_flows: false
+    ebpf:
+      wakeup_len: 50
+      # high_request_volume: true
+      traffic_control_backend: auto
+      context_propagation: "all"
