@@ -75,6 +75,12 @@ I am assuming you are already familiar with [Grafana](https://grafana.com/oss/gr
 │                    │ • Trace Processor & Exporter    │                      │
 │                    │ • Profile Collector & Forwarder │                      │
 │                    └─────────────┬───────────────────┘                      │
+│                                   │                                         │
+│                    ┌──────────────┴───────────────┐                         │
+│                    │         BEYLA (eBPF)         │                         │
+│                    │  Auto-instrumentation for    │                         │
+│                    │  RED metrics & traces        │                         │
+│                    └──────────────────────────────┘                         │
 └──────────────────────────────────┼──────────────────────────────────────────┘
                                    │ Telemetry Collection
                                    ▼
@@ -102,7 +108,7 @@ VISUALIZATION QUERIES:
 
 DATA COLLECTION FLOW:
 =====================
-Applications → Grafana Alloy / Promtail → Storage Backends → Grafana Dashboards
+Applications → Beyla/Alloy/Promtail → Storage Backends → Grafana Dashboards
 
 GRAFANA DATASOURCES:
 ====================
@@ -125,10 +131,14 @@ kubectl apply -k ./deployment
 
 This will deploy the following services in `monitoring` namespace:
 
-- Grafana - preconfigured with Prometheus, Loki and Tempo as data sources
+- Grafana - preconfigured with Prometheus, Mimir, Loki, Tempo and Pyroscope as data sources
 - Prometheus
+- Mimir
 - Loki
-- Promtail - preconfigured to push data to Loki
+- Alloy - preconfigured to push data to Prometheus, Mimir, Loki, Tempo and Pyroscope
+- Beyla - preconfigured to push data to Alloy
+- ~~Promtail~~
+- Pyroscope
 - Tempo
 
 ## Configuration
@@ -138,7 +148,7 @@ Once deployed, access Grafana UI via:
 ```shell
 kubectl port-forward -n monitoring svc/grafana 3000:3000
 ```
-
+> [!NOTE]
 > If you deploy to different namespace, update `ClusterRoleBinding` subject namespace to match
 
 Here is [how to guide from Grafana / Loki](https://grafana.com/docs/loki/latest/)
