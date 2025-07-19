@@ -56,11 +56,64 @@ data:
     }
 
     discovery.relabel "all_targets_with_address" {
-      targets = array.concat(discovery.kubelet.pods.targets, discovery.kubernetes.pods.targets, discovery.kubernetes.nodes.targets, discovery.kubernetes.services.targets, discovery.kubernetes.endpointslices.targets, discovery.kubernetes.ingresses.targets, discovery.process.all.targets)
+      targets = array.concat(discovery.kubernetes.pods.targets, discovery.kubernetes.nodes.targets, discovery.kubernetes.services.targets, discovery.kubernetes.endpointslices.targets, discovery.kubernetes.ingresses.targets, discovery.process.all.targets)
+
+      rule {
+        source_labels = ["__meta_kubernetes_service_name"]
+        regex         = ".+"
+        target_label  = "source"
+        replacement   = "services"
+        action        = "replace"
+      }
+
+      rule {
+        source_labels = ["__meta_kubernetes_endpointslice_name"]
+        regex         = ".+"
+        target_label  = "source"
+        replacement   = "endpointslices"
+        action        = "replace"
+      }
+
+      rule {
+        source_labels = ["__meta_kubernetes_pod_container_name"]
+        regex         = ".+"
+        target_label  = "source"
+        replacement   = "kubelet_pods"
+        action        = "replace"
+      }
+
+      rule {
+        source_labels = ["__meta_kubernetes_ingress_name"]
+        regex         = ".+"
+        target_label  = "source"
+        replacement   = "ingresses"
+        action        = "replace"
+      }
+
       rule {
         source_labels = ["__address__"]
         regex        = ".+"
         action       = "keep"
+      }
+      rule {
+        action = "labelmap"
+        regex  = "__meta_kubernetes_pod_label_(.+)"
+      }
+      rule {
+        action = "labelmap"
+        regex  = "__meta_kubernetes_service_label_(.+)"
+      }
+      rule {
+        action = "labelmap"
+        regex  = "__meta_kubernetes_ingress_label_(.+)"
+      }
+      rule {
+        action = "labelmap"
+        regex  = "__meta_kubernetes_endpointslice_label_(.+)"
+      }
+      rule {
+        action = "labeldrop"
+        regex  = "pod_template_hash|controller_revision_hash|checksum_.*|pod_uid|instance_id|job"
       }
     }
 
