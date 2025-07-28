@@ -76,7 +76,7 @@ spec:
           mountPath: /rules
         - name: ruler
           mountPath: /ruler
-        - name: annonymous
+        - name: rules
           mountPath: /rules/anonymous
           subPath: anonymous
         - name: tsdb
