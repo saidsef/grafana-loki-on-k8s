@@ -44,9 +44,12 @@ data:
       editable: true
       url: http://mimir/prometheus
       jsonData:
+        exemplarTraceIdDestinations:
+        - name: trace_id
+          datasourceUid: Tempo
         manageAlerts: true
-        maxLines: 1000
         prometheusType: Mimir
+        maxLines: 1000
   pyroscope.yaml: |-
     apiVersion: 1
     datasources:
@@ -107,11 +110,17 @@ data:
           filterByTraceID: true
         tracesToProfiles:
           datasourceUid: Pyroscope
+          tags: ['job', 'instance', 'pod', 'namespace']
+          profileTypeId: 'process_cpu:cpu:nanoseconds:cpu:nanoseconds'
+          customQuery: true
+          query: 'method="$${__span.tags.method}"'
         tracesToMetrics:
           datasourceUid: Prometheus
         serviceMap:
           datasourceUid: Prometheus
         nodeGraph:
           enabled: true
+        search:
+          hide: false
         lokiSearch:
           datasourceUid: Loki
