@@ -27,7 +27,7 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: beyla
-          image: docker.io/grafana/beyla:2.2.4
+          image: docker.io/grafana/beyla:2.5.2
           imagePullPolicy: IfNotPresent
           ports:
           - name: metrics
