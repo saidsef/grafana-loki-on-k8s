@@ -6,7 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/name: beyla
 spec:
-  revisionHistoryLimit: 2
+  revisionHistoryLimit: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: beyla

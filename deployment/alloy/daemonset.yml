@@ -7,6 +7,7 @@ metadata:
   labels:
     app.kubernetes.io/name: alloy
 spec:
+  revisionHistoryLimit: 1
   minReadySeconds: 10
   selector:
     matchLabels:
@@ -22,6 +23,7 @@ spec:
         app.kubernetes.io/name: alloy
     spec:
       serviceAccountName: alloy
+      enableServiceLinks: false
       containers:
         - name: alloy
           image: docker.io/grafana/alloy:v1.10.0
@@ -55,6 +57,13 @@ spec:
             - name: otlp-http
               containerPort: 4318
               protocol: TCP
+          resources:
+            requests:
+              cpu: 50m
+              memory: 1Gi
+            limits:
+              cpu: 100m
+              memory: "1Gi"
           readinessProbe:
             httpGet:
               path: /-/ready

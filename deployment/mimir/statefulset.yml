@@ -8,6 +8,7 @@ metadata:
     prometheus.io/port: http
     prometheus.io/scrape: "true"
 spec:
+  revisionHistoryLimit: 1
   replicas: 1
   selector:
     matchLabels:
@@ -66,7 +67,7 @@ spec:
             memory: "2Gi"
           requests:
             cpu: 100m
-            memory: "2Gi"
+            memory: "1Gi"
         volumeMounts:
         - mountPath: /conf
           name: conf

@@ -8,6 +8,7 @@ metadata:
     prometheus.io/port: prom-metrics
     prometheus.io/scrape: "true"
 spec:
+  revisionHistoryLimit: 1
   replicas: 1
   selector:
     matchLabels:
