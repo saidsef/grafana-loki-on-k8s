@@ -54,10 +54,10 @@ spec:
         resources:
           requests:
             cpu: 100m
-            memory: "512Mi"
+            memory: 512Mi
           limits:
             cpu: 200m
-            memory: "1Gi"
+            memory: 768Mi
         volumeMounts:
           - name: config
             mountPath: /etc/pyroscope/config.yaml
