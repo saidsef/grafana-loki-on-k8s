@@ -7,7 +7,7 @@ metadata:
     app.kubernetes.io/name: beyla
 data:
   beyla-config.yml: |
-    open_port: 80,443,8000-8999
+    open_port: 8000-8999
     trace_printer: disabled
     log_level: WARN
     otel_metrics_export:
@@ -20,7 +20,7 @@ data:
       services:
         - k8s_namespace: .
       exclude_services:
-        - exe_path: ".*alloy.*|.*otelcol.*|.*beyla.*"
+        - exe_path: ".*alloy.*|.*otelcol.*|.*beyla.*|.*tempo.*|.*loki.*|.*prometheus.*|.*mimir.*|.*grafana.*|.*jaeger.*"
     attributes:
       kubernetes:
         enable: true
@@ -53,7 +53,7 @@ data:
       enable: false
       print_flows: false
     ebpf:
-      wakeup_len: 50
-      # high_request_volume: true
+      wakeup_len: 128
+      high_request_volume: true
       traffic_control_backend: auto
       context_propagation: "all"

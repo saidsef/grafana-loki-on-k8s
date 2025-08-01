@@ -8,13 +8,14 @@ data:
   tempo.yaml: |
     target: all
     multitenancy_enabled: false
+    max_bytes_per_trace: 1000000
     usage_report:
       reporting_enabled: false
     compactor:
       compaction:
         block_retention: 24h
-        compacted_block_retention: 1h
-        compaction_cycle: 120s
+        compacted_block_retention: 30m
+        compaction_cycle: 30m
         compaction_window: 1h
     memberlist:
       bind_addr:
@@ -42,6 +43,7 @@ data:
             send_native_histograms: true
             name: mimir
     distributor:
+      max_attribute_bytes: 512
       receivers:
         jaeger:
           protocols:
@@ -60,6 +62,8 @@ data:
             http:
               endpoint: 0.0.0.0:4318
     server:
+      log_level: warn
+      log_format: json
       grpc_listen_address: '0.0.0.0'
       grpc_listen_port: 9095
       http_listen_address: '0.0.0.0'
