@@ -9,7 +9,6 @@ metadata:
     prometheus.io/scrape: "true"
 spec:
   revisionHistoryLimit: 1
-  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: mimir
@@ -64,10 +63,10 @@ spec:
         resources:
           limits:
             cpu: 100m
-            memory: "2Gi"
+            memory: 768Mi
           requests:
             cpu: 100m
-            memory: "1Gi"
+            memory: 512Mi
         volumeMounts:
         - mountPath: /conf
           name: conf
@@ -77,7 +76,7 @@ spec:
           mountPath: /rules
         - name: ruler
           mountPath: /ruler
-        - name: annonymous
+        - name: rules
           mountPath: /rules/anonymous
           subPath: anonymous
         - name: tsdb

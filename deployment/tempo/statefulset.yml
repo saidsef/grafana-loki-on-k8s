@@ -9,7 +9,6 @@ metadata:
     prometheus.io/scrape: "true"
 spec:
   revisionHistoryLimit: 1
-  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: tempo
@@ -24,7 +23,7 @@ spec:
       containers:
       - args:
         - -config.file=/conf/tempo.yaml
-        - -mem-ballast-size-mbs=1024
+        - -mem-ballast-size-mbs=512
         image: docker.io/grafana/tempo:2.8.1
         imagePullPolicy: IfNotPresent
         name: tempo
@@ -56,10 +55,10 @@ spec:
         resources:
           limits:
             cpu: 100m
-            memory: "2Gi"
+            memory: 768Mi
           requests:
             cpu: 50m
-            memory: "1Gi"
+            memory: 512Mi
         volumeMounts:
         - mountPath: /conf
           name: tempo-conf

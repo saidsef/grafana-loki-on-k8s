@@ -60,10 +60,10 @@ spec:
           resources:
             requests:
               cpu: 50m
-              memory: 1Gi
+              memory: 512Mi
             limits:
               cpu: 100m
-              memory: "1Gi"
+              memory: 768Mi
           readinessProbe:
             httpGet:
               path: /-/ready
