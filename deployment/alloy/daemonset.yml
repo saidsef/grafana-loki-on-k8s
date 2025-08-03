@@ -52,7 +52,7 @@ spec:
                 fieldRef:
                   fieldPath: status.podIP
             - name: GOMEMLIMIT
-              value: "512MiB"
+              value: "768MiB"
           ports:
             - name: metrics
               containerPort: 12345
