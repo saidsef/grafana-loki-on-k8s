@@ -19,7 +19,7 @@
 [Pyroscope](https://grafana.com/docs/pyroscope/latest/) is a multi-tenant, continuous profiling aggregation system, aligning its architectural design with Grafana Mimir, Grafana Loki, and Grafana Tempo. This integration enables a cohesive correlation of profiling data with existing metrics, logs, and traces.
 
 
-I am assuming you are already familiar with [Grafana](https://grafana.com/oss/grafana/) and [Prometheus](https://prometheus.io/docs/prometheus/latest/getting_started/)
+I am assuming you are already familiar with [Grafana Stack](https://grafana.com/about/grafana-stack/).
 
 ## Prerequisites
 - Kubernetes Cluster >= v1.26
