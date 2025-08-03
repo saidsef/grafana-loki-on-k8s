@@ -42,6 +42,8 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: spec.nodeName
+            - name: GOMEMLIMIT
+              value: "512MiB"
           securityContext:
             runAsUser: 0
             privileged: true

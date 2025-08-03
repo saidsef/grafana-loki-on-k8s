@@ -27,6 +27,9 @@ spec:
         image: docker.io/grafana/tempo:2.8.1
         imagePullPolicy: IfNotPresent
         name: tempo
+        env:
+        - name: GOMEMLIMIT
+          value: "768MiB"
         ports:
         - containerPort: 3100
           name: prom-metrics
@@ -55,7 +58,7 @@ spec:
         resources:
           limits:
             cpu: 100m
-            memory: 768Mi
+            memory: 896Mi
           requests:
             cpu: 50m
             memory: 512Mi
