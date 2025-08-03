@@ -63,6 +63,9 @@ spec:
           - name: grafana-storage
             mountPath: /var/lib/grafana/dashboards
             subPath: dashboards
+          - name: grafana-storage
+            mountPath: /tmp
+            subPath: tmp
           - name: grafana-ini
             mountPath: /etc/grafana/grafana.ini
             subPath: grafana.ini

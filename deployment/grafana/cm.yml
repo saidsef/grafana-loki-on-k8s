@@ -120,9 +120,13 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: grafana-ini
+  labels:
+    app.kubernetes.io/name: grafana
 data:
   grafana.ini: |-
     instance_name=${HOSTNAME}
+    [explore]
+    enabled=true
     [log]
     mode = console
     level = warn
@@ -146,4 +150,7 @@ data:
     [feature_management]
     allow_editing=true
     [plugins]
+    enable_alpha=true
+    plugin_admin_enabled=true
+    preinstall_async=false
     preinstall=aws-datasource-provisioner-app,grafana-llm-app,grafana-synthetic-monitoring-app,redis-explorer-app,grafana-oncall-app,grafana-investigations-app,grafana-github-datasource,grafana-resourcesexporter-app,grafana-advisor-app,grafana-x-ray-datasource,grafana-guidedtour-panel,grafana-opensearch-datasource,computest-cloudwatchalarm-datasource,grafana-googlesheets-datasource,victoriametrics-logs-datasource,victoriametrics-metrics-datasource,googlecloud-trace-datasource
