@@ -115,3 +115,35 @@ data:
           hide: false
         lokiSearch:
           datasourceUid: Loki
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-ini
+data:
+  grafana.ini: |-
+    instance_name=${HOSTNAME}
+    [log]
+    mode = console
+    level = warn
+    [log.console]
+    format = json
+    [feature_toggles]
+    enable=true
+    alertRuleRestore=true
+    azureMonitorLogsBuilderEditor=true
+    elasticsearchCrossClusterSearch=true
+    externalServiceAccounts=true
+    faroDatasourceSelector=true
+    grafanaAdvisor=true
+    logsPanelControls=true
+    nestedFolders=false
+    panelTitleSearch=true
+    provisioning=true
+    kubernetesDashboards=true
+    pdfTables=true
+    sqlDatasourceDatabaseSelection=true
+    [feature_management]
+    allow_editing=true
+    [plugins]
+    preinstall=aws-datasource-provisioner-app,grafana-llm-app,grafana-synthetic-monitoring-app,redis-explorer-app,grafana-oncall-app,grafana-investigations-app,grafana-github-datasource,grafana-resourcesexporter-app,grafana-advisor-app,grafana-x-ray-datasource,grafana-guidedtour-panel,grafana-opensearch-datasource,computest-cloudwatchalarm-datasource,grafana-googlesheets-datasource,victoriametrics-logs-datasource,victoriametrics-metrics-datasource,googlecloud-trace-datasource
