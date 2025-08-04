@@ -63,6 +63,12 @@ spec:
           - name: grafana-storage
             mountPath: /var/lib/grafana/dashboards
             subPath: dashboards
+          - name: grafana-storage
+            mountPath: /tmp
+            subPath: tmp
+          - name: grafana-ini
+            mountPath: /etc/grafana/grafana.ini
+            subPath: grafana.ini
           - name: dashboards
             mountPath: /etc/grafana/provisioning/dashboards/dashboards.yml
             subPath: dashboards.yml
@@ -102,6 +108,9 @@ spec:
         - name: datasources
           configMap:
             name: datasources
+        - name: grafana-ini
+          configMap:
+            name: grafana-ini
         - name: grafana-storage
           emptyDir:
             sizeLimit: "2Gi"
