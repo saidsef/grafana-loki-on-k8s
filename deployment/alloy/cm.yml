@@ -18,7 +18,34 @@ data:
 
     beyla.ebpf "beyla" {
       enforce_sys_caps = false
-
+      attributes {
+        kubernetes {
+          enable = "true"
+          cluster_name = sys.env("BEYLA_KUBE_CLUSTER_NAME")
+          meta_restrict_local_node = false
+        }
+        select {
+          attr = "http_client_*"
+          include = ["*"]
+          exclude = ["http_path"]
+        }
+      }
+      discovery {
+        services {
+          open_ports = "8000-8999"
+          containers_only = true
+        }
+        services {
+          kubernetes {
+            namespace = "."
+          }
+        }
+        survey {
+          kubernetes {
+            namespace = "."
+          }
+        }
+      }
       ebpf {
         wakeup_len = 100
         track_request_headers = true
@@ -26,40 +53,14 @@ data:
         heuristic_sql_detect = true
         context_propagation = "all"
       }
-
-      attributes {
-        kubernetes {
-          enable = "true"
-        }
-      }
-      discovery {
-        services {
-          kubernetes {
-            namespace = "."
-            deployment_name = "."
-            pod_name = "."
-          }
-        }
+      metrics {
+        features = ["application", "application_service_graph", "application_span"]
+        instrumentations = ["*"]
       }
       output {
         traces = [otelcol.processor.batch.beyla.input]
       }
     }
-
-    // This section requires elevated privileges
-    // discovery.process "all" {
-    //   join = discovery.kubernetes.pods.targets
-    //   refresh_interval = "60s"
-    //   discover_config {
-    //     cwd = true
-    //     exe = true
-    //     commandline = true
-    //     username = true
-    //     uid = true
-    //     cgroup_path = true
-    //     container_id = true
-    //   }
-    // }
 
     discovery.kubelet "pods" {
       url  = string.format("https://%s:10250", sys.env("NODE_IP"))
@@ -87,7 +88,6 @@ data:
     }
 
     discovery.relabel "all_targets_with_address" {
-      // targets = array.concat(discovery.kubernetes.pods.targets, discovery.kubernetes.nodes.targets, discovery.kubernetes.services.targets, discovery.kubernetes.endpointslices.targets, discovery.kubernetes.ingresses.targets, discovery.process.all.targets)
       targets = array.concat(discovery.kubernetes.pods.targets, discovery.kubernetes.nodes.targets, discovery.kubernetes.services.targets, discovery.kubernetes.endpointslices.targets, discovery.kubernetes.ingresses.targets)
 
       rule {
@@ -248,9 +248,6 @@ data:
       forward_to = [loki.write.loki.receiver]
     }
 
-    prometheus.exporter.statsd "statsd" {}
-    prometheus.exporter.self "self" {}
-
     prometheus.remote_write "prometheus" {
       endpoint {
         url = "http://prometheus-server/api/v1/write"
@@ -265,28 +262,27 @@ data:
 
     prometheus.scrape "default" {
       targets    = discovery.relabel.all_targets_with_address.output
-      forward_to = [prometheus.remote_write.prometheus.receiver, prometheus.remote_write.mimir.receiver]
+      // forward_to = [prometheus.remote_write.prometheus.receiver, prometheus.remote_write.mimir.receiver]
+      forward_to = [prometheus.remote_write.mimir.receiver]
       extra_metrics = true
+      honor_labels = true
     }
 
-    // Enable only if Pyroscope is deployed
-    // make sure endpoint /debug/pprof for scraping
-    // Otherwise this will be very noisy
     // pyroscope.scrape "default" {
-    //   targets    = discovery.kubernetes.pods.targets
-    //   forward_to = [pyroscope.write.pyroscope.receiver]
+    //  targets    = discovery.kubernetes.pods.targets
+    //  forward_to = [pyroscope.write.pyroscope.receiver]
     // }
 
-    pyroscope.write "pyroscope" {
-      endpoint {
-        url = "http://pyroscope:4040"
-      }
-    }
+    // pyroscope.write "pyroscope" {
+    //   endpoint {
+    //     url = "http://pyroscope:4040"
+    //   }
+    // }
 
-    pyroscope.ebpf "pods" {
-      targets = discovery.relabel.pod_ebpf.output
-      forward_to = [pyroscope.write.pyroscope.receiver]
-    }
+    // pyroscope.ebpf "pods" {
+    //   targets = discovery.relabel.pod_ebpf.output
+    //   forward_to = [pyroscope.write.pyroscope.receiver]
+    // }
 
     otelcol.exporter.otlp "tempo" {
       client {
@@ -299,7 +295,7 @@ data:
     }
 
     otelcol.processor.discovery "default" {
-      targets = array.concat(discovery.kubelet.pods.targets, discovery.kubernetes.nodes.targets)
+      targets = array.concat(discovery.kubelet.pods.targets, discovery.kubernetes.nodes.targets, beyla.ebpf.beyla.targets)
 
       output {
         traces = [otelcol.exporter.otlp.tempo.input]
