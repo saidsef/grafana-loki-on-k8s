@@ -16,19 +16,39 @@ data:
     	format = "json"
     }
 
-    discovery.process "all" {
-      join = discovery.kubernetes.pods.targets
-      refresh_interval = "60s"
-      discover_config {
-        cwd = true
-        exe = true
-        commandline = true
-        username = true
-        uid = true
-        cgroup_path = true
-        container_id = true
+    beyla.ebpf "beyla" {
+      enforce_sys_caps = false
+      attributes {
+        kubernetes {
+          enable = "true"
+        }
+      }
+      discovery {
+        services {
+          kubernetes {
+            deployment_name = "."
+          }
+        }
+      }
+      output {
+        traces = [otelcol.processor.batch.beyla.input]
       }
     }
+
+    // This section requires elevated privileges
+    // discovery.process "all" {
+    //   join = discovery.kubernetes.pods.targets
+    //   refresh_interval = "60s"
+    //   discover_config {
+    //     cwd = true
+    //     exe = true
+    //     commandline = true
+    //     username = true
+    //     uid = true
+    //     cgroup_path = true
+    //     container_id = true
+    //   }
+    // }
 
     discovery.kubelet "pods" {
       url  = string.format("https://%s:10250", sys.env("NODE_IP"))
@@ -56,7 +76,8 @@ data:
     }
 
     discovery.relabel "all_targets_with_address" {
-      targets = array.concat(discovery.kubernetes.pods.targets, discovery.kubernetes.nodes.targets, discovery.kubernetes.services.targets, discovery.kubernetes.endpointslices.targets, discovery.kubernetes.ingresses.targets, discovery.process.all.targets)
+      // targets = array.concat(discovery.kubernetes.pods.targets, discovery.kubernetes.nodes.targets, discovery.kubernetes.services.targets, discovery.kubernetes.endpointslices.targets, discovery.kubernetes.ingresses.targets, discovery.process.all.targets)
+      targets = array.concat(discovery.kubernetes.pods.targets, discovery.kubernetes.nodes.targets, discovery.kubernetes.services.targets, discovery.kubernetes.endpointslices.targets, discovery.kubernetes.ingresses.targets)
 
       rule {
         source_labels = ["__meta_kubernetes_service_name"]
