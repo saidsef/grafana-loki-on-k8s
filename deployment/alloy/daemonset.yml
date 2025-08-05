@@ -99,7 +99,12 @@ spec:
           image: quay.io/prometheus-operator/prometheus-config-reloader:v0.84.0
           args:
             - --watched-dir=/etc/alloy
-            - --reload-url=http://localhost:12345/-/reload
+            - --reload-url=http://$(POD_IP):12345/-/reload
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
           volumeMounts:
             - name: config
               mountPath: /etc/alloy
