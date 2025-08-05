@@ -22,6 +22,7 @@ spec:
       labels:
         app.kubernetes.io/name: alloy
     spec:
+      hostNetwork: true
       serviceAccountName: alloy
       enableServiceLinks: false
       containers:
@@ -81,18 +82,21 @@ spec:
             privileged: true
             readOnlyRootFilesystem: true
             runAsUser: 0
-            seccompProfile:
-              type: RuntimeDefault
             capabilities:
-              drop:
-                - ALL
+              add:
+              - NET_ADMIN
+              - BPF
+              - SYS_TRACE
           volumeMounts:
             - name: config
               mountPath: /etc/alloy
             - name: tmp
               mountPath: /tmp/alloy
+            - name: cgroup
+              mountPath: /sys/fs/cgroup
+              readOnly: true
         - name: config-reloader
-          image: quay.io/prometheus-operator/prometheus-config-reloader:v0.81.0
+          image: quay.io/prometheus-operator/prometheus-config-reloader:v0.84.0
           args:
             - --watched-dir=/etc/alloy
             - --reload-url=http://localhost:12345/-/reload
@@ -111,3 +115,6 @@ spec:
         - name: tmp
           emptyDir:
             sizeLimit: 1Gi
+        - name: cgroup
+          hostPath:
+            path: /sys/fs/cgroup
