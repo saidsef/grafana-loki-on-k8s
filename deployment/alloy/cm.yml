@@ -18,6 +18,15 @@ data:
 
     beyla.ebpf "beyla" {
       enforce_sys_caps = false
+
+      ebpf {
+        wakeup_len = 100
+        track_request_headers = true
+        high_request_volume = true
+        heuristic_sql_detect = true
+        context_propagation = "all"
+      }
+
       attributes {
         kubernetes {
           enable = "true"
@@ -26,7 +35,9 @@ data:
       discovery {
         services {
           kubernetes {
+            namespace = "."
             deployment_name = "."
+            pod_name = "."
           }
         }
       }
