@@ -3,6 +3,23 @@
 [Loki](https://grafana.com/oss/loki/) is a horizontally-scalable, highly-available, multi-tenant log aggregation system inspired by Prometheus. It is designed to be very cost effective and easy to operate, as it does not index the contents of the logs, but rather a set of labels for each log stream.
 
 [Alloy](https://grafana.com/docs/alloy/latest/introduction/) is a flexible, high performance, vendor-neutral distribution of the OpenTelemetry Collector. It’s fully compatible with the most popular open source observability standards such as OpenTelemetry and Prometheus.
+<details>
+<summary>Using Alloy Beyla collector</summary>
+
+Grafana Beyla and the Alloy beyla.ebpf component are not competing solutions—they are tightly integrated. The `beyla.ebpf` component in *Alloy* is essentially a wrapper around Grafana Beyla, allowing you to use Beyla’s eBPF-based auto-instrumentation as part of your Alloy telemetry pipelines.
+
+## Why use Beyla directly?
+- Separation of concerns: You might want to run Beyla as a standalone process or privileged container, especially if you’re not using Alloy as your telemetry collector.
+- Direct use of Beyla gives you flexibility in how you deploy and manage the instrumentation, for example, in environments where Alloy is not present or not desired.
+- Beyla can send data to any OpenTelemetry or Prometheus-compatible backend, not just Alloy.
+
+## Why use Alloy’s `beyla.ebpf`?
+
+- If you’re already using Alloy as your telemetry collector, the `beyla.ebpf` component makes it easy to [integrate Beyla’s auto-instrumentation](https://grafana.com/blog/2024/05/21/how-to-use-grafana-beyla-in-grafana-alloy-for-ebpf-based-auto-instrumentation/) into your existing pipelines.
+- Alloy provides a unified configuration and management interface for all your telemetry collection, including metrics, logs, traces, and profiles.
+- The `beyla.ebpf` component allows you to configure which services to instrument (by port, executable, or Kubernetes metadata) and how to forward the collected data, all within Alloy’s configuration syntax.
+- You will need to increase resources for Alloy when using the `beyla.ebpf` component, depending on your workload and the number of services being instrumented.
+</details>
 
 [Beyla](https://grafana.com/docs/beyla/latest/) Grafana Beyla uses eBPF to automatically inspect application executables and the OS networking layer, and capture trace spans related to web transactions and Rate Errors Duration (RED) metrics for Linux HTTP/S and gRPC services. *All data capture occurs without any modifications to application code or configuration*.
 > [!WARNING]
