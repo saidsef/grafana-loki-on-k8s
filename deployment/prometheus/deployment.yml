@@ -27,6 +27,15 @@ spec:
         - name: prometheus
           image: docker.io/prom/prometheus:v3.5.0
           imagePullPolicy: IfNotPresent
+          env:
+            - name: GOMAXPROCS
+              valueFrom:
+                resourceFieldRef:
+                  resource: limits.cpu
+            - name: GOMEMLIMIT
+              valueFrom:
+                resourceFieldRef:
+                  resource: limits.memory
           args:
             - '--storage.tsdb.retention.time=15d'
             - '--config.file=/etc/prometheus/prometheus.yml'
