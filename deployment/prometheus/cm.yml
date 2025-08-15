@@ -119,9 +119,9 @@ data:
       evaluation_interval: 1m
       scrape_interval: 1m
       scrape_timeout: 10s
-    remote_write:
-    - name: mimir
-      url: http://mimir/api/v1/push
+    # remote_write:
+    # - name: mimir
+    #   url: http://mimir/api/v1/push
     rule_files:
     - /etc/config/recording_rules.yml
     - /etc/config/alerting_rules.yml
