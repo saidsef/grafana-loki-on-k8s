@@ -24,10 +24,16 @@ spec:
       - args:
         - -config.file=/conf/tempo.yaml
         - -mem-ballast-size-mbs=512
+        - -generator.instance-id=$(POD_IP)
+        - -log.level=warn
         image: docker.io/grafana/tempo:2.8.2
         imagePullPolicy: IfNotPresent
         name: tempo
         env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
         - name: GOMAXPROCS
           valueFrom:
             resourceFieldRef:
