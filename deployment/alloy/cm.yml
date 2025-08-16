@@ -220,12 +220,22 @@ data:
     prometheus.exporter.self "self" {}
 
     prometheus.remote_write "prometheus" {
+      wal {
+        max_keepalive_time = "30m"
+        min_keepalive_time = "15m"
+        truncate_frequency = "45m"
+      }
       endpoint {
         url = "http://prometheus-server/api/v1/write"
       }
     }
 
     prometheus.remote_write "mimir" {
+      wal {
+        max_keepalive_time = "30m"
+        min_keepalive_time = "15m"
+        truncate_frequency = "45m"
+      }
       endpoint {
         url = "http://mimir/api/v1/push"
       }
