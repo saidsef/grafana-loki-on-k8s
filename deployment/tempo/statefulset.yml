@@ -24,12 +24,20 @@ spec:
       - args:
         - -config.file=/conf/tempo.yaml
         - -mem-ballast-size-mbs=512
-        image: docker.io/grafana/tempo:2.8.1
+        image: docker.io/grafana/tempo:2.8.2
         imagePullPolicy: IfNotPresent
         name: tempo
         env:
+        - name: GOMAXPROCS
+          valueFrom:
+            resourceFieldRef:
+              divisor: '1'
+              resource: limits.cpu
         - name: GOMEMLIMIT
-          value: "768MiB"
+          valueFrom:
+            resourceFieldRef:
+              divisor: '1'
+              resource: limits.memory
         ports:
         - containerPort: 3100
           name: prom-metrics
@@ -85,7 +93,7 @@ spec:
             type: RuntimeDefault
           capabilities:
             drop:
-              - ALL
+            - ALL
       volumes:
         - name: tempo-storage
           emptyDir:
