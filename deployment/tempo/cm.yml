@@ -36,6 +36,8 @@ data:
         path: /var/tempo/generator/traces
       storage:
         path: /var/tempo/generator/wal
+        wal:
+          truncate_frequency: 30m
         remote_write:
           - url: http://prometheus-server/api/v1/write
             send_exemplars: true
