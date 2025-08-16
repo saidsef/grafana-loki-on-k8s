@@ -34,8 +34,11 @@ spec:
             - --storage.path=/tmp/alloy
             - --server.http.listen-addr=$(POD_IP):12345
             - --server.http.ui-path-prefix=/
-            - --stability.level=experimental
+            - --stability.level=public-preview
             - --feature.community-components.enabled
+            - --cluster.enabled=true
+            - --cluster.name=$(HOSTNAME)
+            - --cluster.wait-for-size=1
           env:
             - name: ALLOY_DEPLOY_MODE
               value: "helm"
@@ -51,8 +54,16 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: status.podIP
+            - name: GOMAXPROCS
+              valueFrom:
+                resourceFieldRef:
+                  divisor: '1'
+                  resource: limits.cpu
             - name: GOMEMLIMIT
-              value: "768MiB"
+              valueFrom:
+                resourceFieldRef:
+                  divisor: '1'
+                  resource: limits.memory
           ports:
             - name: metrics
               containerPort: 12345
@@ -91,18 +102,6 @@ spec:
               mountPath: /etc/alloy
             - name: tmp
               mountPath: /tmp/alloy
-        - name: config-reloader
-          image: quay.io/prometheus-operator/prometheus-config-reloader:v0.81.0
-          args:
-            - --watched-dir=/etc/alloy
-            - --reload-url=http://localhost:12345/-/reload
-          volumeMounts:
-            - name: config
-              mountPath: /etc/alloy
-          resources:
-            requests:
-              cpu: 10m
-              memory: 50Mi
       dnsPolicy: ClusterFirst
       volumes:
         - name: config
