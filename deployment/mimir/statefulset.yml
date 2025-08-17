@@ -25,36 +25,30 @@ spec:
       automountServiceAccountToken: false
       containers:
       - args:
-        # - '-config.file=/conf/mimir.yaml'
-        - '-target=all,overrides-exporter'
-        - '-activity-tracker.filepath=/data/metrics-activity.log'
         - '-auth.multitenancy-enabled=false'
         - '-auth.no-auth-tenant=anonymous'
-        - '-blocks-storage.bucket-store.sync-dir=/tsdb-sync/'
-        - '-blocks-storage.storage-prefix=blocks'
-        - '-blocks-storage.tsdb.dir=/tsdb/'
-        - '-blocks-storage.tsdb.wal-compression-enabled=true'
-        - '-common.storage.backend=filesystem'
-        - '-common.storage.filesystem.dir=/data'
+        - '-config.file=/conf/mimir.yaml'
         - '-compactor.blocks-retention-period=15d'
-        - '-compactor.cleanup-interval=1h'
-        - '-compactor.data-dir=/compactor/'
-        - '-compactor.deletion-delay=1h'
         - '-distributor.ha-tracker.enable-for-all-users=true'
-        - '-distributor.remote-timeout=5s'
-        - '-ingester.ring.replication-factor=1'
-        - '-ingester.push-circuit-breaker.request-timeout=10s'
-        - '-log.level=warn'
         - '-querier.cardinality-analysis-enabled=true'
-        - '-ruler-storage.backend=local'
-        - '-ruler-storage.local.directory=/rules'
-        - '-ruler.rule-path=/ruler'
-        - '-store-gateway.sharding-ring.replication-factor=1'
-        - '-ingester.out-of-order-time-window=5m'
-        - '-blocks-storage.bucket-store.ignore-blocks-within=0s'
-        image: grafana/mimir:2.16.1
+        - '-blocks-storage.storage-prefix=blocks'
+        - '-ingester.out-of-order-time-window=15m'
+        - '-log.format=json'
+        - '-log.level=warn'
+        image: grafana/mimir:2.17.0
         imagePullPolicy: IfNotPresent
         name: mimir
+        env:
+        - name: GOMAXPROCS
+          valueFrom:
+            resourceFieldRef:
+              divisor: '1'
+              resource: limits.cpu
+        - name: GOMEMLIMIT
+          valueFrom:
+            resourceFieldRef:
+              divisor: '1'
+              resource: limits.memory
         ports:
         - containerPort: 9095
           name: grpc
@@ -68,8 +62,8 @@ spec:
             cpu: 100m
             memory: 512Mi
         volumeMounts:
-        - mountPath: /conf
-          name: conf
+        - name: conf
+          mountPath: /conf
         - name: data
           mountPath: /data
         - name: rules
@@ -113,6 +107,7 @@ spec:
         - name: compactor
           emptyDir:
             sizeLimit: "1Gi"
-        - configMap:
+        - name: conf
+          configMap:
             name: mimir
-          name: conf
+          
