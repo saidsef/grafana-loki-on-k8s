@@ -26,6 +26,11 @@ data:
         local_blocks:
           filter_server_spans: true
           flush_to_storage: true
+        host_info:
+          host_identifiers:
+            - k8s.node.name
+            - host.id
+          metric_name: traces_host_info
         service_graphs:
           enable_client_server_prefix: true
           enable_virtual_node_label: true
@@ -39,8 +44,9 @@ data:
         remote_write:
           - url: http://prometheus-server/api/v1/write
             send_exemplars: true
+            name: prometheus
           - url: http://mimir/api/v1/push
-            send_native_histograms: true
+            send_exemplars: true
             name: mimir
     distributor:
       max_attribute_bytes: 512
@@ -70,9 +76,6 @@ data:
       http_listen_port: 3100
     storage:
       trace:
-        # redis:
-        #   endpoint: redis.storage.svc
-        #   expiration: 2
         backend: local
         block:
           version: vParquet4
