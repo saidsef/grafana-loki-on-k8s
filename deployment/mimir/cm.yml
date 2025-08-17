@@ -6,54 +6,54 @@ metadata:
     app.kubernetes.io/name: mimir
 data:
   mimir.yaml: |
+    target: all,overrides-exporter
+
     activity_tracker:
-        filepath: /data/metrics-activity.log
-    alertmanager:
-        data_dir: /data/alertmanager/
-        sharding_ring:
-            replication_factor: 1
-    alertmanager_storage:
-        local:
-            path: /data/alarm
-    api:
-        enable_otel_metadata_translation: true
-    blocks_storage:
-        bucket_store:
-            sync_dir: /data/tsdb-sync/
-        tsdb:
-            dir: /data/tsdb/
-            wal_compression_enabled: true
-    common:
-        storage:
-            filesystem:
-                dir: /data/storage
-    compactor:
-        data_dir: /data/data-compactor/
-    distributor:
-        ha_tracker:
-            enable_ha_tracker: true
-        write_requests_buffer_pooling_enabled: true
-    enable_go_runtime_metrics: true
-    ingester:
-        ring:
-            replication_factor: 1
-    limits:
-        out_of_order_time_window: 5m
-        native_histograms_ingestion_enabled: true
-        cardinality_analysis_enabled: true
-        compactor_blocks_retention_period: 15d
+      filepath: /data/metrics-activity.log
+
     multitenancy_enabled: false
-    ruler:
-        query_stats_enabled: true
-        rule_path: /data/data-ruler/
+    no_auth_tenant: anonymous
+
+    blocks_storage:
+      bucket_store:
+        sync_dir: /tsdb-sync/
+        ignore_blocks_within: 0s
+      storage_prefix: blocks
+      tsdb:
+        dir: /tsdb/
+        wal_compression_enabled: true
+
+    common:
+      storage:
+        backend: filesystem
+        filesystem:
+          dir: /data
+
+    compactor:
+      cleanup_interval: 1h
+      data_dir: /compactor/
+      deletion_delay: 1h
+
+    distributor:
+      remote_timeout: 5s
+
+    ingester:
+      ring:
+        replication_factor: 1
+      push_circuit_breaker:
+        request_timeout: 10s
+
+    limits:
+      enabled_promql_experimental_functions: all
+
     ruler_storage:
-        local:
-            directory: /data/ruler
-    server:
-        grpc_listen_address: 0.0.0.0
-        http_listen_address: 0.0.0.0
+      backend: local
+      local:
+        directory: /rules
+
+    ruler:
+      rule_path: /ruler
+
     store_gateway:
-        sharding_ring:
-            replication_factor: 1
-    usage_stats:
-        enabled: false
+      sharding_ring:
+        replication_factor: 1
