@@ -26,7 +26,7 @@ spec:
       enableServiceLinks: false
       containers:
         - name: alloy
-          image: docker.io/grafana/alloy:v1.10.0
+          image: docker.io/grafana/alloy:v1.10.2
           imagePullPolicy: IfNotPresent
           args:
             - run

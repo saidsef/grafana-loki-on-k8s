@@ -31,6 +31,16 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: spec.nodeName
+          - name: GOMAXPROCS
+            valueFrom:
+              resourceFieldRef:
+                divisor: '1'
+                resource: limits.cpu
+          - name: GOMEMLIMIT
+            valueFrom:
+              resourceFieldRef:
+                divisor: '1'
+                resource: limits.memory
           ports:
             - name: http-metrics
               containerPort: 3101
