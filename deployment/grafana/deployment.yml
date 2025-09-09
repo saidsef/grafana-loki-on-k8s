@@ -46,6 +46,17 @@ spec:
       - name: grafana
         image: docker.io/grafana/grafana:12.1.0
         imagePullPolicy: IfNotPresent
+        env:
+        - name: GOMAXPROCS
+          valueFrom:
+            resourceFieldRef:
+              divisor: '1'
+              resource: limits.cpu
+        - name: GOMEMLIMIT
+          valueFrom:
+            resourceFieldRef:
+              divisor: '1'
+              resource: limits.memory
         ports:
         - containerPort: 3000
           name: http

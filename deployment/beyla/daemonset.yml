@@ -27,7 +27,7 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: beyla
-          image: docker.io/grafana/beyla:2.5.2
+          image: docker.io/grafana/beyla:2.5.8
           imagePullPolicy: IfNotPresent
           ports:
           - name: metrics
@@ -42,8 +42,16 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: spec.nodeName
+            - name: GOMAXPROCS
+              valueFrom:
+                resourceFieldRef:
+                  divisor: '1'
+                  resource: limits.cpu
             - name: GOMEMLIMIT
-              value: "512MiB"
+              valueFrom:
+                resourceFieldRef:
+                  divisor: '1'
+                  resource: limits.memory
           securityContext:
             runAsUser: 0
             privileged: true

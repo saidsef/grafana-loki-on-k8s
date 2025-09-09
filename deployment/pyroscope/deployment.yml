@@ -41,6 +41,17 @@ spec:
           - "-config.file=/etc/pyroscope/config.yaml"
           - "-runtime-config.file=/etc/pyroscope/overrides/overrides.yaml"
           - "-log.level=info"
+        env:
+        - name: GOMAXPROCS
+          valueFrom:
+            resourceFieldRef:
+              divisor: '1'
+              resource: limits.cpu
+        - name: GOMEMLIMIT
+          valueFrom:
+            resourceFieldRef:
+              divisor: '1'
+              resource: limits.memory
         ports:
         - name: http
           containerPort: 4040
