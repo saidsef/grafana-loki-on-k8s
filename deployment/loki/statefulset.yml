@@ -30,9 +30,10 @@ spec:
         runAsUser: 10001
       containers:
         - name: loki
-          image: docker.io/grafana/loki:3.5.3
+          image: docker.io/grafana/loki:3.5.5
           imagePullPolicy: IfNotPresent
           args:
+            - -target=all
             - "-config.file=/etc/loki/loki.yaml"
           env:
             - name: GOMAXPROCS
@@ -45,6 +46,10 @@ spec:
                 resourceFieldRef:
                   divisor: '1'
                   resource: limits.memory
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
           volumeMounts:
             - name: config
               mountPath: "/etc/loki"
@@ -68,15 +73,22 @@ spec:
               cpu: 50m
               memory: 512Mi
           livenessProbe:
-            httpGet:
-              path: /ready
+            tcpSocket:
               port: http-metrics
-            initialDelaySeconds: 45
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1
           readinessProbe:
             httpGet:
               path: /ready
               port: http-metrics
-            initialDelaySeconds: 45
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1
           securityContext:
             allowPrivilegeEscalation: false
             privileged: false
