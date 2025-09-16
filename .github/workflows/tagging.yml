@@ -26,7 +26,7 @@ jobs:
           echo "DATE=v$(echo `date +'%Y.%m'`)" >> $GITHUB_ENV
           echo "CHANGELOG=`git log --oneline $(git describe --tags @ --abbrev=0 @^ | head -n 1)..@`" >> $GITHUB_ENV
       - name: Create Tag
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         if: ${{ env.DATE }}
         with:
           github-token: ${{ github.token }}
