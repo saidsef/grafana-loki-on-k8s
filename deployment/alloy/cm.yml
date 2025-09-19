@@ -221,9 +221,9 @@ data:
 
     prometheus.remote_write "prometheus" {
       wal {
-        max_keepalive_time = "30m"
-        min_keepalive_time = "15m"
-        truncate_frequency = "45m"
+        max_keepalive_time = "40m"
+        min_keepalive_time = "20m"
+        truncate_frequency = "15m"
       }
       endpoint {
         url = "http://prometheus-server/api/v1/write"
@@ -232,9 +232,9 @@ data:
 
     prometheus.remote_write "mimir" {
       wal {
-        max_keepalive_time = "30m"
-        min_keepalive_time = "15m"
-        truncate_frequency = "45m"
+        max_keepalive_time = "40m"
+        min_keepalive_time = "20m"
+        truncate_frequency = "15m"
       }
       endpoint {
         url = "http://mimir/api/v1/push"
@@ -286,20 +286,30 @@ data:
 
     // OTelcol receiver for traces and metrics
     otelcol.receiver.otlp "beyla" {
-      grpc {}
-      http {}
+      grpc {
+        endpoint = sys.env("POD_IP") + ":4317"
+      }
+      http {
+        endpoint = sys.env("POD_IP") + ":4318"
+      }
 
       output {
+        logs    = [otelcol.processor.batch.beyla.input]
         metrics = [otelcol.processor.batch.beyla.input]
-        traces = [otelcol.processor.batch.beyla.input]
+        traces  = [otelcol.processor.batch.beyla.input]
       }
     }
 
     otelcol.processor.batch "beyla" {
       output {
+        logs    = [otelcol.exporter.loki.loki.input]
         metrics = [otelcol.exporter.prometheus.beyla.input]
         traces  = [otelcol.exporter.otlp.tempo.input]
       }
+    }
+
+    otelcol.exporter.loki "loki" {
+      forward_to = [loki.process.add_replay_label.receiver]
     }
 
     otelcol.exporter.prometheus "beyla" {

@@ -64,6 +64,8 @@ spec:
                 resourceFieldRef:
                   divisor: '1'
                   resource: limits.memory
+            - name: GOGC
+              value: "50"
           ports:
             - name: metrics
               containerPort: 12345
@@ -86,8 +88,19 @@ spec:
               path: /-/ready
               port: 12345
               scheme: HTTP
-            initialDelaySeconds: 10
-            timeoutSeconds: 1
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+          livenessProbe:
+            tcpSocket:
+              port: metrics
+            initialDelaySeconds: 30
+            timeoutSeconds: 2
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
           securityContext:
             privileged: true
             readOnlyRootFilesystem: true
