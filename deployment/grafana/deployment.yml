@@ -44,7 +44,7 @@ spec:
               subPath: dashboards
       containers:
       - name: grafana
-        image: docker.io/grafana/grafana:12.1.0
+        image: docker.io/grafana/grafana:12.2.0
         imagePullPolicy: IfNotPresent
         env:
         - name: GOMAXPROCS
