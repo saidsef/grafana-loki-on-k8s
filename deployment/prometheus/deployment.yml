@@ -25,7 +25,7 @@ spec:
         runAsNonRoot: true
       containers:
         - name: prometheus
-          image: docker.io/prom/prometheus:v3.5.0
+          image: docker.io/prom/prometheus:v3.6.0
           imagePullPolicy: IfNotPresent
           env:
             - name: GOMAXPROCS
