@@ -248,25 +248,6 @@ data:
       extra_metrics = true
     }
 
-    // Enable only if Pyroscope is deployed
-    // make sure endpoint /debug/pprof for scraping
-    // Otherwise this will be very noisy
-    // pyroscope.scrape "default" {
-    //   targets    = discovery.kubernetes.pods.targets
-    //   forward_to = [pyroscope.write.pyroscope.receiver]
-    // }
-
-    pyroscope.write "pyroscope" {
-      endpoint {
-        url = "http://pyroscope:4040"
-      }
-    }
-
-    pyroscope.ebpf "pods" {
-      targets = discovery.relabel.pod_ebpf.output
-      forward_to = [pyroscope.write.pyroscope.receiver]
-    }
-
     otelcol.exporter.otlp "tempo" {
       client {
         endpoint = "tempo:4317"
