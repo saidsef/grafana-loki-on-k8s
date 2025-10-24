@@ -7,27 +7,9 @@ metadata:
     app.kubernetes.io/name: alloy
 data:
   config.alloy: |-
-    livedebugging {
-      enabled = true
-    }
-
     logging {
     	level  = "warn"
     	format = "json"
-    }
-
-    discovery.process "all" {
-      join = discovery.kubernetes.pods.targets
-      refresh_interval = "60s"
-      discover_config {
-        cwd = true
-        exe = true
-        commandline = true
-        username = true
-        uid = true
-        cgroup_path = true
-        container_id = true
-      }
     }
 
     discovery.kubelet "pods" {
@@ -56,8 +38,7 @@ data:
     }
 
     discovery.relabel "all_targets_with_address" {
-      targets = array.concat(discovery.kubernetes.pods.targets, discovery.kubernetes.nodes.targets, discovery.kubernetes.services.targets, discovery.kubernetes.endpointslices.targets, discovery.kubernetes.ingresses.targets, discovery.process.all.targets)
-
+      targets = array.concat(discovery.kubernetes.pods.targets, discovery.kubernetes.nodes.targets, discovery.kubernetes.services.targets, discovery.kubernetes.endpointslices.targets, discovery.kubernetes.ingresses.targets)
       rule {
         source_labels = ["__meta_kubernetes_service_name"]
         regex         = ".+"
@@ -65,7 +46,6 @@ data:
         replacement   = "services"
         action        = "replace"
       }
-
       rule {
         source_labels = ["__meta_kubernetes_endpointslice_name"]
         regex         = ".+"
@@ -73,7 +53,6 @@ data:
         replacement   = "endpointslices"
         action        = "replace"
       }
-
       rule {
         source_labels = ["__meta_kubernetes_pod_container_name"]
         regex         = ".+"
@@ -81,7 +60,6 @@ data:
         replacement   = "kubelet_pods"
         action        = "replace"
       }
-
       rule {
         source_labels = ["__meta_kubernetes_ingress_name"]
         regex         = ".+"
@@ -89,7 +67,6 @@ data:
         replacement   = "ingresses"
         action        = "replace"
       }
-
       rule {
         source_labels = ["__address__"]
         regex        = ".+"
@@ -198,10 +175,6 @@ data:
       forward_to = [loki.write.loki.receiver]
     }
 
-    loki.source.podlogs "default" {
-      forward_to = [loki.write.loki.receiver]
-    }
-
     loki.source.syslog "local" {
       listener {
         address  = "0.0.0.0:51893"
@@ -216,9 +189,6 @@ data:
 
       forward_to = [loki.write.loki.receiver]
     }
-
-    prometheus.exporter.statsd "statsd" {}
-    prometheus.exporter.self "self" {}
 
     prometheus.remote_write "prometheus" {
        wal {
