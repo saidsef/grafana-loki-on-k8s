@@ -113,7 +113,7 @@ data:
       }
       rule {
         action = "labeldrop"
-        regex  = "pod_template_hash|controller_revision_hash|checksum_.*|pod_uid|instance_id|job"
+        regex  = "pod_template_hash|controller_revision_hash|checksum_.*|pod_uid|job"
       }
     }
 
@@ -221,21 +221,21 @@ data:
     prometheus.exporter.self "self" {}
 
     prometheus.remote_write "prometheus" {
-      wal {
-        max_keepalive_time = "40m"
-        min_keepalive_time = "20m"
-        truncate_frequency = "15m"
-      }
-      endpoint {
-        url = "http://prometheus-server/api/v1/write"
-      }
+       wal {
+          max_keepalive_time = "10m"
+          min_keepalive_time = "5m"
+          truncate_frequency = "5m"
+        }
+        endpoint {
+          url = "http://prometheus-server/api/v1/write"
+        }
     }
 
     prometheus.remote_write "mimir" {
       wal {
-        max_keepalive_time = "40m"
-        min_keepalive_time = "20m"
-        truncate_frequency = "15m"
+          max_keepalive_time = "10m"
+          min_keepalive_time = "5m"
+          truncate_frequency = "5m"
       }
       endpoint {
         url = "http://mimir/api/v1/push"
