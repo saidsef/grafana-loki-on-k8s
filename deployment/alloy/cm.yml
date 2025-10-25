@@ -38,7 +38,7 @@ data:
     }
 
     discovery.relabel "all_targets_with_address" {
-      targets = array.concat(discovery.kubernetes.pods.targets, discovery.kubernetes.nodes.targets, discovery.kubernetes.services.targets, discovery.kubernetes.endpointslices.targets, discovery.kubernetes.ingresses.targets)
+      targets = array.concat(discovery.kubernetes.pods.targets, discovery.kubernetes.nodes.targets, discovery.kubernetes.services.targets, discovery.kubernetes.ingresses.targets)
       rule {
         source_labels = ["__meta_kubernetes_service_name"]
         regex         = ".+"
