@@ -40,6 +40,19 @@ data:
     discovery.relabel "all_targets_with_address" {
       targets = array.concat(discovery.kubernetes.pods.targets, discovery.kubernetes.nodes.targets, discovery.kubernetes.services.targets, discovery.kubernetes.ingresses.targets)
       rule {
+        action = "drop"
+        regex = "Succeeded|Failed"
+        source_labels = ["__meta_kubernetes_pod_phase"]
+      }
+      rule {
+        action = "replace"
+        regex = "(.*)@(.*)"
+        replacement = "ebpf/${1}/${2}"
+        separator = "@"
+        source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_container_name"]
+        target_label = "service_name"
+      }
+      rule {
         source_labels = ["__meta_kubernetes_service_name"]
         regex         = ".+"
         target_label  = "source"
@@ -89,39 +102,9 @@ data:
         regex  = "__meta_kubernetes_endpointslice_label_(.+)"
       }
       rule {
-        action = "labeldrop"
-        regex  = "pod_template_hash|controller_revision_hash|checksum_.*|pod_uid|instance|job|pod|container"
-      }
-    }
-
-    discovery.relabel "pod_ebpf" {
-      targets = discovery.kubernetes.pods.targets
-      rule {
-        action = "drop"
-        regex = "Succeeded|Failed"
-        source_labels = ["__meta_kubernetes_pod_phase"]
-      }
-      rule {
-        action = "replace"
-        regex = "(.*)@(.*)"
-        replacement = "ebpf/${1}/${2}"
-        separator = "@"
-        source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_container_name"]
-        target_label = "service_name"
-      }
-      rule {
-        action = "labelmap"
-        regex = "__meta_kubernetes_pod_label_(.+)"
-      }
-      rule {
         action = "replace"
         source_labels = ["__meta_kubernetes_namespace"]
         target_label = "namespace"
-      }
-      rule {
-        action = "replace"
-        source_labels = ["__meta_kubernetes_pod_name"]
-        target_label = "pod"
       }
       rule {
         action = "replace"
@@ -129,28 +112,19 @@ data:
         target_label = "node"
       }
       rule {
-        action = "replace"
-        source_labels = ["__meta_kubernetes_pod_container_name"]
-        target_label = "container"
-      }
-      rule {
         action = "labeldrop"
-        regex  = "pod_template_hash|controller_revision_hash|checksum_.*|pod_uid|instance|job|pod|container"
+        regex  = "pod_template_hash|controller_revision_hash|checksum_.*|pod_uid|instance|job"
       }
     }
 
     discovery.kubernetes "nodes" {
     	role = "node"
     }
-    
+
     discovery.kubernetes "services" {
     	role = "service"
     }
-    
-    discovery.kubernetes "endpointslices" {
-    	role = "endpointslice"
-    }
-    
+
     discovery.kubernetes "ingresses" {
     	role = "ingress"
     }
@@ -241,7 +215,7 @@ data:
     }
 
     // OTelcol receiver for traces and metrics
-    otelcol.receiver.otlp "beyla" {
+    otelcol.receiver.otlp "otel" {
       grpc {
         endpoint = sys.env("POD_IP") + ":4317"
       }
@@ -250,16 +224,16 @@ data:
       }
 
       output {
-        logs    = [otelcol.processor.batch.beyla.input]
-        metrics = [otelcol.processor.batch.beyla.input]
-        traces  = [otelcol.processor.batch.beyla.input]
+        logs    = [otelcol.processor.batch.otel.input]
+        metrics = [otelcol.processor.batch.otel.input]
+        traces  = [otelcol.processor.batch.otel.input]
       }
     }
 
-    otelcol.processor.batch "beyla" {
+    otelcol.processor.batch "otel" {
       output {
         logs    = [otelcol.exporter.loki.loki.input]
-        metrics = [otelcol.exporter.prometheus.beyla.input]
+        metrics = [otelcol.exporter.prometheus.otel.input]
         traces  = [otelcol.exporter.otlp.tempo.input]
       }
     }
@@ -268,6 +242,6 @@ data:
       forward_to = [loki.process.add_replay_label.receiver]
     }
 
-    otelcol.exporter.prometheus "beyla" {
+    otelcol.exporter.prometheus "otel" {
         forward_to = [prometheus.remote_write.prometheus.receiver, prometheus.remote_write.mimir.receiver]
     }
