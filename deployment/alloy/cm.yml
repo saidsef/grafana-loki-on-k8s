@@ -90,7 +90,7 @@ data:
       }
       rule {
         action = "labeldrop"
-        regex  = "pod_template_hash|controller_revision_hash|checksum_.*|pod_uid|job"
+        regex  = "pod_template_hash|controller_revision_hash|checksum_.*|pod_uid|instance|job|pod|container"
       }
     }
 
@@ -133,8 +133,12 @@ data:
         source_labels = ["__meta_kubernetes_pod_container_name"]
         target_label = "container"
       }
+      rule {
+        action = "labeldrop"
+        regex  = "pod_template_hash|controller_revision_hash|checksum_.*|pod_uid|instance|job|pod|container"
+      }
     }
-    
+
     discovery.kubernetes "nodes" {
     	role = "node"
     }
