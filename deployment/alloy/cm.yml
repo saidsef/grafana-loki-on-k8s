@@ -7,27 +7,9 @@ metadata:
     app.kubernetes.io/name: alloy
 data:
   config.alloy: |-
-    livedebugging {
-      enabled = true
-    }
-
     logging {
     	level  = "warn"
     	format = "json"
-    }
-
-    discovery.process "all" {
-      join = discovery.kubernetes.pods.targets
-      refresh_interval = "60s"
-      discover_config {
-        cwd = true
-        exe = true
-        commandline = true
-        username = true
-        uid = true
-        cgroup_path = true
-        container_id = true
-      }
     }
 
     discovery.kubelet "pods" {
@@ -56,8 +38,20 @@ data:
     }
 
     discovery.relabel "all_targets_with_address" {
-      targets = array.concat(discovery.kubernetes.pods.targets, discovery.kubernetes.nodes.targets, discovery.kubernetes.services.targets, discovery.kubernetes.endpointslices.targets, discovery.kubernetes.ingresses.targets, discovery.process.all.targets)
-
+      targets = array.concat(discovery.kubernetes.pods.targets, discovery.kubernetes.nodes.targets, discovery.kubernetes.services.targets, discovery.kubernetes.ingresses.targets)
+      rule {
+        action = "drop"
+        regex = "Succeeded|Failed"
+        source_labels = ["__meta_kubernetes_pod_phase"]
+      }
+      rule {
+        action = "replace"
+        regex = "(.*)@(.*)"
+        replacement = "ebpf/${1}/${2}"
+        separator = "@"
+        source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_container_name"]
+        target_label = "service_name"
+      }
       rule {
         source_labels = ["__meta_kubernetes_service_name"]
         regex         = ".+"
@@ -65,7 +59,6 @@ data:
         replacement   = "services"
         action        = "replace"
       }
-
       rule {
         source_labels = ["__meta_kubernetes_endpointslice_name"]
         regex         = ".+"
@@ -73,7 +66,6 @@ data:
         replacement   = "endpointslices"
         action        = "replace"
       }
-
       rule {
         source_labels = ["__meta_kubernetes_pod_container_name"]
         regex         = ".+"
@@ -81,7 +73,6 @@ data:
         replacement   = "kubelet_pods"
         action        = "replace"
       }
-
       rule {
         source_labels = ["__meta_kubernetes_ingress_name"]
         regex         = ".+"
@@ -89,7 +80,6 @@ data:
         replacement   = "ingresses"
         action        = "replace"
       }
-
       rule {
         source_labels = ["__address__"]
         regex        = ".+"
@@ -112,39 +102,9 @@ data:
         regex  = "__meta_kubernetes_endpointslice_label_(.+)"
       }
       rule {
-        action = "labeldrop"
-        regex  = "pod_template_hash|controller_revision_hash|checksum_.*|pod_uid|instance_id|job"
-      }
-    }
-
-    discovery.relabel "pod_ebpf" {
-      targets = discovery.kubernetes.pods.targets
-      rule {
-        action = "drop"
-        regex = "Succeeded|Failed"
-        source_labels = ["__meta_kubernetes_pod_phase"]
-      }
-      rule {
-        action = "replace"
-        regex = "(.*)@(.*)"
-        replacement = "ebpf/${1}/${2}"
-        separator = "@"
-        source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_container_name"]
-        target_label = "service_name"
-      }
-      rule {
-        action = "labelmap"
-        regex = "__meta_kubernetes_pod_label_(.+)"
-      }
-      rule {
         action = "replace"
         source_labels = ["__meta_kubernetes_namespace"]
         target_label = "namespace"
-      }
-      rule {
-        action = "replace"
-        source_labels = ["__meta_kubernetes_pod_name"]
-        target_label = "pod"
       }
       rule {
         action = "replace"
@@ -152,24 +112,19 @@ data:
         target_label = "node"
       }
       rule {
-        action = "replace"
-        source_labels = ["__meta_kubernetes_pod_container_name"]
-        target_label = "container"
+        action = "labeldrop"
+        regex  = "pod_template_hash|controller_revision_hash|checksum_.*|pod_uid|instance|job"
       }
     }
-    
+
     discovery.kubernetes "nodes" {
     	role = "node"
     }
-    
+
     discovery.kubernetes "services" {
     	role = "service"
     }
-    
-    discovery.kubernetes "endpointslices" {
-    	role = "endpointslice"
-    }
-    
+
     discovery.kubernetes "ingresses" {
     	role = "ingress"
     }
@@ -198,10 +153,6 @@ data:
       forward_to = [loki.write.loki.receiver]
     }
 
-    loki.source.podlogs "default" {
-      forward_to = [loki.write.loki.receiver]
-    }
-
     loki.source.syslog "local" {
       listener {
         address  = "0.0.0.0:51893"
@@ -217,54 +168,38 @@ data:
       forward_to = [loki.write.loki.receiver]
     }
 
-    prometheus.exporter.statsd "statsd" {}
-    prometheus.exporter.self "self" {}
-
     prometheus.remote_write "prometheus" {
-      wal {
-        max_keepalive_time = "40m"
-        min_keepalive_time = "20m"
-        truncate_frequency = "15m"
-      }
-      endpoint {
-        url = "http://prometheus-server/api/v1/write"
-      }
+       wal {
+          max_keepalive_time = "10m"
+          min_keepalive_time = "5m"
+          truncate_frequency = "5m"
+        }
+        endpoint {
+          url = "http://prometheus-server/api/v1/write"
+          remote_timeout = "10s"
+          send_exemplars = true
+          send_native_histograms = true
+        }
     }
 
     prometheus.remote_write "mimir" {
       wal {
-        max_keepalive_time = "40m"
-        min_keepalive_time = "20m"
-        truncate_frequency = "15m"
+          max_keepalive_time = "10m"
+          min_keepalive_time = "5m"
+          truncate_frequency = "5m"
       }
       endpoint {
         url = "http://mimir/api/v1/push"
+        remote_timeout = "10s"
+        send_exemplars = true
+        send_native_histograms = true
       }
     }
 
     prometheus.scrape "default" {
       targets    = discovery.relabel.all_targets_with_address.output
       forward_to = [prometheus.remote_write.prometheus.receiver, prometheus.remote_write.mimir.receiver]
-      extra_metrics = true
-    }
-
-    // Enable only if Pyroscope is deployed
-    // make sure endpoint /debug/pprof for scraping
-    // Otherwise this will be very noisy
-    // pyroscope.scrape "default" {
-    //   targets    = discovery.kubernetes.pods.targets
-    //   forward_to = [pyroscope.write.pyroscope.receiver]
-    // }
-
-    pyroscope.write "pyroscope" {
-      endpoint {
-        url = "http://pyroscope:4040"
-      }
-    }
-
-    pyroscope.ebpf "pods" {
-      targets = discovery.relabel.pod_ebpf.output
-      forward_to = [pyroscope.write.pyroscope.receiver]
+      extra_metrics = false
     }
 
     otelcol.exporter.otlp "tempo" {
@@ -286,7 +221,7 @@ data:
     }
 
     // OTelcol receiver for traces and metrics
-    otelcol.receiver.otlp "beyla" {
+    otelcol.receiver.otlp "otel" {
       grpc {
         endpoint = sys.env("POD_IP") + ":4317"
       }
@@ -295,16 +230,16 @@ data:
       }
 
       output {
-        logs    = [otelcol.processor.batch.beyla.input]
-        metrics = [otelcol.processor.batch.beyla.input]
-        traces  = [otelcol.processor.batch.beyla.input]
+        logs    = [otelcol.processor.batch.otel.input]
+        metrics = [otelcol.processor.batch.otel.input]
+        traces  = [otelcol.processor.batch.otel.input]
       }
     }
 
-    otelcol.processor.batch "beyla" {
+    otelcol.processor.batch "otel" {
       output {
         logs    = [otelcol.exporter.loki.loki.input]
-        metrics = [otelcol.exporter.prometheus.beyla.input]
+        metrics = [otelcol.exporter.prometheus.otel.input]
         traces  = [otelcol.exporter.otlp.tempo.input]
       }
     }
@@ -313,6 +248,7 @@ data:
       forward_to = [loki.process.add_replay_label.receiver]
     }
 
-    otelcol.exporter.prometheus "beyla" {
+    otelcol.exporter.prometheus "otel" {
         forward_to = [prometheus.remote_write.prometheus.receiver, prometheus.remote_write.mimir.receiver]
+        gc_frequency = "2m"
     }
