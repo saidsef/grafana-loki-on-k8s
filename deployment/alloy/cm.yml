@@ -176,6 +176,9 @@ data:
         }
         endpoint {
           url = "http://prometheus-server/api/v1/write"
+          remote_timeout = "10s"
+          send_exemplars = true
+          send_native_histograms = true
         }
     }
 
@@ -187,13 +190,16 @@ data:
       }
       endpoint {
         url = "http://mimir/api/v1/push"
+        remote_timeout = "10s"
+        send_exemplars = true
+        send_native_histograms = true
       }
     }
 
     prometheus.scrape "default" {
       targets    = discovery.relabel.all_targets_with_address.output
       forward_to = [prometheus.remote_write.prometheus.receiver, prometheus.remote_write.mimir.receiver]
-      extra_metrics = true
+      extra_metrics = false
     }
 
     otelcol.exporter.otlp "tempo" {
@@ -244,4 +250,5 @@ data:
 
     otelcol.exporter.prometheus "otel" {
         forward_to = [prometheus.remote_write.prometheus.receiver, prometheus.remote_write.mimir.receiver]
+        gc_frequency = "2m"
     }
