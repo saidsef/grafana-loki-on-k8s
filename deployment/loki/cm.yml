@@ -71,3 +71,6 @@ data:
       working_directory: /data/compactor
       retention_enabled: true
       delete_request_store: filesystem
+
+    ui:
+      enabled: true
