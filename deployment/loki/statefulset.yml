@@ -34,6 +34,8 @@ spec:
           imagePullPolicy: IfNotPresent
           args:
             - -target=all
+            - "-server.http_listen_address=${POD_IP}"
+            - "-server.grpc_listen_address=${POD_IP}"
             - "-ui.advertise-addr=$(POD_IP)"
             - "-config.file=/etc/loki/loki.yaml"
           env:
@@ -51,6 +53,10 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: status.podIP
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
           volumeMounts:
             - name: config
               mountPath: "/etc/loki"
