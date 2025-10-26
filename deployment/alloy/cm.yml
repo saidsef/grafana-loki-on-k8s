@@ -29,6 +29,18 @@ data:
       }
     }
 
+    discovery.kubernetes "nodes" {
+      role = "node"
+    }
+
+    discovery.kubernetes "services" {
+      role = "service"
+    }
+
+    discovery.kubernetes "ingresses" {
+      role = "ingress"
+    }
+
     discovery.relabel "pod_logs" {
       targets = discovery.kubelet.pods.targets
       rule {
@@ -87,6 +99,14 @@ data:
       }
       rule {
         action = "labelmap"
+        regex = "__meta_kubernetes_node_address_(.+)"
+      }
+      rule {
+        action = "labelmap"
+        regex  = "__meta_kubernetes_node_label_(.+)"
+      }
+      rule {
+        action = "labelmap"
         regex  = "__meta_kubernetes_pod_label_(.+)"
       }
       rule {
@@ -115,18 +135,6 @@ data:
         action = "labeldrop"
         regex  = "pod_template_hash|controller_revision_hash|checksum_.*|pod_uid|instance|job"
       }
-    }
-
-    discovery.kubernetes "nodes" {
-    	role = "node"
-    }
-
-    discovery.kubernetes "services" {
-    	role = "service"
-    }
-
-    discovery.kubernetes "ingresses" {
-    	role = "ingress"
     }
 
     loki.write "loki" {
@@ -214,7 +222,6 @@ data:
 
     otelcol.processor.discovery "default" {
       targets = array.concat(discovery.kubelet.pods.targets, discovery.kubernetes.nodes.targets)
-
       output {
         traces = [otelcol.exporter.otlp.tempo.input]
       }
