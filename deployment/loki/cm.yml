@@ -10,7 +10,9 @@ data:
 
     server:
       http_listen_port: 3100
+      log_format: json
       log_level: warn
+      enable_ipv6: true
 
     common:
       path_prefix: /data
