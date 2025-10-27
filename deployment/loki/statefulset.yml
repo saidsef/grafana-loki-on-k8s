@@ -30,10 +30,11 @@ spec:
         runAsUser: 10001
       containers:
         - name: loki
-          image: docker.io/grafana/loki:3.5.5
+          image: docker.io/grafana/loki:3.5.7
           imagePullPolicy: IfNotPresent
           args:
             - -target=all
+            - "-ui.advertise-addr=$(POD_IP)"
             - "-config.file=/etc/loki/loki.yaml"
           env:
             - name: GOMAXPROCS
@@ -50,6 +51,10 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: status.podIP
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
           volumeMounts:
             - name: config
               mountPath: "/etc/loki"
