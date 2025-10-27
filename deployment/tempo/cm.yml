@@ -7,8 +7,6 @@ metadata:
 data:
   tempo.yaml: |
     target: all
-    log_level: warn
-    log_format: json
     multitenancy_enabled: false
     max_bytes_per_trace: 1000000
     usage_report:
@@ -24,6 +22,9 @@ data:
         - '::'
       abort_if_cluster_join_fails: false
     metrics_generator:
+      ring:
+        kvstore:
+          store: memberlist
       processor:
         local_blocks:
           filter_server_spans: true
@@ -56,25 +57,25 @@ data:
         jaeger:
           protocols:
             grpc:
-              endpoint: ${POD_IP}:14250
+              endpoint: 0.0.0.0:14250
             thrift_binary:
-              endpoint: ${POD_IP}:6832
+              endpoint: 0.0.0.0:6832
             thrift_compact:
-              endpoint: ${POD_IP}:6831
+              endpoint: 0.0.0.0:6831
             thrift_http:
-              endpoint: ${POD_IP}:14268
+              endpoint: 0.0.0.0:14268
         otlp:
           protocols:
             grpc:
-              endpoint: ${POD_IP}:4317
+              endpoint: 0.0.0.0:4317
             http:
-              endpoint: ${POD_IP}:4318
+              endpoint: 0.0.0.0:4318
     server:
       log_level: warn
       log_format: json
-      grpc_listen_address: ${POD_IP}
+      grpc_listen_address: 0.0.0.0
       grpc_listen_port: 9095
-      http_listen_address: ${POD_IP}
+      http_listen_address: 0.0.0.0
       http_listen_port: 3100
     storage:
       trace:
@@ -89,7 +90,7 @@ data:
     querier:
       max_concurrent_queries: 20
       frontend_worker:
-        frontend_address: ${POD_IP}:9095
+        frontend_address: 0.0.0.0:9095
     query_frontend: {}
     overrides:
       defaults:
