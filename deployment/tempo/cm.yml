@@ -34,6 +34,8 @@ data:
             - host.id
           metric_name: traces_host_info
         service_graphs:
+          wait: 10s
+          max_items: 10000
           enable_client_server_prefix: true
           enable_virtual_node_label: true
           enable_messaging_system_latency_histogram: true
