@@ -22,6 +22,9 @@ data:
         - '::'
       abort_if_cluster_join_fails: false
     metrics_generator:
+      ring:
+        kvstore:
+          store: memberlist
       processor:
         local_blocks:
           filter_server_spans: true
@@ -32,6 +35,8 @@ data:
             - host.id
           metric_name: traces_host_info
         service_graphs:
+          wait: 10s
+          max_items: 10000
           enable_client_server_prefix: true
           enable_virtual_node_label: true
           enable_messaging_system_latency_histogram: true
@@ -70,9 +75,9 @@ data:
     server:
       log_level: warn
       log_format: json
-      grpc_listen_address: '0.0.0.0'
+      grpc_listen_address: 0.0.0.0
       grpc_listen_port: 9095
-      http_listen_address: '0.0.0.0'
+      http_listen_address: 0.0.0.0
       http_listen_port: 3100
     storage:
       trace:

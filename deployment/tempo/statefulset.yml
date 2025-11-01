@@ -26,7 +26,8 @@ spec:
         - -mem-ballast-size-mbs=512
         - -generator.instance-id=$(POD_IP)
         - -log.level=warn
-        image: docker.io/grafana/tempo:2.8.2
+        - -config.expand-env=true
+        image: docker.io/grafana/tempo:2.9.0
         imagePullPolicy: IfNotPresent
         name: tempo
         env:
