@@ -220,14 +220,23 @@ data:
       }
     }
 
-    otelcol.processor.discovery "default" {
-      targets = array.concat(discovery.kubelet.pods.targets, discovery.kubernetes.nodes.targets)
+    otelcol.processor.k8sattributes "default" {
+      passthrough = false 
       output {
-        traces = [otelcol.exporter.otlp.tempo.input]
+        traces = [
+          otelcol.processor.batch.otel.input,
+          otelcol.connector.servicegraph.tempo.input,
+        ]
       }
     }
 
-    // OTelcol receiver for traces and metrics
+    otelcol.connector.servicegraph "tempo" {
+      dimensions = ["http.method", "http.target"]
+      output {
+        metrics = [otelcol.exporter.prometheus.otel.input]
+      }
+    }
+
     otelcol.receiver.otlp "otel" {
       grpc {
         endpoint = sys.env("POD_IP") + ":4317"
@@ -239,7 +248,7 @@ data:
       output {
         logs    = [otelcol.processor.batch.otel.input]
         metrics = [otelcol.processor.batch.otel.input]
-        traces  = [otelcol.processor.batch.otel.input]
+        traces  = [otelcol.processor.k8sattributes.default.input]
       }
     }
 

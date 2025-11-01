@@ -31,6 +31,7 @@ data:
           flush_to_storage: true
         host_info:
           host_identifiers:
+            - k8s.node.name
             - host.id
           metric_name: traces_host_info
         service_graphs:
