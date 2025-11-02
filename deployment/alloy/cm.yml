@@ -37,8 +37,12 @@ data:
       role = "service"
     }
 
-    discovery.kubernetes "ingresses" {
-      role = "ingress"
+    discovery.kubernetes "endpoints" {
+      role = "endpointslice"
+    }
+
+    discovery.kubernetes "endpointslices" {
+      role = "endpointslice"
     }
 
     discovery.relabel "pod_logs" {
@@ -47,10 +51,14 @@ data:
         action = "labelmap"
         regex  = "__meta_kubernetes_pod_label_(.+)"
       }
+      rule {
+        action = "labelmap"
+        regex  = "__meta_kubernetes_node_label_(.+)"
+      }
     }
 
     discovery.relabel "all_targets_with_address" {
-      targets = array.concat(discovery.kubernetes.pods.targets, discovery.kubernetes.nodes.targets, discovery.kubernetes.services.targets, discovery.kubernetes.ingresses.targets)
+      targets = array.concat(discovery.kubernetes.pods.targets, discovery.kubernetes.nodes.targets, discovery.kubernetes.services.targets, discovery.kubernetes.endpoints.targets, discovery.kubernetes.endpointslices.targets)
       rule {
         action = "drop"
         regex = "Succeeded|Failed"
@@ -69,6 +77,13 @@ data:
         regex         = ".+"
         target_label  = "source"
         replacement   = "services"
+        action        = "replace"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_endpoints_name"]
+        regex         = ".+"
+        target_label  = "source"
+        replacement   = "endpoints"
         action        = "replace"
       }
       rule {
@@ -115,11 +130,15 @@ data:
       }
       rule {
         action = "labelmap"
-        regex  = "__meta_kubernetes_ingress_label_(.+)"
+        regex  = "__meta_kubernetes_endpoint_label_(.+)"
       }
       rule {
         action = "labelmap"
         regex  = "__meta_kubernetes_endpointslice_label_(.+)"
+      }
+      rule {
+        action = "labelmap"
+        regex  = "__meta_kubernetes_ingress_label_(.+)"
       }
       rule {
         action = "replace"
