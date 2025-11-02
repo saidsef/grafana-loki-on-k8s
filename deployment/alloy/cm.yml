@@ -20,7 +20,7 @@ data:
         insecure_skip_verify = true
       }
     }
-    
+
     discovery.kubernetes "pods" {
     	role = "pod"
       selectors {
@@ -38,7 +38,7 @@ data:
     }
 
     discovery.kubernetes "endpoints" {
-      role = "endpointslice"
+      role = "endpoints"
     }
 
     discovery.kubernetes "endpointslices" {
