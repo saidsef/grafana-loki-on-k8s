@@ -228,6 +228,28 @@ data:
       passthrough = false 
       output {
         traces = [
+          otelcol.processor.tail_sampling.rate_limiter.input,
+        ]
+      }
+    }
+
+    otelcol.processor.tail_sampling "rate_limiter" {
+      policy {
+        name = "sample-errors"
+        type = "status_code"
+        status_code {
+          status_codes = ["ERROR"]
+        }
+      }
+      policy {
+        name = "rate-limit-ok"
+        type = "rate_limiting"
+        rate_limiting {
+          spans_per_second = 200
+        }
+      }
+      output {
+        traces = [
           otelcol.processor.batch.otel.input,
           otelcol.connector.servicegraph.tempo.input,
         ]
