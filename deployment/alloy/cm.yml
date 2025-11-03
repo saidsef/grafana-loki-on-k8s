@@ -245,7 +245,7 @@ data:
         name = "rate-limit-ok"
         type = "rate_limiting"
         rate_limiting {
-          spans_per_second = 200
+          spans_per_second = 400
         }
       }
       output {
@@ -279,6 +279,9 @@ data:
     }
 
     otelcol.processor.batch "otel" {
+      timeout = "6s"
+      send_batch_size = 200
+      send_batch_max_size = 300
       output {
         logs    = [otelcol.exporter.loki.loki.input]
         metrics = [otelcol.exporter.prometheus.otel.input]
