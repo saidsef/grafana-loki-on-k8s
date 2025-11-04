@@ -22,8 +22,9 @@
 I am assuming you are already familiar with [Grafana Stack](https://grafana.com/about/grafana-stack/).
 
 ## Prerequisites
-- Kubernetes Cluster >= v1.26
+- Kubernetes Cluster >= v1.28
 - Familiarity with Grafana Stack
+- Observability
 - ...
 - Profit?
 
