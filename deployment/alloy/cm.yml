@@ -13,9 +13,9 @@ data:
     }
 
     discovery.kubelet "pods" {
-      url  = string.format("https://%s:10250", sys.env("NODE_IP"))
+      refresh_interval  = "60s"
       bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
-      // this is a local node, so we can skip TLS verification
+      url               = string.format("https://%s:10250", sys.env("NODE_IP"))
       tls_config {
         insecure_skip_verify = true
       }
