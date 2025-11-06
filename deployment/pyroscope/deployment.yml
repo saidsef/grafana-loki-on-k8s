@@ -30,7 +30,7 @@ spec:
         runAsUser: 10001
       containers:
       - name: pyroscope
-        image: docker.io/grafana/pyroscope:1.14.1
+        image: docker.io/grafana/pyroscope:1.16.0
         imagePullPolicy: IfNotPresent
         args:
           - "-target=all"
