@@ -21,24 +21,12 @@ data:
       }
     }
 
-    discovery.kubernetes "pods" {
-    	role = "pod"
-      selectors {
-        field = "spec.nodeName=" + sys.env("HOSTNAME")
-        role = "pod"
-      }
-    }
-
     discovery.kubernetes "nodes" {
       role = "node"
     }
 
     discovery.kubernetes "services" {
       role = "service"
-    }
-
-    discovery.kubernetes "endpointslices" {
-      role = "endpointslice"
     }
 
     discovery.relabel "pod_logs" {
@@ -54,7 +42,7 @@ data:
     }
 
     discovery.relabel "all_targets_with_address" {
-      targets = array.concat(discovery.kubernetes.pods.targets, discovery.kubernetes.nodes.targets, discovery.kubernetes.services.targets, discovery.kubernetes.endpointslices.targets)
+      targets = array.concat(discovery.kubelet.pods.targets, discovery.kubernetes.nodes.targets, discovery.kubernetes.services.targets)
       rule {
         action = "drop"
         regex = "Succeeded|Failed"
