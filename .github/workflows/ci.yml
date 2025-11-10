@@ -38,7 +38,7 @@ jobs:
     if: ${{ github.event_name == 'pull_request' }}
     steps:
       - name: Create k8s Kind Cluster
-        uses: helm/kind-action@v1.12.0
+        uses: helm/kind-action@v1.13.0
       - name: Check out repository code
         uses: actions/checkout@v5
       - name: Run K8s test
