@@ -8,15 +8,14 @@ data:
   tempo.yaml: |
     target: all
     multitenancy_enabled: false
-    max_bytes_per_trace: 1000000
     usage_report:
       reporting_enabled: false
     compactor:
       compaction:
-        block_retention: 24h
-        compacted_block_retention: 30m
-        compaction_cycle: 30m
-        compaction_window: 1h
+        block_retention: 48h
+        compacted_block_retention: 1h
+        compaction_cycle: 1h
+        compaction_window: 2h
     memberlist:
       bind_addr:
         - '::'
@@ -84,6 +83,7 @@ data:
         backend: local
         block:
           version: vParquet4
+          bloom_filter_false_positive: .05
         local:
           path: /var/tempo/traces
         wal:
@@ -96,6 +96,8 @@ data:
     query_frontend: {}
     overrides:
       defaults:
+        ingestion:
+          max_traces_per_user: 0
         metrics_generator:
           processors: [service-graphs, span-metrics, local-blocks]
           generate_native_histograms: both
