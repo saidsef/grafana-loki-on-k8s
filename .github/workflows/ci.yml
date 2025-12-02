@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Check out repository code
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
@@ -40,7 +40,7 @@ jobs:
       - name: Create k8s Kind Cluster
         uses: helm/kind-action@v1.13.0
       - name: Check out repository code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Run K8s test
         run: |
           kubectl cluster-info
@@ -72,7 +72,7 @@ jobs:
   #     PR_NUMBER: ${{ github.event.number }}
   #   steps:
   #   - name: Check out repository code
-  #     uses: actions/checkout@v5
+  #     uses: actions/checkout@v6
   #   - name: Auto Merge PR
   #     uses: actions/github-script@v8
   #     with:
