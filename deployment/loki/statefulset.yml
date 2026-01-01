@@ -34,7 +34,6 @@ spec:
           imagePullPolicy: IfNotPresent
           args:
             - -target=all
-            - "-ui.advertise-addr=$(POD_IP)"
             - "-config.file=/etc/loki/loki.yaml"
           env:
             - name: GOMAXPROCS
