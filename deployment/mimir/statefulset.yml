@@ -35,7 +35,7 @@ spec:
         - '-ingester.out-of-order-time-window=15m'
         - '-log.format=json'
         - '-log.level=warn'
-        image: docker.io/grafana/mimir:3.0.1
+        image: docker.io/grafana/mimir:3.0.2
         imagePullPolicy: IfNotPresent
         name: mimir
         env:
