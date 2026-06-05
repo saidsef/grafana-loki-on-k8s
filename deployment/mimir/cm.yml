@@ -12,15 +12,17 @@ data:
       filepath: /data/metrics-activity.log
 
     multitenancy_enabled: false
-    no_auth_tenant: anonymous
 
     blocks_storage:
       bucket_store:
         sync_dir: /tsdb-sync/
-        ignore_blocks_within: 0s
       storage_prefix: blocks
       tsdb:
+        bigger_out_of_order_blocks_for_old_samples: true
         dir: /tsdb/
+        flush_blocks_on_shutdown: true
+        memory_snapshot_on_shutdown: true
+        timely_head_compaction_enabled: true
         wal_compression_enabled: true
 
     common:
@@ -40,11 +42,13 @@ data:
     ingester:
       ring:
         replication_factor: 1
-      push_circuit_breaker:
-        request_timeout: 10s
 
     limits:
+      cardinality_analysis_enabled: true
+      compactor_blocks_retention_period: 15d
       enabled_promql_experimental_functions: all
+      enabled_promql_extended_range_selectors: all
+      out_of_order_time_window: 15m
 
     ruler_storage:
       backend: local
