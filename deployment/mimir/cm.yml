@@ -46,9 +46,6 @@ data:
     limits:
       enabled_promql_experimental_functions: all
 
-    query_frontend:
-      query_engine: mimir
-
     ruler_storage:
       backend: local
       local:
