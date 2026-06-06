@@ -21,10 +21,30 @@ data:
         - '::'
       abort_if_cluster_join_fails: false
     metrics_generator:
+      metrics_ingestion_time_range_slack: 60s
       ring:
         kvstore:
           store: memberlist
       processor:
+        service_graphs:
+          wait: 60s
+          max_items: 10000
+          enable_client_server_prefix: true
+          enable_virtual_node_label: true
+          enable_messaging_system_latency_histogram: true
+          peer_attributes:
+            - peer.service
+            - server.address
+            - net.peer.name
+            - db.name
+            - db.system
+            - network.peer.address
+          dimensions:
+            - http.method
+            - http.request.method
+            - http.target
+            - url.path
+
         local_blocks:
           filter_server_spans: true
           flush_to_storage: true
@@ -33,12 +53,6 @@ data:
             - k8s.node.name
             - host.id
           metric_name: traces_host_info
-        service_graphs:
-          wait: 10s
-          max_items: 10000
-          enable_client_server_prefix: true
-          enable_virtual_node_label: true
-          enable_messaging_system_latency_histogram: true
         span_metrics:
           enable_target_info: true
       traces_storage:
@@ -46,14 +60,14 @@ data:
       storage:
         path: /var/tempo/generator/wal
         remote_write:
-          - url: http://prometheus-server/api/v1/write
-            send_exemplars: true
-            name: prometheus
+          # - url: http://prometheus-server/api/v1/write
+          #   send_exemplars: true
+          #   name: prometheus
           - url: http://mimir/api/v1/push
             send_exemplars: true
             name: mimir
     distributor:
-      max_attribute_bytes: 512
+      max_attribute_bytes: 2048
       receivers:
         jaeger:
           protocols:
@@ -87,20 +101,15 @@ data:
         local:
           path: /var/tempo/traces
         wal:
-          search_encoding: snappy
           path: /var/tempo/wal
     querier:
       max_concurrent_queries: 20
       frontend_worker:
-        frontend_address: 0.0.0.0:9095
-    query_frontend: {}
+        frontend_address: ${POD_IP}:9095
     overrides:
       defaults:
         ingestion:
           max_traces_per_user: 0
         metrics_generator:
-          processors: [service-graphs, span-metrics, local-blocks]
+          processors: [service-graphs, span-metrics, local-blocks, host-info]
           generate_native_histograms: both
-      user_configurable_overrides:
-        api:
-          check_for_conflicting_runtime_overrides: true

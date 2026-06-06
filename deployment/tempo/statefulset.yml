@@ -23,7 +23,6 @@ spec:
       containers:
       - args:
         - -config.file=/conf/tempo.yaml
-        - -mem-ballast-size-mbs=512
         - -generator.instance-id=$(POD_IP)
         - -log.level=warn
         - -config.expand-env=true
@@ -60,16 +59,10 @@ spec:
           name: jaeger-grpc
         - containerPort: 9411
           name: zipkin
-        - containerPort: 55680
-          name: otlp-legacy
         - containerPort: 4317
           name: otlp-grpc
-        - containerPort: 55681
-          name: otlp-httplegacy
         - containerPort: 4318
           name: otlp-http
-        - containerPort: 55678
-          name: opencensus
         resources:
           limits:
             cpu: 100m

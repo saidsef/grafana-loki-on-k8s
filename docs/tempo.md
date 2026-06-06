@@ -2,16 +2,17 @@
 
 Tempo is the traces backend. Single binary (`target: all`), filesystem storage, single replica, multi-protocol ingest. Config lives in [`deployment/tempo/cm.yml`](../deployment/tempo/cm.yml).
 
-Beyond storing spans, it runs a `metrics_generator` that converts spans into RED metrics and service-graph metrics, then writes them to both Prometheus and Mimir.
+Beyond storing spans, it runs a `metrics_generator` that converts spans into RED metrics and service-graph metrics, then writes them to Mimir.
 
 ## What it runs
 
 - StatefulSet, single replica, image `docker.io/grafana/tempo:2.10.3`.
-- Args: `-target=all -config.file=/conf/tempo.yaml -mem-ballast-size-mbs=512 -generator.instance-id=$(POD_IP)`.
-- Ports: 3100 (HTTP query), 9095 (gRPC), 4317 (OTLP gRPC), 4318 (OTLP HTTP), 14250 (Jaeger gRPC), 14268 (Jaeger Thrift HTTP), 6831 / 6832 (Jaeger Thrift UDP), 9411 (Zipkin), 55678 (OpenCensus).
+- Args: `-config.file=/conf/tempo.yaml -config.expand-env=true -generator.instance-id=$(POD_IP) -log.level=warn`.
+- Ports: 3100 (HTTP query), 9095 (gRPC), 4317 (OTLP gRPC), 4318 (OTLP HTTP), 14250 (Jaeger gRPC), 14268 (Jaeger Thrift HTTP), 6831 / 6832 (Jaeger Thrift UDP), 9411 (Zipkin).
 - Resources: requests 50m CPU / 512Mi, limits 100m CPU / 896Mi.
-- Storage: single 10 Gi emptyDir, split across `/var/tempo/wal`, `/var/tempo/traces`, `/var/tempo/generator/wal`, `/var/tempo/generator/traces` via subPaths.
+- Storage: single 10 Gi emptyDir split across `/var/tempo/wal`, `/var/tempo/traces`, `/var/tempo/generator/wal`, `/var/tempo/generator/traces` via subPaths.
 - Security: read-only root filesystem, all caps dropped, no privilege escalation.
+- A headless service (`tempo-headless`) exists alongside the ClusterIP service to satisfy the StatefulSet governing service requirement.
 
 ## Configuration
 
@@ -24,11 +25,11 @@ usage_report:
   reporting_enabled: false
 ```
 
-All ingest receivers in one block:
+All ingest receivers in one block. `max_attribute_bytes` is set to the Tempo default — anything lower silently truncates attribute values:
 
 ```yaml
 distributor:
-  max_attribute_bytes: 512
+  max_attribute_bytes: 2048
   receivers:
     jaeger:
       protocols:
@@ -54,7 +55,6 @@ storage:
     local:
       path: /var/tempo/traces
     wal:
-      search_encoding: snappy
       path: /var/tempo/wal
 ```
 
@@ -69,28 +69,37 @@ compactor:
     compaction_window: 2h
 ```
 
-Metrics-generator ring rides on memberlist, processors enabled in `overrides.defaults`:
+Metrics-generator ring rides on memberlist, four processors enabled:
 
 ```yaml
 overrides:
   defaults:
     metrics_generator:
-      processors: [service-graphs, span-metrics, local-blocks]
+      processors: [service-graphs, span-metrics, local-blocks, host-info]
       generate_native_histograms: both
 ```
 
-The generator writes those metrics to both Prometheus and Mimir:
+`host-info` emits a `traces_host_info` gauge keyed on `k8s.node.name` and `host.id`. `service-graphs` is tuned with a 60s wait to allow time for cross-node span pairs that arrive via tail sampling, plus peer_attributes and dimensions for richer label coverage. The generator writes metrics to Mimir:
 
 ```yaml
 metrics_generator:
   storage:
     remote_write:
-      - url: http://prometheus-server/api/v1/write
-        send_exemplars: true
-        name: prometheus
+      # - url: http://prometheus-server/api/v1/write
+      #   send_exemplars: true
+      #   name: prometheus
       - url: http://mimir/api/v1/push
         send_exemplars: true
         name: mimir
+```
+
+The querier connects to the co-located frontend using the pod IP, injected at startup via `-config.expand-env=true`:
+
+```yaml
+querier:
+  max_concurrent_queries: 20
+  frontend_worker:
+    frontend_address: ${POD_IP}:9095
 ```
 
 ## Inputs
@@ -102,14 +111,13 @@ otelcol.exporter.otlp "tempo" {
   client {
     endpoint = "tempo:4317"
     tls {
-      insecure             = true
-      insecure_skip_verify = true
+      insecure = true
     }
   }
 }
 ```
 
-The other receivers (Jaeger, Zipkin, OpenCensus) are available but nothing in this repo writes to them.
+The Jaeger and Zipkin receivers are available for services that instrument with those SDKs directly.
 
 ## Outputs
 
