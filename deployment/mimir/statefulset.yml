@@ -25,17 +25,10 @@ spec:
       automountServiceAccountToken: false
       containers:
       - args:
-        - '-auth.multitenancy-enabled=false'
-        - '-auth.no-auth-tenant=anonymous'
         - '-config.file=/conf/mimir.yaml'
-        - '-compactor.blocks-retention-period=15d'
-        - '-distributor.ha-tracker.enable-for-all-users=true'
-        - '-querier.cardinality-analysis-enabled=true'
-        - '-blocks-storage.storage-prefix=blocks'
-        - '-ingester.out-of-order-time-window=15m'
         - '-log.format=json'
         - '-log.level=warn'
-        image: docker.io/grafana/mimir:3.0.6
+        image: docker.io/grafana/mimir:3.1.0
         imagePullPolicy: IfNotPresent
         name: mimir
         env:
