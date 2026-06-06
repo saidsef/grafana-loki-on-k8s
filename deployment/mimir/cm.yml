@@ -16,12 +16,20 @@ data:
     blocks_storage:
       bucket_store:
         sync_dir: /tsdb-sync/
+        index_cache:
+          backend: inmemory
+          inmemory:
+            max_size_bytes: 52428800
       storage_prefix: blocks
       tsdb:
         bigger_out_of_order_blocks_for_old_samples: true
+        block_postings_for_matchers_cache_max_bytes: 26214400
         dir: /tsdb/
         flush_blocks_on_shutdown: true
+        head_chunks_write_queue_size: 0
+        head_postings_for_matchers_cache_max_bytes: 26214400
         memory_snapshot_on_shutdown: true
+        series_hash_cache_max_size_bytes: 0
         timely_head_compaction_enabled: true
         wal_compression_enabled: true
 
