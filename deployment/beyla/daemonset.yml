@@ -32,13 +32,13 @@ spec:
             protocol: TCP
           readinessProbe:
             httpGet:
-              path: /health
+              path: /healthz
               port: 9090
             initialDelaySeconds: 10
             periodSeconds: 15
           livenessProbe:
             httpGet:
-              path: /health
+              path: /healthz
               port: 9090
             initialDelaySeconds: 30
             periodSeconds: 30
@@ -51,6 +51,12 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.labels['cluster']
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "k8s.node.name=$(NODE_NAME)"
             - name: GOMAXPROCS
               valueFrom:
                 resourceFieldRef:
