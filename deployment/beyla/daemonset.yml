@@ -14,12 +14,9 @@ spec:
     type: RollingUpdate
   template:
     metadata:
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "9090"
-        filter.by.port.name: "true"
       labels:
         app.kubernetes.io/name: beyla
+        cluster: kubernetes
     spec:
       serviceAccountName: beyla
       hostPID: true           # <-- Important. Required in DaemonSet mode so Beyla can discover all monitored processes
@@ -27,12 +24,24 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: beyla
-          image: docker.io/grafana/beyla:3.14.0
+          image: docker.io/grafana/beyla:3.22.0
           imagePullPolicy: IfNotPresent
           ports:
-          - name: metrics
+          - name: health
             containerPort: 9090
             protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 9090
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 9090
+            initialDelaySeconds: 30
+            periodSeconds: 30
           env:
             - name: BEYLA_CONFIG_PATH
               value: "/etc/beyla/config/beyla-config.yml"
@@ -41,7 +50,7 @@ spec:
             - name: BEYLA_KUBE_CLUSTER_NAME
               valueFrom:
                 fieldRef:
-                  fieldPath: spec.nodeName
+                  fieldPath: metadata.labels['cluster']
             - name: GOMAXPROCS
               valueFrom:
                 resourceFieldRef:
