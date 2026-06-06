@@ -30,14 +30,6 @@ spec:
     port: 9411
     protocol: TCP
     targetPort: 9411
-  - name: tempo-otlp-legacy
-    port: 55680
-    protocol: TCP
-    targetPort: 55680
-  - name: tempo-otlp-http-legacy
-    port: 55681
-    protocol: TCP
-    targetPort: 4318
   - name: grpc-tempo-otlp
     port: 4317
     protocol: TCP
@@ -46,9 +38,5 @@ spec:
     port: 4318
     protocol: TCP
     targetPort: 4318
-  - name: tempo-opencensus
-    port: 55678
-    protocol: TCP
-    targetPort: 55678
   selector:
     app.kubernetes.io/name: tempo

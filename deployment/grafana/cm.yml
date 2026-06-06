@@ -30,6 +30,7 @@ data:
     apiVersion: 1
     datasources:
     - name: Mimir
+      uid: Mimir
       type: prometheus
       access: proxy
       editable: true
@@ -46,6 +47,7 @@ data:
     apiVersion: 1
     datasources:
     - name: Prometheus
+      uid: Prometheus
       type: prometheus
       access: proxy
       editable: true
@@ -61,6 +63,7 @@ data:
     apiVersion: 1
     datasources:
     - name: Pyroscope
+      uid: Pyroscope
       type: grafana-pyroscope-datasource
       access: proxy
       editable: true
@@ -71,6 +74,7 @@ data:
     apiVersion: 1
     datasources:
     - name: Loki
+      uid: Loki
       type: loki
       access: proxy
       editable: true
@@ -86,6 +90,7 @@ data:
     apiVersion: 1
     datasources:
     - name: Tempo
+      uid: Tempo
       type: tempo
       access: proxy
       editable: true

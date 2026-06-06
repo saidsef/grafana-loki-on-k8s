@@ -56,6 +56,7 @@ data:
       compactor_blocks_retention_period: 15d
       enabled_promql_experimental_functions: all
       enabled_promql_extended_range_selectors: all
+      max_global_series_per_user: 500000
       out_of_order_time_window: 15m
 
     ruler_storage:

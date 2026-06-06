@@ -4,5 +4,6 @@ kind: Kustomization
 resources:
 - account.yml
 - cm.yml
+- headless-service.yml
 - service.yml
 - statefulset.yml
