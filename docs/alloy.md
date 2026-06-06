@@ -6,8 +6,9 @@ This stack uses Alloy in place of Promtail. The Promtail directory is still in t
 
 ## What it runs
 
-- DaemonSet, image `docker.io/grafana/alloy:v1.16.1`.
-- Args: `run /etc/alloy/config.alloy --storage.path=/tmp/alloy --cluster.enabled=true --cluster.name=$(HOSTNAME) --cluster.wait-for-size=1 --feature.community-components.enabled --stability.level=public-preview`.
+- DaemonSet, image `docker.io/grafana/alloy:v1.16.2`.
+- Args: `run /etc/alloy/config.alloy --storage.path=/tmp/alloy --server.http.listen-addr=$(POD_IP):12345 --stability.level=public-preview --feature.community-components.enabled --cluster.enabled=true --cluster.name=$(CLUSTER_NAME) --cluster.wait-for-size=1`.
+- `CLUSTER_NAME` is read from the pod label `cluster` via the downward API, so it's set in the DaemonSet pod template rather than hardcoded in the args.
 - Ports: 12345 (HTTP UI and self metrics), 4317 (OTLP gRPC), 4318 (OTLP HTTP).
 - Resources: requests 50m CPU / 512Mi, limits 100m CPU / 896Mi.
 - Storage: 1 Gi emptyDir at `/tmp/alloy` for remote_write WAL buffers.
@@ -26,7 +27,7 @@ loki.write "loki" {
 }
 ```
 
-Three log sources feed that writer: pod logs (`loki.source.kubernetes "pods"`, filtered to drop anything older than 1 hour), cluster events (`loki.source.kubernetes_events "cluster"`) and syslog on TCP `:51893` / UDP `:51898`.
+Two log sources feed that writer: pod logs (`loki.source.kubernetes "pods"`, filtered to drop anything older than 1 hour) and cluster events (`loki.source.kubernetes_events "cluster"`).
 
 Metrics fan out to both Prometheus and Mimir, with exemplars and native histograms on each:
 
@@ -52,7 +53,7 @@ prometheus.remote_write "mimir" {
 
 A single `prometheus.scrape "default"` block walks kubelet pod targets, nodes and services and forwards to both writers. Targets with `prometheus.io/scrape: "false"` get dropped during relabel.
 
-Traces come in on OTLP and leave on OTLP, with K8s metadata, tail sampling and a service-graph connector in the middle:
+Traces come in on OTLP, get K8s metadata attached, pass through tail sampling, and split: one copy goes to Tempo, the other feeds the service-graph connector:
 
 ```river
 otelcol.receiver.otlp "otel" {
@@ -73,18 +74,22 @@ otelcol.processor.tail_sampling "rate_limiter" {
   }
 }
 
+otelcol.connector.servicegraph "tempo" {
+  dimensions = ["http.method", "http.request.method", "http.target", "url.path"]
+  output {
+    metrics = [otelcol.exporter.prometheus.otel.input]
+  }
+}
+
 otelcol.exporter.otlp "tempo" {
   client {
     endpoint = "tempo:4317"
-    tls {
-      insecure             = true
-      insecure_skip_verify = true
-    }
+    tls { insecure = true }
   }
 }
 ```
 
-Errored spans are always sampled, everything else is capped at 400 spans/s. The service-graph connector turns spans into metrics that go back through the Prometheus and Mimir writers.
+Errored spans are always sampled, everything else is capped at 400 spans/s. The service-graph connector emits `traces_service_graph_*` metrics for span pairs it sees on the local node.
 
 Batch settings: 6 second timeout, 200 spans per batch, 300 max.
 
@@ -92,7 +97,6 @@ Batch settings: 6 second timeout, 200 spans per batch, 300 max.
 
 - Applications send OTLP logs, metrics and traces to the local Alloy on the node, port 4317 (gRPC) or 4318 (HTTP).
 - The kubelet at `https://$NODE_IP:10250` is the source for pod targets and pod logs.
-- Syslog clients can ship to TCP `:51893` or UDP `:51898`.
 
 ## Outputs
 

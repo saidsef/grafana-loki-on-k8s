@@ -237,8 +237,8 @@ data:
       }
       output {
         traces = [
-          otelcol.processor.batch.otel.input,
           otelcol.connector.servicegraph.tempo.input,
+          otelcol.processor.batch.otel.input,
         ]
       }
     }
