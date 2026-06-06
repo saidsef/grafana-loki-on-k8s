@@ -21,12 +21,13 @@ spec:
         filter.by.port.name: "true"
       labels:
         app.kubernetes.io/name: alloy
+        cluster: kubernetes
     spec:
       serviceAccountName: alloy
       enableServiceLinks: false
       containers:
         - name: alloy
-          image: docker.io/grafana/alloy:v1.16.1
+          image: docker.io/grafana/alloy:v1.16.2
           imagePullPolicy: IfNotPresent
           args:
             - run
@@ -37,11 +38,15 @@ spec:
             - --stability.level=public-preview
             - --feature.community-components.enabled
             - --cluster.enabled=true
-            - --cluster.name=$(HOSTNAME)
+            - --cluster.name=$(CLUSTER_NAME)
             - --cluster.wait-for-size=1
           env:
             - name: ALLOY_DEPLOY_MODE
               value: "helm"
+            - name: CLUSTER_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['cluster']
             - name: HOSTNAME
               valueFrom:
                 fieldRef:
@@ -76,6 +81,12 @@ spec:
             - name: otlp-http
               containerPort: 4318
               protocol: TCP
+            - name: syslog-tcp
+              containerPort: 51893
+              protocol: TCP
+            - name: syslog-udp
+              containerPort: 51898
+              protocol: UDP
           resources:
             requests:
               cpu: 50m
