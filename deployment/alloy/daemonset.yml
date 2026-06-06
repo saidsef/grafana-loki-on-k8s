@@ -81,12 +81,6 @@ spec:
             - name: otlp-http
               containerPort: 4318
               protocol: TCP
-            - name: syslog-tcp
-              containerPort: 51893
-              protocol: TCP
-            - name: syslog-udp
-              containerPort: 51898
-              protocol: UDP
           resources:
             requests:
               cpu: 50m

@@ -23,11 +23,3 @@ spec:
       port: 4318
       protocol: TCP
       targetPort: 4318
-    - name: syslog-tcp
-      port: 51893
-      targetPort: 51893
-      protocol: TCP
-    - name: syslog-udp
-      port: 51898
-      targetPort: 51898
-      protocol: UDP
