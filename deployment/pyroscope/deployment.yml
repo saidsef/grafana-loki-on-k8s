@@ -76,6 +76,8 @@ spec:
           - name: storage
             mountPath: /data-shared
             subPath: data-shared
+          - name: tmp
+            mountPath: /tmp
         securityContext:
           allowPrivilegeEscalation: false
           privileged: false
@@ -92,3 +94,6 @@ spec:
         - name: storage
           emptyDir:
             sizeLimit: "2Gi"
+        - name: tmp
+          emptyDir:
+            sizeLimit: "1Gi"

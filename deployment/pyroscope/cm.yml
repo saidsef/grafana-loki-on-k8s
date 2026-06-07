@@ -25,3 +25,9 @@ data:
       cluster_label: pyroscope
       join_members:
         - dns+pyroscope:7946
+
+    compactor:
+      data_dir: /data-compactor
+
+    pyroscopedb:
+      data_path: /data
