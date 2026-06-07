@@ -19,8 +19,3 @@ resources:
 - alloy/
 - pyroscope/
 - beyla/
-
-# Activates Beyla eBPF CPU profiling → Pyroscope when pyroscope/ is enabled above.
-# Comment this out together with pyroscope/ when not deploying Pyroscope.
-patches:
-- path: pyroscope/beyla-profile-patch.yml
