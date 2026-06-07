@@ -1,6 +1,6 @@
 # Pyroscope
 
-Pyroscope is the continuous-profiling backend. It is the odd one out in this stack: instead of receiving from Alloy, it ships its own embedded Alloy River config that scrapes profile endpoints off annotated pods and writes back to itself. Config lives in [`deployment/pyroscope/cm.yml`](../deployment/pyroscope/cm.yml).
+Pyroscope is the continuous-profiling backend. Profile scraping is handled by [Alloy](./alloy.md) — pods opt in via annotations and Alloy pulls their pprof endpoints and forwards to Pyroscope. Config lives in [`deployment/pyroscope/cm.yml`](../deployment/pyroscope/cm.yml).
 
 ## What it runs
 
@@ -8,62 +8,24 @@ Pyroscope is the continuous-profiling backend. It is the odd one out in this sta
 - Args: `-target=all -self-profiling.disable-push=true -server.http-listen-port=4040 -memberlist.cluster-label=pyroscope -memberlist.join=dns+pyroscope:7946 -config.file=/etc/pyroscope/config.yaml -runtime-config.file=/etc/pyroscope/overrides/overrides.yaml`.
 - Ports: 4040 (HTTP, ingest and query), 9095 (gRPC), 7946 (memberlist).
 - Resources: requests 100m CPU / 512Mi, limits 200m CPU / 768Mi.
-- Storage: three 2 Gi emptyDirs at `/data`, `/data-compactor`, `/data-shared`.
+- Storage: one emptyDir (2 Gi) mounted at three paths: `/data`, `/data-compactor` and `/data-shared`.
 - Security: non-root UID/GID 10001, read-only root filesystem, all caps dropped.
-- RBAC: ClusterRole grants list/watch on pods and get on nodes, which is what the embedded discovery needs.
 
 ## Configuration
 
-The main `config.yaml` is one line, telemetry off:
+`config.yaml` disables telemetry reporting and makes a few settings explicit that are otherwise also set via CLI flags:
 
 ```yaml
 analytics:
   reporting_enabled: false
+
+log_level: info
+
+self_profiling:
+  disable_push: true
 ```
 
-`overrides.yaml` is empty. All the real configuration is in `config.river`, an Alloy River program the Pyroscope binary runs to do its own scraping.
-
-Discovery is plain Kubernetes pod role:
-
-```river
-discovery.kubernetes "pyroscope_kubernetes" {
-  role = "pod"
-}
-```
-
-There are six `pyroscope.scrape` blocks, one per profile type, all gated on `profiles.grafana.com/<type>.scrape: "true"` annotations: `memory`, `process_cpu`, `goroutine`, `block`, `mutex`, `fgprof`. Each block looks like this (memory shown):
-
-```river
-pyroscope.scrape "pyroscope_scrape_memory" {
-  clustering { enabled = true }
-  targets    = concat(
-    discovery.relabel.kubernetes_pods_memory_default_name.output,
-    discovery.relabel.kubernetes_pods_memory_custom_name.output,
-  )
-  forward_to = [pyroscope.write.pyroscope_write.receiver]
-
-  profiling_config {
-    profile.memory      { enabled = true }
-    profile.process_cpu { enabled = false }
-    profile.goroutine   { enabled = false }
-    profile.block       { enabled = false }
-    profile.mutex       { enabled = false }
-    profile.fgprof      { enabled = false }
-  }
-}
-```
-
-The relabel rules pick up `profiles.grafana.com/<type>.{port,port_name,scheme,path}` for each annotation family. Two relabel variants per type cover the `port` and `port_name` annotation styles.
-
-Everything flows into one writer pointing at the Pyroscope service itself:
-
-```river
-pyroscope.write "pyroscope_write" {
-  endpoint {
-    url = "http://pyroscope:4040"
-  }
-}
-```
+`overrides.yaml` is empty — it is the runtime config file for per-tenant limit overrides.
 
 Cluster membership is via memberlist, joined by DNS SRV lookup on the service:
 
@@ -75,7 +37,7 @@ With one replica the membership is a single member, but the config is ready to s
 
 ## Inputs
 
-Pods opt in by adding annotations. For example, to scrape CPU profiles on port 8080:
+Pods opt in by adding annotations per profile type. For example, to scrape CPU profiles on port 8080:
 
 ```yaml
 metadata:
@@ -84,7 +46,7 @@ metadata:
     profiles.grafana.com/cpu.port:   "8080"
 ```
 
-The embedded scraper finds them, pulls the pprof endpoint and writes the result back to `http://pyroscope:4040`. No external collector is involved.
+Alloy discovers these pods and pushes the profiles to `http://pyroscope:4040`. See [Alloy](./alloy.md#profiling) for the full annotation reference and how the pipeline works.
 
 ## Outputs
 
@@ -106,13 +68,14 @@ tracesToProfiles:
   tags: ['job', 'instance', 'pod', 'namespace']
   profileTypeId: 'process_cpu:cpu:nanoseconds:cpu:nanoseconds'
   customQuery: true
-  query: 'method="$${__span.tags.method}"'
+  query: 'method="${__span.tags.method}"'
 ```
 
 That is the path Grafana uses to jump from a slow span straight to the matching CPU flame graph.
 
 ## How it fits the stack
 
-- Self-contained. Does not depend on [Alloy](./alloy.md) for ingest, but uses the same Alloy components internally.
+- Pyroscope stores and serves profiles. Scraping is entirely Alloy's responsibility.
 - Trace-to-profile links from [Tempo](./tempo.md) are what tie profiles to the rest of the data.
 - For an app to show up here, it has to expose pprof and add the right `profiles.grafana.com/*` annotations to its pod.
+- Pyroscope is optional in this stack. When not deployed, Alloy drops profiles cleanly after a short retry window rather than accumulating a WAL backlog.
