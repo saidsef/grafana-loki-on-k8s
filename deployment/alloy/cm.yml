@@ -237,16 +237,8 @@ data:
       }
       output {
         traces = [
-          otelcol.connector.servicegraph.tempo.input,
           otelcol.processor.batch.otel.input,
         ]
-      }
-    }
-
-    otelcol.connector.servicegraph "tempo" {
-      dimensions = ["http.method", "http.request.method", "http.target", "url.path"]
-      output {
-        metrics = [otelcol.exporter.prometheus.otel.input]
       }
     }
 
