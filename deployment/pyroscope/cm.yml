@@ -10,5 +10,18 @@ data:
     overrides:
       {}
   config.yaml: |
+    target: all
+
     analytics:
       reporting_enabled: false
+
+    self_profiling:
+      disable_push: true
+
+    server:
+      http_listen_port: 4040
+
+    memberlist:
+      cluster_label: pyroscope
+      join_members:
+        - dns+pyroscope:7946

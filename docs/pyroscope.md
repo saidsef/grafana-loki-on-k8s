@@ -5,7 +5,7 @@ Pyroscope is the continuous-profiling backend. Profile scraping is handled by [A
 ## What it runs
 
 - Deployment, single replica, image `docker.io/grafana/pyroscope:2.10.5`.
-- Args: `-target=all -self-profiling.disable-push=true -server.http-listen-port=4040 -memberlist.cluster-label=pyroscope -memberlist.join=dns+pyroscope:7946 -config.file=/etc/pyroscope/config.yaml -runtime-config.file=/etc/pyroscope/overrides/overrides.yaml`.
+- Args: `-config.file=/etc/pyroscope/config.yaml -runtime-config.file=/etc/pyroscope/overrides/overrides.yaml -log.level=info`. All other configuration is in `config.yaml` — log level is the one flag Pyroscope does not expose in the config file.
 - Ports: 4040 (HTTP, ingest and query), 9095 (gRPC), 7946 (memberlist).
 - Resources: requests 100m CPU / 512Mi, limits 200m CPU / 768Mi.
 - Storage: one emptyDir (2 Gi) mounted at three paths: `/data`, `/data-compactor` and `/data-shared`.
@@ -13,27 +13,29 @@ Pyroscope is the continuous-profiling backend. Profile scraping is handled by [A
 
 ## Configuration
 
-`config.yaml` disables telemetry reporting and makes a few settings explicit that are otherwise also set via CLI flags:
+`config.yaml` is the single source of truth for all Pyroscope behaviour. Only the two file-path bootstrapping flags and log level remain as CLI args — log level cannot be set in the config file in Pyroscope 2.x.
 
 ```yaml
+target: all
+
 analytics:
   reporting_enabled: false
 
-log_level: info
-
 self_profiling:
   disable_push: true
+
+server:
+  http_listen_port: 4040
+
+memberlist:
+  cluster_label: pyroscope
+  join_members:
+    - dns+pyroscope:7946
 ```
 
 `overrides.yaml` is empty — it is the runtime config file for per-tenant limit overrides.
 
-Cluster membership is via memberlist, joined by DNS SRV lookup on the service:
-
-```
--memberlist.join=dns+pyroscope:7946
-```
-
-With one replica the membership is a single member, but the config is ready to scale.
+Cluster membership is via memberlist gossip using DNS SRV lookup on the service. With one replica the membership is a single member, but the config is ready to scale.
 
 ## Inputs
 

@@ -30,11 +30,6 @@ spec:
         image: docker.io/grafana/pyroscope:2.10.5
         imagePullPolicy: IfNotPresent
         args:
-          - "-target=all"
-          - "-self-profiling.disable-push=true"
-          - "-server.http-listen-port=4040"
-          - "-memberlist.cluster-label=pyroscope"
-          - "-memberlist.join=dns+pyroscope:7946"
           - "-config.file=/etc/pyroscope/config.yaml"
           - "-runtime-config.file=/etc/pyroscope/overrides/overrides.yaml"
           - "-log.level=info"
