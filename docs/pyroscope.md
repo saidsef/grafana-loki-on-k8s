@@ -39,7 +39,19 @@ Cluster membership is via memberlist gossip using DNS SRV lookup on the service.
 
 ## Inputs
 
-Pods opt in by adding annotations per profile type. For example, to scrape CPU profiles on port 8080:
+Profiles arrive from two sources:
+
+**Beyla eBPF** — when Pyroscope is included in the kustomization, Beyla's ConfigMap is patched to enable `otel_profiles_export`. Beyla collects CPU flame graphs from every process via eBPF perf events and pushes them directly to `http://pyroscope:4040`. No application changes or annotations required. If Pyroscope is later removed from the kustomization, the patch is not applied and Beyla stops profiling.
+
+**Alloy pprof scraping** — for Go services, Alloy pulls pprof endpoints. A single annotation enables memory, CPU, and goroutine profiling:
+
+```yaml
+metadata:
+  annotations:
+    profiles.grafana.com/port: "8080"
+```
+
+Or with per-type control:
 
 ```yaml
 metadata:
@@ -48,7 +60,7 @@ metadata:
     profiles.grafana.com/cpu.port:   "8080"
 ```
 
-Alloy discovers these pods and pushes the profiles to `http://pyroscope:4040`. See [Alloy](./alloy.md#profiling) for the full annotation reference and how the pipeline works.
+See [Alloy](./alloy.md#profiling) for the full annotation reference, opt-out syntax, and how the pipeline works.
 
 ## Outputs
 
@@ -77,7 +89,7 @@ That is the path Grafana uses to jump from a slow span straight to the matching 
 
 ## How it fits the stack
 
-- Pyroscope stores and serves profiles. Scraping is entirely Alloy's responsibility.
+- Pyroscope stores and serves profiles. Collection is handled by Alloy (pprof) and Beyla (eBPF).
 - Trace-to-profile links from [Tempo](./tempo.md) are what tie profiles to the rest of the data.
-- For an app to show up here, it has to expose pprof and add the right `profiles.grafana.com/*` annotations to its pod.
-- Pyroscope is optional in this stack. When not deployed, Alloy drops profiles cleanly after a short retry window rather than accumulating a WAL backlog.
+- Any service shows up in CPU flame graphs automatically via Beyla eBPF. Go services get richer heap and goroutine profiles by adding pprof annotations.
+- Pyroscope is optional. When not deployed, Alloy drops pprof profiles after a short retry window, and the Beyla patch is not applied so there is no wasted profiling overhead.

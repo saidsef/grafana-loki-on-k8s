@@ -95,7 +95,25 @@ Batch settings: 6 second timeout, 200 spans per batch, 300 max.
 
 ## Profiling
 
-Alloy scrapes pprof endpoints off annotated pods and forwards them to Pyroscope. Pods opt in per profile type:
+Profiling data reaches Pyroscope through two complementary paths.
+
+### eBPF CPU profiling via Beyla (all services, no annotations)
+
+When Pyroscope is included in the kustomization, a patch is applied to Beyla's ConfigMap that activates `otel_profiles_export`. Beyla uses eBPF perf events to collect CPU flame graphs from every process it discovers — any language, zero application changes. Profiles are pushed directly to Pyroscope at `http://pyroscope:4040` with a 30-second retry window before dropping. When Pyroscope is not deployed (commented out of `deployment/kustomization.yml`), the patch is never applied and Beyla has no profiling overhead.
+
+### pprof scraping via Alloy (Go services, opt-in)
+
+Alloy actively pulls pprof endpoints from annotated pods and forwards to Pyroscope. Memory, CPU, and goroutine profiles are opt-in; block, mutex, and fgprof remain explicitly opt-in due to runtime overhead.
+
+**Single-annotation shortcut** — add one annotation to enable memory, cpu, and goroutine profiling at once:
+
+```yaml
+metadata:
+  annotations:
+    profiles.grafana.com/port: "8080"
+```
+
+**Per-type annotations** — for fine-grained control or to enable block/mutex/fgprof:
 
 ```yaml
 metadata:
@@ -107,18 +125,26 @@ metadata:
     # profiles.grafana.com/cpu.path:      "/debug/pprof/profile" # optional
 ```
 
+**Opt-out** — suppress a specific type for a pod that would otherwise be scraped:
+
+```yaml
+metadata:
+  annotations:
+    profiles.grafana.com/memory.scrape: "false"
+```
+
 Supported profile types and their annotation prefix:
 
-| Type | Annotation prefix | pprof path |
-|------|------------------|-----------|
-| `memory` | `profiles.grafana.com/memory` | `/debug/pprof/heap` |
-| `cpu` | `profiles.grafana.com/cpu` | `/debug/pprof/profile` |
-| `goroutine` | `profiles.grafana.com/goroutine` | `/debug/pprof/goroutine` |
-| `block` | `profiles.grafana.com/block` | `/debug/pprof/block` |
-| `mutex` | `profiles.grafana.com/mutex` | `/debug/pprof/mutex` |
-| `fgprof` | `profiles.grafana.com/fgprof` | `/debug/fgprof` |
+| Type | Annotation prefix | pprof path | Default enrolment |
+|------|------------------|-----------|-------------------|
+| `memory` | `profiles.grafana.com/memory` | `/debug/pprof/heap` | via `port` shortcut |
+| `cpu` | `profiles.grafana.com/cpu` | `/debug/pprof/profile` | via `port` shortcut |
+| `goroutine` | `profiles.grafana.com/goroutine` | `/debug/pprof/goroutine` | via `port` shortcut |
+| `block` | `profiles.grafana.com/block` | `/debug/pprof/block` | explicit opt-in only |
+| `mutex` | `profiles.grafana.com/mutex` | `/debug/pprof/mutex` | explicit opt-in only |
+| `fgprof` | `profiles.grafana.com/fgprof` | `/debug/fgprof` | explicit opt-in only |
 
-Each type is independently opt-in. Scraping is distributed across Alloy instances via clustering. The `service_name` label is set from the pod's `app.kubernetes.io/name` label, falling back to the container name.
+Scraping is distributed across Alloy instances via clustering. The `service_name` label is set from the pod's `app.kubernetes.io/name` label, falling back to the container name.
 
 Profiles are written to Pyroscope:
 
@@ -140,7 +166,7 @@ pyroscope.write "pyroscope" {
 
 - Applications send OTLP logs, metrics and traces to the local Alloy on the node, port 4317 (gRPC) or 4318 (HTTP).
 - The kubelet at `https://$NODE_IP:10250` is the source for pod targets and pod logs.
-- Pods with `profiles.grafana.com/<type>.scrape: "true"` annotations are scraped for profiles.
+- Pods with `profiles.grafana.com/port: "<n>"` or per-type `profiles.grafana.com/<type>.scrape: "true"` annotations are scraped for pprof profiles.
 
 ## Outputs
 

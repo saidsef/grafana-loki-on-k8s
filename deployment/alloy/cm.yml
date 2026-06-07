@@ -285,9 +285,15 @@ data:
         gc_frequency = "2m"
     }
 
-    // --- Pyroscope: annotation-based pprof scraping ---
-    // Pods opt in per profile type via profiles.grafana.com/<type>.scrape: "true"
-    // and profiles.grafana.com/<type>.port: "<number>" (or port_name: "<name>").
+    // --- Pyroscope: pprof scraping + eBPF profiles from Beyla ---
+    // eBPF CPU profiles (all languages, no annotations required) arrive via
+    // otelcol.receiver.otlp and are forwarded directly to pyroscope.write above.
+    //
+    // pprof scraping (Go services): memory, cpu, goroutine are opt-in.
+    // Single-annotation shortcut: set profiles.grafana.com/port: "<n>" on a pod
+    // to enable all three types without per-type annotations.
+    // Per-type opt-out: profiles.grafana.com/<type>.scrape: "false".
+    // Block, mutex, fgprof remain fully opt-in (high overhead; require app-side setup).
     // pyroscope.write silently drops profiles after 3 retries so Alloy stays
     // healthy when Pyroscope is not deployed alongside this stack.
 
@@ -335,6 +341,38 @@ data:
         target_label  = "service_name"
         replacement   = "$1"
       }
+
+      // Single-annotation shortcut: profiles.grafana.com/port: "<n>" without a
+      // per-type scrape annotation synthesises scrape=true for memory, cpu, goroutine.
+      // Regex fires only when the type-specific scrape annotation is absent (empty)
+      // and the global port annotation is a number, so explicit opt-out ("false") is
+      // preserved and explicit per-type opt-in ("true") is left unchanged.
+      rule {
+        source_labels = ["__meta_kubernetes_pod_annotation_profiles_grafana_com_memory_scrape",
+                         "__meta_kubernetes_pod_annotation_profiles_grafana_com_port"]
+        regex         = ";(\\d+)"
+        target_label  = "__meta_kubernetes_pod_annotation_profiles_grafana_com_memory_scrape"
+        action        = "replace"
+        replacement   = "true"
+      }
+
+      rule {
+        source_labels = ["__meta_kubernetes_pod_annotation_profiles_grafana_com_cpu_scrape",
+                         "__meta_kubernetes_pod_annotation_profiles_grafana_com_port"]
+        regex         = ";(\\d+)"
+        target_label  = "__meta_kubernetes_pod_annotation_profiles_grafana_com_cpu_scrape"
+        action        = "replace"
+        replacement   = "true"
+      }
+
+      rule {
+        source_labels = ["__meta_kubernetes_pod_annotation_profiles_grafana_com_goroutine_scrape",
+                         "__meta_kubernetes_pod_annotation_profiles_grafana_com_port"]
+        regex         = ";(\\d+)"
+        target_label  = "__meta_kubernetes_pod_annotation_profiles_grafana_com_goroutine_scrape"
+        action        = "replace"
+        replacement   = "true"
+      }
     }
 
     // Memory
@@ -351,6 +389,16 @@ data:
         source_labels = ["__meta_kubernetes_pod_annotation_profiles_grafana_com_memory_port_name"]
         action        = "keep"
         regex         = ""
+      }
+
+      // If no per-type port annotation but global port annotation is set, use global.
+      rule {
+        source_labels = ["__meta_kubernetes_pod_annotation_profiles_grafana_com_memory_port",
+                         "__meta_kubernetes_pod_annotation_profiles_grafana_com_port"]
+        regex         = ";(\\d+)"
+        target_label  = "__meta_kubernetes_pod_annotation_profiles_grafana_com_memory_port"
+        action        = "replace"
+        replacement   = "$1"
       }
 
       rule {
@@ -429,7 +477,7 @@ data:
         enabled = true
       }
 
-      targets    = concat(discovery.relabel.pyroscope_pods_memory_default_name.output, discovery.relabel.pyroscope_pods_memory_custom_name.output)
+      targets    = array.concat(discovery.relabel.pyroscope_pods_memory_default_name.output, discovery.relabel.pyroscope_pods_memory_custom_name.output)
       forward_to = [pyroscope.write.pyroscope.receiver]
 
       profiling_config {
@@ -473,6 +521,15 @@ data:
         source_labels = ["__meta_kubernetes_pod_annotation_profiles_grafana_com_cpu_port_name"]
         action        = "keep"
         regex         = ""
+      }
+
+      rule {
+        source_labels = ["__meta_kubernetes_pod_annotation_profiles_grafana_com_cpu_port",
+                         "__meta_kubernetes_pod_annotation_profiles_grafana_com_port"]
+        regex         = ";(\\d+)"
+        target_label  = "__meta_kubernetes_pod_annotation_profiles_grafana_com_cpu_port"
+        action        = "replace"
+        replacement   = "$1"
       }
 
       rule {
@@ -551,7 +608,7 @@ data:
         enabled = true
       }
 
-      targets    = concat(discovery.relabel.pyroscope_pods_cpu_default_name.output, discovery.relabel.pyroscope_pods_cpu_custom_name.output)
+      targets    = array.concat(discovery.relabel.pyroscope_pods_cpu_default_name.output, discovery.relabel.pyroscope_pods_cpu_custom_name.output)
       forward_to = [pyroscope.write.pyroscope.receiver]
 
       profiling_config {
@@ -595,6 +652,15 @@ data:
         source_labels = ["__meta_kubernetes_pod_annotation_profiles_grafana_com_goroutine_port_name"]
         action        = "keep"
         regex         = ""
+      }
+
+      rule {
+        source_labels = ["__meta_kubernetes_pod_annotation_profiles_grafana_com_goroutine_port",
+                         "__meta_kubernetes_pod_annotation_profiles_grafana_com_port"]
+        regex         = ";(\\d+)"
+        target_label  = "__meta_kubernetes_pod_annotation_profiles_grafana_com_goroutine_port"
+        action        = "replace"
+        replacement   = "$1"
       }
 
       rule {
@@ -673,7 +739,7 @@ data:
         enabled = true
       }
 
-      targets    = concat(discovery.relabel.pyroscope_pods_goroutine_default_name.output, discovery.relabel.pyroscope_pods_goroutine_custom_name.output)
+      targets    = array.concat(discovery.relabel.pyroscope_pods_goroutine_default_name.output, discovery.relabel.pyroscope_pods_goroutine_custom_name.output)
       forward_to = [pyroscope.write.pyroscope.receiver]
 
       profiling_config {
@@ -795,7 +861,7 @@ data:
         enabled = true
       }
 
-      targets    = concat(discovery.relabel.pyroscope_pods_block_default_name.output, discovery.relabel.pyroscope_pods_block_custom_name.output)
+      targets    = array.concat(discovery.relabel.pyroscope_pods_block_default_name.output, discovery.relabel.pyroscope_pods_block_custom_name.output)
       forward_to = [pyroscope.write.pyroscope.receiver]
 
       profiling_config {
@@ -917,7 +983,7 @@ data:
         enabled = true
       }
 
-      targets    = concat(discovery.relabel.pyroscope_pods_mutex_default_name.output, discovery.relabel.pyroscope_pods_mutex_custom_name.output)
+      targets    = array.concat(discovery.relabel.pyroscope_pods_mutex_default_name.output, discovery.relabel.pyroscope_pods_mutex_custom_name.output)
       forward_to = [pyroscope.write.pyroscope.receiver]
 
       profiling_config {
@@ -1039,7 +1105,7 @@ data:
         enabled = true
       }
 
-      targets    = concat(discovery.relabel.pyroscope_pods_fgprof_default_name.output, discovery.relabel.pyroscope_pods_fgprof_custom_name.output)
+      targets    = array.concat(discovery.relabel.pyroscope_pods_fgprof_default_name.output, discovery.relabel.pyroscope_pods_fgprof_custom_name.output)
       forward_to = [pyroscope.write.pyroscope.receiver]
 
       profiling_config {
