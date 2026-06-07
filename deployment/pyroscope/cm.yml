@@ -12,8 +12,3 @@ data:
   config.yaml: |
     analytics:
       reporting_enabled: false
-
-    log_level: info
-
-    self_profiling:
-      disable_push: true
