@@ -27,7 +27,7 @@ spec:
         runAsUser: 10001
       containers:
       - name: pyroscope
-        image: docker.io/grafana/pyroscope:2.10.5
+        image: docker.io/grafana/pyroscope:2.0.3
         imagePullPolicy: IfNotPresent
         args:
           - "-config.file=/etc/pyroscope/config.yaml"
