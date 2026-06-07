@@ -1,6 +1,6 @@
 # Alloy
 
-Alloy is the collector that feeds everything else in this stack. It runs as a DaemonSet so there is one on every node, scrapes Prometheus targets and pod logs from the local kubelet, and accepts OTLP traffic from applications. Logs go to Loki, metrics fan out to both Prometheus and Mimir, traces go to Tempo. Config lives in [`deployment/alloy/cm.yml`](../deployment/alloy/cm.yml).
+Alloy is the collector that feeds everything else in this stack. It runs as a DaemonSet so there is one on every node, scrapes Prometheus targets and pod logs from the local kubelet, accepts OTLP traffic from applications, and scrapes pprof endpoints off annotated pods for Pyroscope. Logs go to Loki, metrics fan out to both Prometheus and Mimir, traces go to Tempo, profiles go to Pyroscope. Config lives in [`deployment/alloy/cm.yml`](../deployment/alloy/cm.yml).
 
 This stack uses Alloy in place of Promtail. The Promtail directory is still in the tree but is commented out in [`deployment/kustomization.yml`](../deployment/kustomization.yml).
 
@@ -93,10 +93,80 @@ Errored spans are always sampled, everything else is capped at 400 spans/s. The 
 
 Batch settings: 6 second timeout, 200 spans per batch, 300 max.
 
+## Profiling
+
+Profiling data reaches Pyroscope through two complementary paths.
+
+### eBPF CPU profiling via Beyla (all services, no annotations)
+
+When Pyroscope is included in the kustomization, a patch is applied to Beyla's ConfigMap that activates `otel_profiles_export`. Beyla uses eBPF perf events to collect CPU flame graphs from every process it discovers — any language, zero application changes. Profiles are pushed directly to Pyroscope at `http://pyroscope:4040` with a 30-second retry window before dropping. When Pyroscope is not deployed (commented out of `deployment/kustomization.yml`), the patch is never applied and Beyla has no profiling overhead.
+
+### pprof scraping via Alloy (Go services, opt-in)
+
+Alloy actively pulls pprof endpoints from annotated pods and forwards to Pyroscope. Memory, CPU, and goroutine profiles are opt-in; block, mutex, and fgprof remain explicitly opt-in due to runtime overhead.
+
+**Single-annotation shortcut** — add one annotation to enable memory, cpu, and goroutine profiling at once:
+
+```yaml
+metadata:
+  annotations:
+    profiles.grafana.com/port: "8080"
+```
+
+**Per-type annotations** — for fine-grained control or to enable block/mutex/fgprof:
+
+```yaml
+metadata:
+  annotations:
+    profiles.grafana.com/cpu.scrape:    "true"
+    profiles.grafana.com/cpu.port:      "8080"   # port number
+    # profiles.grafana.com/cpu.port_name: "http"  # or port name
+    # profiles.grafana.com/cpu.scheme:    "https" # optional, default http
+    # profiles.grafana.com/cpu.path:      "/debug/pprof/profile" # optional
+```
+
+**Opt-out** — suppress a specific type for a pod that would otherwise be scraped:
+
+```yaml
+metadata:
+  annotations:
+    profiles.grafana.com/memory.scrape: "false"
+```
+
+Supported profile types and their annotation prefix:
+
+| Type | Annotation prefix | pprof path | Default enrolment |
+|------|------------------|-----------|-------------------|
+| `memory` | `profiles.grafana.com/memory` | `/debug/pprof/heap` | via `port` shortcut |
+| `cpu` | `profiles.grafana.com/cpu` | `/debug/pprof/profile` | via `port` shortcut |
+| `goroutine` | `profiles.grafana.com/goroutine` | `/debug/pprof/goroutine` | via `port` shortcut |
+| `block` | `profiles.grafana.com/block` | `/debug/pprof/block` | explicit opt-in only |
+| `mutex` | `profiles.grafana.com/mutex` | `/debug/pprof/mutex` | explicit opt-in only |
+| `fgprof` | `profiles.grafana.com/fgprof` | `/debug/fgprof` | explicit opt-in only |
+
+Scraping is distributed across Alloy instances via clustering. The `service_name` label is set from the pod's `app.kubernetes.io/name` label, falling back to the container name.
+
+Profiles are written to Pyroscope:
+
+```river
+pyroscope.write "pyroscope" {
+  endpoint {
+    url                 = "http://pyroscope:4040"
+    remote_timeout      = "10s"
+    min_backoff_period  = "500ms"
+    max_backoff_period  = "5m"
+    max_backoff_retries = 3
+  }
+}
+```
+
+`max_backoff_retries = 3` means profiles are dropped after three failed attempts. This keeps Alloy's WAL clear when Pyroscope is not deployed alongside this stack.
+
 ## Inputs
 
 - Applications send OTLP logs, metrics and traces to the local Alloy on the node, port 4317 (gRPC) or 4318 (HTTP).
 - The kubelet at `https://$NODE_IP:10250` is the source for pod targets and pod logs.
+- Pods with `profiles.grafana.com/port: "<n>"` or per-type `profiles.grafana.com/<type>.scrape: "true"` annotations are scraped for pprof profiles.
 
 ## Outputs
 
@@ -106,9 +176,10 @@ Batch settings: 6 second timeout, 200 spans per batch, 300 max.
 | [Prometheus](./prometheus.md) | Prometheus remote_write | `http://prometheus-server/api/v1/write` |
 | [Mimir](./mimir.md) | Prometheus remote_write | `http://mimir/api/v1/push` |
 | [Tempo](./tempo.md) | OTLP gRPC | `tempo:4317` |
+| [Pyroscope](./pyroscope.md) | Pyroscope push API | `http://pyroscope:4040` |
 
 ## How it fits the stack
 
 - Alloy is the single ingress for application telemetry. Apps point at Alloy, not at the backends directly.
 - It writes metrics to Prometheus and Mimir at the same time, which is why both data sources show the same data in Grafana.
-- It does not feed [Pyroscope](./pyroscope.md). Profile scraping is handled by an Alloy River config that lives inside the Pyroscope ConfigMap and runs in the Pyroscope pod itself.
+- It feeds [Pyroscope](./pyroscope.md) directly — Pyroscope has no embedded scraper of its own.

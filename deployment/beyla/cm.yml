@@ -26,6 +26,15 @@ data:
       insecure: true
       sampler:
         name: parentbased_always_on
+    otel_profiles_export:
+      endpoint: http://pyroscope:4040
+      protocol: grpc
+      insecure: true
+      retry:
+        enabled: true
+        initial_interval: 500ms
+        max_interval: 5m
+        max_elapsed_time: 30s
     discovery:
       instrument:
         - k8s_namespace: .

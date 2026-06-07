@@ -3,7 +3,6 @@ kind: Kustomization
 
 resources:
 - account.yml
-- rbac.yml
 - cm.yml
 - deployment.yml
 - service.yml

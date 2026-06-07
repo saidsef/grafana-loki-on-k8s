@@ -42,8 +42,6 @@ data:
           dimensions:
             - http.method
             - http.request.method
-            - http.target
-            - url.path
 
         local_blocks:
           filter_server_spans: true
