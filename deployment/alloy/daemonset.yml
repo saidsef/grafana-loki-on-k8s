@@ -107,9 +107,11 @@ spec:
             successThreshold: 1
             failureThreshold: 3
           securityContext:
-            privileged: true
+            privileged: false
+            allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
-            runAsUser: 0
+            runAsNonRoot: true
+            runAsUser: 473
             seccompProfile:
               type: RuntimeDefault
             capabilities:
