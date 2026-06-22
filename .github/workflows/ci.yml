@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Check out repository code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
@@ -43,7 +43,7 @@ jobs:
           kubectl_version: v1.33.7 # Ensure compatibility with the latest APIs
           node_image: kindest/node:v1.33.7 # Match node version with kubectl for consistency
       - name: Check out repository code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Run K8s test
         run: |
           kubectl cluster-info
@@ -76,7 +76,7 @@ jobs:
   #     PR_NUMBER: ${{ github.event.number }}
   #   steps:
   #   - name: Check out repository code
-  #     uses: actions/checkout@v6
+  #     uses: actions/checkout@v7
   #   - name: Auto Merge PR
   #     uses: actions/github-script@v9
   #     with:
