@@ -158,4 +158,5 @@ data:
     enable_alpha=true
     plugin_admin_enabled=true
     preinstall_async=false
+    preinstall_auto_update=false
     preinstall=aws-datasource-provisioner-app,grafana-llm-app,grafana-synthetic-monitoring-app,redis-explorer-app,grafana-oncall-app,grafana-github-datasource,grafana-resourcesexporter-app,grafana-advisor-app,grafana-x-ray-datasource,grafana-opensearch-datasource,computest-cloudwatchalarm-datasource,grafana-googlesheets-datasource,victoriametrics-logs-datasource,victoriametrics-metrics-datasource,googlecloud-trace-datasource,grafana-bigquery-datasource,googlecloud-logging-datasource,grafana-sentry-datasource,grafana-enterprise-logs-app,grafana-metrics-enterprise-app,grafana-enterprise-traces-app,grafana-lokiexplore-app,grafana-metricsdrilldown-app,grafana-pyroscope-app,grafana-exploretraces-app,grafana-assistant-app,grafana-graphviz-panel,grafana-cloudflare-datasource,grafana-databricks-datasource,grafana-dynamodb-datasource,grafana-gitlab-datasource,grafana-lokioperational-app
