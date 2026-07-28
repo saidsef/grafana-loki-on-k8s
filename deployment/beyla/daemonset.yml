@@ -24,7 +24,7 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: beyla
-          image: docker.io/grafana/beyla:3.22.0
+          image: docker.io/grafana/beyla:3.30.0
           imagePullPolicy: IfNotPresent
           ports:
           - name: health
@@ -91,8 +91,10 @@ spec:
             - mountPath: /etc/beyla/config
               name: beyla-config
             - name: cgroup
-              mountPath: /sys/fs/cgroup # <-- Important. Allows Beyla to monitor all newly sockets to track outgoing requests. 
+              mountPath: /sys/fs/cgroup # <-- Important. Allows Beyla to monitor all newly sockets to track outgoing requests.
               readOnly: true
+            - name: tracefs
+              mountPath: /sys/kernel/tracing # <-- Important. Required from 3.28.0 for context propagation, which uses normal tracepoints.
       volumes:
         - name: beyla-config
           configMap:
@@ -100,3 +102,6 @@ spec:
         - name: cgroup
           hostPath:
             path: /sys/fs/cgroup
+        - name: tracefs
+          hostPath:
+            path: /sys/kernel/tracing
