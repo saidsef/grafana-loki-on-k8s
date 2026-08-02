@@ -51,7 +51,9 @@ prometheus.remote_write "mimir" {
 }
 ```
 
-A single `prometheus.scrape "default"` block walks kubelet pod targets, nodes and services and forwards to both writers. Targets with `prometheus.io/scrape: "false"` get dropped during relabel.
+Two `prometheus.scrape` blocks feed both writers. `prometheus.scrape "default"` walks the node-local kubelet pod targets; targets with `prometheus.io/scrape: "false"` get dropped during relabel. `prometheus.scrape "nodes"` scrapes each node's kubelet over HTTPS with the ServiceAccount token, distributed across Alloy instances by clustering.
+
+Cluster-wide `role = "service"` discovery was removed in [#271](https://github.com/saidsef/grafana-loki-on-k8s/issues/271). It re-scraped the same endpoints through the ClusterIP - round-robining across replicas, from every Alloy pod - and accounted for 48% of scraped samples while contributing no target the kubelet path did not already cover.
 
 Traces come in on OTLP, get K8s metadata attached, and are forwarded to Tempo unsampled:
 
