@@ -97,8 +97,6 @@ data:
       url: http://tempo:3100
       jsonData:
         httpMethod: GET
-        tracesToLogs:
-          datasourceUid: Loki
         tracesToLogsV2:
           datasourceUid: Loki
           spanStartTimeShift: '-15m'
@@ -118,8 +116,6 @@ data:
           enabled: true
         search:
           hide: false
-        lokiSearch:
-          datasourceUid: Loki
 ---
 apiVersion: v1
 kind: ConfigMap
