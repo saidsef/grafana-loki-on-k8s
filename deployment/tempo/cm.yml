@@ -112,4 +112,7 @@ data:
           max_traces_per_user: 0
         metrics_generator:
           processors: [service-graphs, span-metrics, local-blocks, host-info]
-          generate_native_histograms: both
+          # `both` reaches an unguarded out-of-order init append that aborts whole
+          # collection cycles; `classic` keeps the series Grafana's service graph
+          # queries. See grafana/tempo#5945.
+          generate_native_histograms: classic
