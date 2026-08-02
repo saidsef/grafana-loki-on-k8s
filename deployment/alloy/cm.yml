@@ -25,10 +25,6 @@ data:
       role = "node"
     }
 
-    discovery.kubernetes "services" {
-      role = "service"
-    }
-
     discovery.relabel "pod_logs" {
       targets = discovery.kubelet.pods.targets
       rule {
@@ -41,8 +37,8 @@ data:
       }
     }
 
-    discovery.relabel "all_targets_with_address" {
-      targets = array.concat(discovery.kubelet.pods.targets, discovery.kubernetes.nodes.targets, discovery.kubernetes.services.targets)
+    discovery.relabel "pod_targets" {
+      targets = discovery.kubelet.pods.targets
       rule {
         action = "drop"
         regex = "Succeeded|Failed"
@@ -55,13 +51,6 @@ data:
         separator = "@"
         source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_container_name"]
         target_label = "service_name"
-      }
-      rule {
-        source_labels = ["__meta_kubernetes_service_name"]
-        regex         = ".+"
-        target_label  = "source"
-        replacement   = "services"
-        action        = "replace"
       }
       rule {
         source_labels = ["__meta_kubernetes_pod_container_name"]
@@ -81,6 +70,40 @@ data:
         action       = "keep"
       }
       rule {
+        action = "labelmap"
+        regex  = "__meta_kubernetes_pod_label_(.+)"
+      }
+      rule {
+        action = "replace"
+        source_labels = ["__meta_kubernetes_namespace"]
+        target_label = "namespace"
+      }
+      rule {
+        action = "replace"
+        source_labels = ["__meta_kubernetes_pod_node_name"]
+        target_label = "node"
+      }
+      rule {
+        action = "labeldrop"
+        regex  = "pod_template_hash|controller_revision_hash|checksum_.*|pod_uid|instance|job"
+      }
+    }
+
+    discovery.relabel "node_targets" {
+      targets = discovery.kubernetes.nodes.targets
+      rule {
+        action        = "replace"
+        source_labels = ["__meta_kubernetes_node_name"]
+        regex         = ".+"
+        target_label  = "source"
+        replacement   = "nodes"
+      }
+      rule {
+        action        = "replace"
+        source_labels = ["__meta_kubernetes_node_name"]
+        target_label  = "node"
+      }
+      rule {
         action        = "replace"
         source_labels = ["__meta_kubernetes_node_label_kubernetes_io_hostname"]
         regex         = "(.+)"
@@ -97,28 +120,6 @@ data:
         source_labels = ["__meta_kubernetes_node_label_topology_kubernetes_io_region"]
         regex         = "(.+)"
         target_label  = "region"
-      }
-      rule {
-        action = "labelmap"
-        regex  = "__meta_kubernetes_pod_label_(.+)"
-      }
-      rule {
-        action = "labelmap"
-        regex  = "__meta_kubernetes_service_label_(.+)"
-      }
-      rule {
-        action = "replace"
-        source_labels = ["__meta_kubernetes_namespace"]
-        target_label = "namespace"
-      }
-      rule {
-        action = "replace"
-        source_labels = ["__meta_kubernetes_pod_node_name"]
-        target_label = "node"
-      }
-      rule {
-        action = "labeldrop"
-        regex  = "pod_template_hash|controller_revision_hash|checksum_.*|pod_uid|instance|job"
       }
     }
 
@@ -179,7 +180,22 @@ data:
     }
 
     prometheus.scrape "default" {
-      targets    = discovery.relabel.all_targets_with_address.output
+      targets    = discovery.relabel.pod_targets.output
+      forward_to = [prometheus.remote_write.prometheus.receiver, prometheus.remote_write.mimir.receiver]
+    }
+
+    // Nodes need their own scrape: kubelet only serves :10250 over HTTPS, and auth is
+    // per-component, so these targets cannot share the plaintext pod scrape. See #271.
+    prometheus.scrape "nodes" {
+      targets           = discovery.relabel.node_targets.output
+      scheme            = "https"
+      bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+      tls_config {
+        insecure_skip_verify = true
+      }
+      clustering {
+        enabled = true
+      }
       forward_to = [prometheus.remote_write.prometheus.receiver, prometheus.remote_write.mimir.receiver]
     }
 
