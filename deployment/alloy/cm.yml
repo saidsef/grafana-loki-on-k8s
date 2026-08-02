@@ -215,32 +215,14 @@ data:
       }
       output {
         traces = [
-          otelcol.processor.tail_sampling.rate_limiter.input,
-        ]
-      }
-    }
-
-    otelcol.processor.tail_sampling "rate_limiter" {
-      policy {
-        name = "sample-errors"
-        type = "status_code"
-        status_code {
-          status_codes = ["ERROR"]
-        }
-      }
-      policy {
-        name = "rate-limit-ok"
-        type = "rate_limiting"
-        rate_limiting {
-          spans_per_second = 400
-        }
-      }
-      output {
-        traces = [
           otelcol.processor.batch.otel.input,
         ]
       }
     }
+
+    // No tail sampling: it is stateful and Alloy is a DaemonSet, so without an
+    // otelcol.exporter.loadbalancing tier routing on traceID it decides on partial traces,
+    // splitting the client/server pairs Tempo's service-graph processor needs. See #269.
 
     otelcol.receiver.otlp "otel" {
       grpc {

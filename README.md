@@ -116,11 +116,11 @@ GRAFANA DATASOURCES:
 ┌─────────────────┬─────────────────┬──────────────────────────────────────┐
 │ DATASOURCE      │ QUERY LANGUAGE  │ ENDPOINT                             │
 ├─────────────────┼─────────────────┼──────────────────────────────────────┤
-│ Prometheus      │ PromQL          │ http://prometheus-server:9090        │
-│ Mimir           │ PromQL          │ http://mimir:8080/prometheus         │
+│ Prometheus      │ PromQL          │ http://prometheus-server             │
+│ Mimir           │ PromQL          │ http://mimir/prometheus              │
 │ Loki            │ LogQL           │ http://loki:3100                     │
-│ Tempo           │ TraceQL         │ http://tempo:3200                    │
-│ Pyroscope       │ Pprof           │ http://pyroscope:4100                │
+│ Tempo           │ TraceQL         │ http://tempo:3100                    │
+│ Pyroscope       │ Pprof           │ http://pyroscope:4040                │
 └─────────────────┴─────────────────┴──────────────────────────────────────┘
 ```
 

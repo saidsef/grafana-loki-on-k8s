@@ -75,7 +75,9 @@ data:
     metrics:
       features:
         - application
-        - application_service_graph
+        # application_service_graph omitted: Beyla emits the same traces_service_graph_*
+        # names as Tempo's generator but with extra labels, and Grafana sums by
+        # (client, server), merging both. Tempo owns the service graph. See #269.
         - application_span_otel
     # network: Memory and CPU usage increases as Beyla needs to generate more metrics from network traffic
     network:

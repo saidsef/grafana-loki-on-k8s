@@ -6,13 +6,13 @@ This stack uses Alloy in place of Promtail. The Promtail directory is still in t
 
 ## What it runs
 
-- DaemonSet, image `docker.io/grafana/alloy:v1.16.2`.
-- Args: `run /etc/alloy/config.alloy --storage.path=/tmp/alloy --server.http.listen-addr=$(POD_IP):12345 --stability.level=public-preview --feature.community-components.enabled --cluster.enabled=true --cluster.name=$(CLUSTER_NAME) --cluster.wait-for-size=1`.
+- DaemonSet, image `docker.io/grafana/alloy:v1.18.0`.
+- Args: `run /etc/alloy/config.alloy --storage.path=/tmp/alloy --server.http.listen-addr=$(POD_IP):12345 --server.http.ui-path-prefix=/ --stability.level=public-preview --feature.community-components.enabled --cluster.enabled=true --cluster.name=$(CLUSTER_NAME) --cluster.wait-for-size=1`.
 - `CLUSTER_NAME` is read from the pod label `cluster` via the downward API, so it's set in the DaemonSet pod template rather than hardcoded in the args.
 - Ports: 12345 (HTTP UI and self metrics), 4317 (OTLP gRPC), 4318 (OTLP HTTP).
 - Resources: requests 50m CPU / 512Mi, limits 100m CPU / 896Mi.
 - Storage: 1 Gi emptyDir at `/tmp/alloy` for remote_write WAL buffers.
-- Security: privileged container so it can read kubelet metrics and pod stdout, read-only root filesystem, runs as UID 0.
+- Security: unprivileged — `privileged: false`, `allowPrivilegeEscalation: false`, `readOnlyRootFilesystem: true`, `runAsNonRoot: true`, `runAsUser: 473`, all capabilities dropped, `seccompProfile: RuntimeDefault`.
 - RBAC: ClusterRole grants list/watch on pods, services, nodes, endpoints, endpointslices, ingresses, events, configmaps and replicasets, plus the Prometheus operator CRDs (`podmonitors`, `servicemonitors`, `probes`, `scrapeconfigs`, `prometheusrules`) and `monitoring.grafana.com/podlogs`.
 
 ## Configuration
@@ -53,31 +53,21 @@ prometheus.remote_write "mimir" {
 
 A single `prometheus.scrape "default"` block walks kubelet pod targets, nodes and services and forwards to both writers. Targets with `prometheus.io/scrape: "false"` get dropped during relabel.
 
-Traces come in on OTLP, get K8s metadata attached, pass through tail sampling, and split: one copy goes to Tempo, the other feeds the service-graph connector:
+Traces come in on OTLP, get K8s metadata attached, and are forwarded to Tempo unsampled:
 
 ```river
 otelcol.receiver.otlp "otel" {
   grpc { endpoint = sys.env("POD_IP") + ":4317" }
   http { endpoint = sys.env("POD_IP") + ":4318" }
-}
 
-otelcol.processor.tail_sampling "rate_limiter" {
-  policy {
-    name = "sample-errors"
-    type = "status_code"
-    status_code { status_codes = ["ERROR"] }
-  }
-  policy {
-    name = "rate-limit-ok"
-    type = "rate_limiting"
-    rate_limiting { spans_per_second = 400 }
-  }
-}
-
-otelcol.connector.servicegraph "tempo" {
-  dimensions = ["http.method", "http.request.method", "http.target", "url.path"]
   output {
-    metrics = [otelcol.exporter.prometheus.otel.input]
+    traces = [otelcol.processor.k8sattributes.default.input]
+  }
+}
+
+otelcol.processor.k8sattributes "default" {
+  output {
+    traces = [otelcol.processor.batch.otel.input]
   }
 }
 
@@ -89,9 +79,17 @@ otelcol.exporter.otlp "tempo" {
 }
 ```
 
-Errored spans are always sampled, everything else is capped at 400 spans/s. The service-graph connector emits `traces_service_graph_*` metrics for span pairs it sees on the local node.
-
 Batch settings: 6 second timeout, 200 spans per batch, 300 max.
+
+### Why there is no tail sampling and no service-graph connector here
+
+Alloy generates **no** trace-derived metrics. `traces_service_graph_*` and `traces_spanmetrics_*` come from [Tempo's](./tempo.md) `metrics_generator`, which is the only producer in this stack.
+
+Alloy also does no sampling, deliberately. `otelcol.processor.tail_sampling` and `otelcol.connector.servicegraph` are both **stateful**: they need every span of a trace on one instance. Alloy runs as a DaemonSet behind a ClusterIP Service, so spans of a single trace land on different pods. Without an `otelcol.exporter.loadbalancing` tier routing on `traceID`, both components would work from partial traces — splitting the client/server span pairs that Tempo's service-graph processor has to match, and so producing an empty or truncated service graph.
+
+Tail sampling also delays every span by `decision_wait` (30s by default) before releasing it. Tempo drops any span whose end time falls outside `metrics_ingestion_time_range_slack` (60s in [`deployment/tempo/cm.yml`](../deployment/tempo/cm.yml)), so that delay consumes most of the budget and silently discards spans from metric generation.
+
+To sample at scale, add a second Alloy tier: DaemonSet agents exporting via `otelcol.exporter.loadbalancing` with `routing_key = "traceID"` into a separate Alloy Deployment behind a headless Service that runs `tail_sampling`.
 
 ## Profiling
 
@@ -164,7 +162,7 @@ pyroscope.write "pyroscope" {
 
 ## Inputs
 
-- Applications send OTLP logs, metrics and traces to the local Alloy on the node, port 4317 (gRPC) or 4318 (HTTP).
+- Applications send OTLP logs, metrics and traces to the `alloy` Service on port 4317 (gRPC) or 4318 (HTTP). Note this is a ClusterIP Service with `internalTrafficPolicy: Cluster`, so traffic is balanced across every Alloy pod — it is not pinned to the local node.
 - The kubelet at `https://$NODE_IP:10250` is the source for pod targets and pod logs.
 - Pods with `profiles.grafana.com/port: "<n>"` or per-type `profiles.grafana.com/<type>.scrape: "true"` annotations are scraped for pprof profiles.
 
