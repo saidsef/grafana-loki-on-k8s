@@ -36,11 +36,12 @@ data:
         max_interval: 5m
         max_elapsed_time: 30s
     discovery:
+      # Globs, not regex. Regex syntax here silently instruments nothing.
       instrument:
-        - k8s_namespace: .
+        - k8s_namespace: "*"
           containers_only: true
       exclude_instrument:
-        - exe_path: ".*tempo.*|.*loki.*|.*prometheus.*|.*mimir.*|.*grafana.*"
+        - exe_path: "{*tempo*,*loki*,*prometheus*,*mimir*,*grafana*}"
     attributes:
       kubernetes:
         enable: true
@@ -73,13 +74,11 @@ data:
         - /metrics
       ignore_mode: traces
     metrics:
+      # application_service_graph omitted: Tempo owns the service graph. See #269.
       features:
         - application
-        # application_service_graph omitted: Beyla emits the same traces_service_graph_*
-        # names as Tempo's generator but with extra labels, and Grafana sums by
-        # (client, server), merging both. Tempo owns the service graph. See #269.
         - application_span_otel
-    # network: Memory and CPU usage increases as Beyla needs to generate more metrics from network traffic
+    # Disabled: a metric per flow costs materially more CPU and memory.
     network:
       enable: false
       print_flows: false

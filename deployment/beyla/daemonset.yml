@@ -18,9 +18,10 @@ spec:
         app.kubernetes.io/name: beyla
         cluster: kubernetes
     spec:
+      # Privileges, host mounts and their rationale: see docs/beyla.md.
       serviceAccountName: beyla
-      hostPID: true           # <-- Important. Required in DaemonSet mode so Beyla can discover all monitored processes
-      hostNetwork: true       # <-- Important. Required in DaemonSet mode so Beyla can see all network packets
+      hostPID: true
+      hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: beyla
@@ -67,19 +68,23 @@ spec:
                 resourceFieldRef:
                   divisor: '1'
                   resource: limits.memory
+          # privileged: true would grant all of these implicitly and make
+          # enforce_sys_caps unable to fire. Keep the list explicit.
           securityContext:
             runAsUser: 0
-            privileged: true
             readOnlyRootFilesystem: true
             capabilities:
+              drop:
+                - ALL
               add:
-                - BPF                 # <-- Important. Required for most eBPF probes to function correctly.
-                - SYS_PTRACE          # <-- Important. Allows Beyla to access the container namespaces and inspect executables.
-                - NET_RAW             # <-- Important. Allows Beyla to use socket filters for http requests.
-                - CHECKPOINT_RESTORE  # <-- Important. Allows Beyla to open ELF files.
-                - DAC_READ_SEARCH     # <-- Important. Allows Beyla to open ELF files.
-                - PERFMON             # <-- Important. Allows Beyla to load BPF programs.
-                - NET_ADMIN           # <-- Important. Allows Beyla to inject HTTP and TCP context propagation information.
+                - BPF
+                - SYS_PTRACE
+                - NET_RAW
+                - CHECKPOINT_RESTORE
+                - DAC_READ_SEARCH
+                - PERFMON
+                - NET_ADMIN
+                - SYS_ADMIN
           resources:
             limits:
               cpu: 100m
@@ -91,10 +96,15 @@ spec:
             - mountPath: /etc/beyla/config
               name: beyla-config
             - name: cgroup
-              mountPath: /sys/fs/cgroup # <-- Important. Allows Beyla to monitor all newly sockets to track outgoing requests.
+              mountPath: /sys/fs/cgroup
               readOnly: true
             - name: tracefs
-              mountPath: /sys/kernel/tracing # <-- Important. Required from 3.28.0 for context propagation, which uses normal tracepoints.
+              mountPath: /sys/kernel/tracing
+            # Must resolve to a real bpffs, and Cilium mounts it after we may start,
+            # hence the propagation. Without it, pinned maps are silently disabled.
+            - name: bpffs
+              mountPath: /sys/fs/bpf
+              mountPropagation: HostToContainer
       volumes:
         - name: beyla-config
           configMap:
@@ -105,3 +115,7 @@ spec:
         - name: tracefs
           hostPath:
             path: /sys/kernel/tracing
+        - name: bpffs
+          hostPath:
+            path: /sys/fs/bpf
+            type: Directory
