@@ -99,7 +99,9 @@ Profiling data reaches Pyroscope through two complementary paths.
 
 ### eBPF CPU profiling via Beyla (all services, no annotations)
 
-When Pyroscope is included in the kustomization, a patch is applied to Beyla's ConfigMap that activates `otel_profiles_export`. Beyla uses eBPF perf events to collect CPU flame graphs from every process it discovers — any language, zero application changes. Profiles are pushed directly to Pyroscope at `http://pyroscope:4040` with a 30-second retry window before dropping. When Pyroscope is not deployed (commented out of `deployment/kustomization.yml`), the patch is never applied and Beyla has no profiling overhead.
+[Beyla](./beyla.md)'s ConfigMap enables `otel_profiles_export` unconditionally. Beyla uses eBPF perf events to collect CPU flame graphs from every process it discovers — any language, zero application changes. Profiles go straight to Pyroscope at `http://pyroscope:4040` with a 30-second retry window before dropping; they never traverse Alloy, whose `otelcol.receiver.otlp` carries no profiles signal. Commenting Pyroscope out of `deployment/kustomization.yml` does not stop Beyla profiling — it keeps collecting and drops each batch once the retry window expires.
+
+Beyla runs as its own DaemonSet rather than via Alloy's `beyla.ebpf` component; [docs/beyla.md](./beyla.md) explains why.
 
 ### pprof scraping via Alloy (Go services, opt-in)
 
