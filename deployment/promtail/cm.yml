@@ -32,18 +32,6 @@ data:
       relabel_configs:
         - source_labels: ['__journal__systemd_unit']
           target_label: 'unit'
-    # - job_name: system
-    #   system:
-    #     json: false
-    #     max_age: 24h
-    #     path: /var/log/*log
-    #   static_configs:
-    #   - targets:
-    #       - localhost
-    #     labels:
-    #       job: system-logs
-    #       __path__: /var/log/*log
-
     - job_name: pod-logs
       kubernetes_sd_configs:
         - role: pod
