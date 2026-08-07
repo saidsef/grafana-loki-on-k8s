@@ -275,17 +275,9 @@ data:
         gc_frequency = "2m"
     }
 
-    // --- Pyroscope: pprof scraping + eBPF profiles from Beyla ---
-    // eBPF CPU profiles (all languages, no annotations required) arrive via
-    // otelcol.receiver.otlp and are forwarded directly to pyroscope.write above.
-    //
-    // pprof scraping (Go services): memory, cpu, goroutine are opt-in.
-    // Single-annotation shortcut: set profiles.grafana.com/port: "<n>" on a pod
-    // to enable all three types without per-type annotations.
-    // Per-type opt-out: profiles.grafana.com/<type>.scrape: "false".
-    // Block, mutex, fgprof remain fully opt-in (high overhead; require app-side setup).
-    // pyroscope.write silently drops profiles after 3 retries so Alloy stays
-    // healthy when Pyroscope is not deployed alongside this stack.
+    // --- Pyroscope: pprof scraping (Go services, opt-in) ---
+    // Beyla's eBPF profiles do not pass through here; they go straight to
+    // pyroscope:4040. See docs/pyroscope.md for the annotation contract.
 
     discovery.kubernetes "pyroscope_pods" {
       role = "pod"
@@ -332,11 +324,8 @@ data:
         replacement   = "$1"
       }
 
-      // Single-annotation shortcut: profiles.grafana.com/port: "<n>" without a
-      // per-type scrape annotation synthesises scrape=true for memory, cpu, goroutine.
-      // Regex fires only when the type-specific scrape annotation is absent (empty)
-      // and the global port annotation is a number, so explicit opt-out ("false") is
-      // preserved and explicit per-type opt-in ("true") is left unchanged.
+      // Regex matches only when the per-type annotation is absent, so an explicit
+      // "false" opt-out survives. See docs/pyroscope.md.
       rule {
         source_labels = ["__meta_kubernetes_pod_annotation_profiles_grafana_com_memory_scrape",
                          "__meta_kubernetes_pod_annotation_profiles_grafana_com_port"]

@@ -41,7 +41,7 @@ Cluster membership is via memberlist gossip using DNS SRV lookup on the service.
 
 Profiles arrive from two sources:
 
-**Beyla eBPF** — when Pyroscope is included in the kustomization, Beyla's ConfigMap is patched to enable `otel_profiles_export`. Beyla collects CPU flame graphs from every process via eBPF perf events and pushes them directly to `http://pyroscope:4040`. No application changes or annotations required. If Pyroscope is later removed from the kustomization, the patch is not applied and Beyla stops profiling.
+**Beyla eBPF** — [Beyla](./beyla.md)'s ConfigMap enables `otel_profiles_export` unconditionally. Beyla collects CPU flame graphs from every process via eBPF perf events and pushes them directly to `http://pyroscope:4040`, bypassing Alloy. No application changes or annotations required. If Pyroscope is later removed from the kustomization, Beyla keeps profiling and drops each batch once its 30-second retry window expires.
 
 **Alloy pprof scraping** — for Go services, Alloy pulls pprof endpoints. A single annotation enables memory, CPU, and goroutine profiling:
 
@@ -92,4 +92,4 @@ That is the path Grafana uses to jump from a slow span straight to the matching 
 - Pyroscope stores and serves profiles. Collection is handled by Alloy (pprof) and Beyla (eBPF).
 - Trace-to-profile links from [Tempo](./tempo.md) are what tie profiles to the rest of the data.
 - Any service shows up in CPU flame graphs automatically via Beyla eBPF. Go services get richer heap and goroutine profiles by adding pprof annotations.
-- Pyroscope is optional. When not deployed, Alloy drops pprof profiles after a short retry window, and the Beyla patch is not applied so there is no wasted profiling overhead.
+- Pyroscope is optional, but not free to omit. Alloy drops pprof profiles after a short retry window, and Beyla carries on collecting eBPF profiles and drops each batch after 30 seconds of retries.

@@ -6,7 +6,7 @@
 
 [Beyla](https://grafana.com/docs/beyla/latest/) Grafana Beyla uses eBPF to automatically inspect application executables and the OS networking layer, and capture trace spans related to web transactions and Rate Errors Duration (RED) metrics for Linux HTTP/S and gRPC services. *All data capture occurs without any modifications to application code or configuration*.
 > [!WARNING]
-> [Beyla](https://grafana.com/docs/beyla/latest/security/) needs access to various Linux interfaces to instrument applications, loading eBPF programs, and managing network interface filters, these operations require elevated permissions.
+> [Beyla](https://grafana.com/docs/beyla/latest/security/) needs access to various Linux interfaces to instrument applications, load eBPF programs and manage network interface filters. It runs unprivileged here, with all capabilities dropped and eight added back explicitly, plus `hostPID`, `hostNetwork` and three host mounts. See [docs/beyla.md](./docs/beyla.md).
 
 [Promtail](https://grafana.com/docs/loki/latest/clients/promtail/) is an agent which ships the contents of local logs to a private Grafana Loki instance or Grafana Cloud.
 > [!NOTE]
@@ -109,7 +109,7 @@ VISUALIZATION QUERIES:
 
 DATA COLLECTION FLOW:
 =====================
-Applications → Beyla/Alloy/Promtail → Storage Backends → Grafana Dashboards
+Applications → Beyla/Alloy → Storage Backends → Grafana Dashboards
 
 GRAFANA DATASOURCES:
 ====================
