@@ -6,7 +6,7 @@ This stack uses Alloy in place of Promtail. The Promtail directory is still in t
 
 ## What it runs
 
-- DaemonSet, image `docker.io/grafana/alloy:v1.18.0`.
+- DaemonSet, image `docker.io/grafana/alloy:v1.18.1`.
 - Args: `run /etc/alloy/config.alloy --storage.path=/tmp/alloy --server.http.listen-addr=$(POD_IP):12345 --server.http.ui-path-prefix=/ --stability.level=public-preview --feature.community-components.enabled --cluster.enabled=true --cluster.name=$(CLUSTER_NAME) --cluster.wait-for-size=1`.
 - `CLUSTER_NAME` is read from the pod label `cluster` via the downward API, so it's set in the DaemonSet pod template rather than hardcoded in the args.
 - Ports: 12345 (HTTP UI and self metrics), 4317 (OTLP gRPC), 4318 (OTLP HTTP).

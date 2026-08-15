@@ -26,7 +26,7 @@ spec:
         - -generator.instance-id=$(POD_IP)
         - -log.level=warn
         - -config.expand-env=true
-        image: docker.io/grafana/tempo:2.10.3
+        image: docker.io/grafana/tempo:3.0.3
         imagePullPolicy: IfNotPresent
         name: tempo
         env:
@@ -73,18 +73,10 @@ spec:
         volumeMounts:
         - mountPath: /conf
           name: tempo-conf
+        # 3.0 adds live-store and backend-scheduler paths under /var/tempo, so the
+        # whole tree is mounted rather than per-component subPaths.
         - name: tempo-storage
-          mountPath: /var/tempo/wal
-          subPath: wal
-        - name: tempo-storage
-          mountPath: /var/tempo/traces
-          subPath: traces
-        - name: tempo-storage
-          mountPath: /var/tempo/generator/wal
-          subPath: generator
-        - name: tempo-storage
-          mountPath: /var/tempo/generator/traces
-          subPath: local-traces
+          mountPath: /var/tempo
         securityContext:
           allowPrivilegeEscalation: false
           privileged: false

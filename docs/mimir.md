@@ -4,7 +4,7 @@ Mimir is the long-term metrics store. It runs in single-binary mode (`target: al
 
 ## What it runs
 
-- StatefulSet, single replica, image `docker.io/grafana/mimir:3.0.6`.
+- StatefulSet, single replica, image `docker.io/grafana/mimir:3.1.4`.
 - Args (besides `-config.file=/conf/mimir.yaml`): `-auth.multitenancy-enabled=false -auth.no-auth-tenant=anonymous -compactor.blocks-retention-period=15d -distributor.ha-tracker.enable-for-all-users=true -querier.cardinality-analysis-enabled=true -blocks-storage.storage-prefix=blocks -ingester.out-of-order-time-window=15m -log.format=json -log.level=warn`.
 - Ports: 8080 (HTTP, exposed on the Service as port 80), 9095 (gRPC).
 - Resources: requests 100m CPU / 512Mi, limits 100m CPU / 768Mi.

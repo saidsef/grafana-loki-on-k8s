@@ -10,7 +10,17 @@ data:
     multitenancy_enabled: false
     usage_report:
       reporting_enabled: false
-    compactor:
+    # Tempo 3.0 replaced the compactor with the backend scheduler/worker pair.
+    # Both carry the retention window; the 3.0 default is 336h.
+    backend_scheduler:
+      provider:
+        compaction:
+          compaction:
+            block_retention: 48h
+            compacted_block_retention: 1h
+            compaction_cycle: 1h
+            compaction_window: 2h
+    backend_worker:
       compaction:
         block_retention: 48h
         compacted_block_retention: 1h
@@ -43,9 +53,6 @@ data:
             - http.method
             - http.request.method
 
-        local_blocks:
-          filter_server_spans: true
-          flush_to_storage: true
         host_info:
           host_identifiers:
             - k8s.node.name
@@ -53,8 +60,6 @@ data:
           metric_name: traces_host_info
         span_metrics:
           enable_target_info: true
-      traces_storage:
-        path: /var/tempo/generator/traces
       storage:
         path: /var/tempo/generator/wal
         remote_write:
@@ -93,7 +98,9 @@ data:
       trace:
         backend: local
         block:
-          version: vParquet4
+          # Opt-in; 3.0 still defaults to vParquet4. Adds dedicated columns for
+          # integers and events, and the span:childCount intrinsic.
+          version: vParquet5
           bloom_filter_false_positive: .05
         local:
           path: /var/tempo/traces
@@ -108,6 +115,6 @@ data:
         ingestion:
           max_traces_per_user: 0
         metrics_generator:
-          processors: [service-graphs, span-metrics, local-blocks, host-info]
+          processors: [service-graphs, span-metrics, host-info]
           # `both` aborts whole collection cycles. See grafana/tempo#5945.
           generate_native_histograms: classic

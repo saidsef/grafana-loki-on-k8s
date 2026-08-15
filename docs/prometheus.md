@@ -6,7 +6,7 @@ The `remote_write` to Mimir is intentionally commented out. Alloy writes to both
 
 ## What it runs
 
-- Deployment, single replica, image `docker.io/prom/prometheus:v3.11.3`.
+- Deployment, single replica, image `docker.io/prom/prometheus:v3.13.2`.
 - Args: `--storage.tsdb.retention.time=15d --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus/data/ --web.enable-remote-write-receiver --web.enable-otlp-receiver --web.enable-lifecycle --enable-feature=concurrent-rule-eval,promql-experimental-functions,exemplar-storage,promql-per-step-stats,native-histograms --log.level=warn --log.format=json`.
 - Port: 9090 (exposed on the Service `prometheus-server` as port 80).
 - Resources: requests 100m CPU / 512Mi, limits 150m CPU / 894Mi.
