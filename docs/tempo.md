@@ -91,7 +91,11 @@ overrides:
       generate_native_histograms: classic
 ```
 
-`host-info` emits a `traces_host_info` gauge keyed on `k8s.node.name` and `host.id`. `service-graphs` is tuned with a 60s wait to allow time for cross-node span pairs that arrive via tail sampling, plus peer_attributes and dimensions for richer label coverage. The generator writes metrics to Mimir:
+`host-info` emits a `traces_host_info` gauge keyed on `k8s.node.name` and `host.id`. `service-graphs` is tuned with a 60s wait to allow time for cross-node span pairs, plus peer_attributes and dimensions for richer label coverage.
+
+`enable_virtual_node_label` is deliberately left off. On 3.0.3 it stops virtual-node edges being emitted at all, and every edge here is a virtual node - client spans naming an uninstrumented peer through `peer.service`, which is what produces the `client=<service>` to `server=elasticsearch` edges. Turning it on empties the service graph while span metrics carry on unaffected, so the generator looks healthy.
+
+The generator writes metrics to Mimir:
 
 ```yaml
 metrics_generator:

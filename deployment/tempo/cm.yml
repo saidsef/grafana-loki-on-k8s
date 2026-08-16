@@ -40,7 +40,9 @@ data:
           wait: 60s
           max_items: 10000
           enable_client_server_prefix: true
-          enable_virtual_node_label: true
+          # Suppresses virtual-node edges entirely on 3.0.3; every edge here is one
+          # (client spans to uninstrumented peers), so enabling it empties the graph.
+          # enable_virtual_node_label: true
           enable_messaging_system_latency_histogram: true
           peer_attributes:
             - peer.service
