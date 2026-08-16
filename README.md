@@ -156,6 +156,23 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000
 
 Grafana open and composable [observability stack](https://grafana.com/about/grafana-stack/)
 
+## Instrumenting your applications
+
+[Beyla](./docs/beyla.md) gives you spans with no code changes, which is the fastest way to get traces flowing. It cannot propagate trace context across a process boundary, though, so traces stop at each service and Tempo's service graph can only draw virtual nodes for the peers it infers.
+
+For NodeJS services, [`@saidsef/tracing-node`](https://github.com/saidsef/tracing-node) covers that gap. It wraps the OpenTelemetry SDK with HTTP, fetch/undici, Express, Elasticsearch, IORedis, AWS SDK and Pino instrumentation, and registers the W3C Trace Context propagator, so a call from one service to another arrives as a child span in the same trace. That is what turns Tempo's service graph from a list of virtual nodes into real service-to-service edges.
+
+```shell
+npm install @saidsef/tracing-node --save
+```
+
+```javascript
+import { setupTracing } from '@saidsef/tracing-node';
+setupTracing({serviceName: 'my-service', url: 'http://alloy:4317'});
+```
+
+Point `url` at the Alloy OTLP gRPC receiver deployed here, which forwards to Tempo. The two approaches compose - Beyla for services you cannot change, the SDK for the ones you can.
+
 ## Why make or use this?
 
 This is an attempt to demystify the different components of [LGTM+ Stack](https://github.com/grafana/helm-charts/tree/main/charts), deploying the full stack can seem overwhelming, breaking it down to smaller composable pieces will hopefully help you better understand each service and its configuration.

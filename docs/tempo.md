@@ -135,6 +135,8 @@ otelcol.exporter.otlp "tempo" {
 
 The Jaeger and Zipkin receivers are available for services that instrument with those SDKs directly.
 
+For NodeJS services, [`@saidsef/tracing-node`](https://github.com/saidsef/tracing-node) wraps the OpenTelemetry SDK and registers the W3C Trace Context propagator. That propagation is what the `service-graphs` processor needs: without a client span carrying `traceparent` to the callee, each service starts its own trace and the graph can only ever show virtual nodes.
+
 ## Outputs
 
 Tempo is its own data source in Grafana at `http://tempo:3100`. It is also the linker that wires the rest of the stack together:
