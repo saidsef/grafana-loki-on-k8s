@@ -6,11 +6,11 @@ Beyond storing spans, it runs a `metrics_generator` that converts spans into RED
 
 ## What it runs
 
-- StatefulSet, single replica, image `docker.io/grafana/tempo:2.10.3`.
+- StatefulSet, single replica, image `docker.io/grafana/tempo:3.0.3`.
 - Args: `-config.file=/conf/tempo.yaml -config.expand-env=true -generator.instance-id=$(POD_IP) -log.level=warn`.
 - Ports: 3100 (HTTP query), 9095 (gRPC), 4317 (OTLP gRPC), 4318 (OTLP HTTP), 14250 (Jaeger gRPC), 14268 (Jaeger Thrift HTTP), 6831 / 6832 (Jaeger Thrift UDP), 9411 (Zipkin).
 - Resources: requests 50m CPU / 512Mi, limits 100m CPU / 896Mi.
-- Storage: single 10 Gi emptyDir split across `/var/tempo/wal`, `/var/tempo/traces`, `/var/tempo/generator/wal`, `/var/tempo/generator/traces` via subPaths.
+- Storage: single 10 Gi emptyDir mounted at `/var/tempo`, holding the WAL, blocks, generator WAL and live-store data.
 - Security: read-only root filesystem, all caps dropped, no privilege escalation.
 - A headless service (`tempo-headless`) exists alongside the ClusterIP service to satisfy the StatefulSet governing service requirement.
 
@@ -43,14 +43,16 @@ distributor:
         http: { endpoint: 0.0.0.0:4318 }
 ```
 
-Local filesystem, vParquet4 blocks:
+Local filesystem, vParquet5 blocks. Tempo 3.0 still defaults to vParquet4, so this is opt-in.
+vParquet5 adds dedicated columns for integer and event attributes and the `span:childCount`
+intrinsic. Older blocks stay readable, and new blocks are written in the new format:
 
 ```yaml
 storage:
   trace:
     backend: local
     block:
-      version: vParquet4
+      version: vParquet5
       bloom_filter_false_positive: .05
     local:
       path: /var/tempo/traces
@@ -58,10 +60,20 @@ storage:
       path: /var/tempo/wal
 ```
 
-Compaction is aggressive given the small storage budget, blocks live 48 hours:
+Compaction is aggressive given the small storage budget, blocks live 48 hours. Tempo 3.0
+replaced the compactor with a backend scheduler that hands jobs to a backend worker, so the
+same retention is set on both. Without it the 3.0 default of 336h applies:
 
 ```yaml
-compactor:
+backend_scheduler:
+  provider:
+    compaction:
+      compaction:
+        block_retention: 48h
+        compacted_block_retention: 1h
+        compaction_cycle: 1h
+        compaction_window: 2h
+backend_worker:
   compaction:
     block_retention: 48h
     compacted_block_retention: 1h
@@ -69,14 +81,14 @@ compactor:
     compaction_window: 2h
 ```
 
-Metrics-generator ring rides on memberlist, four processors enabled:
+Metrics-generator ring rides on memberlist, three processors enabled:
 
 ```yaml
 overrides:
   defaults:
     metrics_generator:
-      processors: [service-graphs, span-metrics, local-blocks, host-info]
-      generate_native_histograms: both
+      processors: [service-graphs, span-metrics, host-info]
+      generate_native_histograms: classic
 ```
 
 `host-info` emits a `traces_host_info` gauge keyed on `k8s.node.name` and `host.id`. `service-graphs` is tuned with a 60s wait to allow time for cross-node span pairs that arrive via tail sampling, plus peer_attributes and dimensions for richer label coverage. The generator writes metrics to Mimir:
@@ -142,5 +154,5 @@ The generated span metrics arrive in Mimir and Prometheus, where Grafana reads t
 ## How it fits the stack
 
 - Spans in from [Alloy](./alloy.md), metrics out to [Prometheus](./prometheus.md) and [Mimir](./mimir.md), correlated jumps to [Loki](./loki.md) and [Pyroscope](./pyroscope.md) handled by the data-source config.
-- The `local-blocks` processor is what makes TraceQL metrics queries work.
+- TraceQL metrics queries are served from the live-store and backend blocks. Tempo 3.0 removed the `local-blocks` processor that previously backed them, and only reads RF1 blocks written by 3.0, so coverage starts at the upgrade. Storage is an emptyDir here, so nothing predates it anyway.
 - Single replica means HA is not a goal here. The 10 Gi emptyDir caps how much history fits, the 48-hour retention is sized for it.
