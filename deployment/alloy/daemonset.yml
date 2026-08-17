@@ -24,6 +24,16 @@ spec:
     spec:
       serviceAccountName: alloy
       enableServiceLinks: false
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/arch
+                    operator: In
+                    values:
+                      - amd64
+                      - arm64
       containers:
         - name: alloy
           image: docker.io/grafana/alloy:v1.18.1
