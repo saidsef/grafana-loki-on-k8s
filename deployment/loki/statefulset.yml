@@ -28,6 +28,16 @@ spec:
         runAsNonRoot: true
         runAsGroup: 10001
         runAsUser: 10001
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/arch
+                    operator: In
+                    values:
+                      - amd64
+                      - arm64
       containers:
         - name: loki
           image: docker.io/grafana/loki:3.7.6
