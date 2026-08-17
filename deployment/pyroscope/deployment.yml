@@ -25,6 +25,16 @@ spec:
         runAsNonRoot: true
         runAsGroup: 10001
         runAsUser: 10001
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/arch
+                    operator: In
+                    values:
+                      - amd64
+                      - arm64
       containers:
       - name: pyroscope
         image: docker.io/grafana/pyroscope:2.2.1
