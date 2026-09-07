@@ -35,7 +35,7 @@ spec:
                       - arm64
       containers:
         - name: prometheus
-          image: docker.io/prom/prometheus:v3.13.2
+          image: docker.io/prom/prometheus:v3.14.0
           imagePullPolicy: IfNotPresent
           env:
             - name: GOMAXPROCS
