@@ -4,7 +4,7 @@ Pyroscope is the continuous-profiling backend. Profile scraping is handled by [A
 
 ## What it runs
 
-- Deployment, single replica, image `docker.io/grafana/pyroscope:2.2.1`.
+- Deployment, single replica, image `docker.io/grafana/pyroscope:2.3.0`.
 - Args: `-config.file=/etc/pyroscope/config.yaml -runtime-config.file=/etc/pyroscope/overrides/overrides.yaml -log.level=info`. All other configuration is in `config.yaml` — log level is the one flag Pyroscope does not expose in the config file.
 - Ports: 4040 (HTTP, ingest and query), 9095 (gRPC), 7946 (memberlist).
 - Resources: requests 100m CPU / 512Mi, limits 200m CPU / 768Mi.

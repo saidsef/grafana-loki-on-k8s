@@ -36,7 +36,7 @@ spec:
                       - arm64
       containers:
         - name: alloy
-          image: docker.io/grafana/alloy:v1.18.1
+          image: docker.io/grafana/alloy:v1.19.2
           imagePullPolicy: IfNotPresent
           args:
             - run

@@ -6,7 +6,7 @@ The cross-data-source linking (logs to traces, traces to logs / metrics / profil
 
 ## What it runs
 
-- Deployment, single replica, image `docker.io/grafana/grafana:13.1.3`.
+- Deployment, single replica, image `docker.io/grafana/grafana:13.2.1`.
 - Port: 3000 (HTTP). Service `grafana` exposes the same port.
 - Resources: requests 50m CPU / 512Mi, limits 100m CPU / 768Mi. `GOMAXPROCS` and `GOMEMLIMIT` are bound to those limits via `resourceFieldRef`.
 - Storage: 4 Gi emptyDir at `/var/lib/grafana`, split by subPath into `grafana` (state), `dashboards` (provisioned dashboards) and `tmp`.

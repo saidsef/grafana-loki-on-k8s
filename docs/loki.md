@@ -6,7 +6,7 @@ It is single tenant (`auth_enabled: false`), no replication, no external ring. A
 
 ## What it runs
 
-- StatefulSet, single replica, image `docker.io/grafana/loki:3.7.6`.
+- StatefulSet, single replica, image `docker.io/grafana/loki:3.7.7`.
 - Args: `-target=all -config.file=/etc/loki/loki.yaml`.
 - Port: 3100 (HTTP). Service `loki` exposes the same port.
 - Resources: requests 50m CPU / 512Mi, limits 100m CPU / 768Mi.
