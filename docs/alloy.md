@@ -1,6 +1,6 @@
 # Alloy
 
-Alloy is the collector that feeds everything else in this stack. It runs as a DaemonSet so there is one on every node, scrapes Prometheus targets and pod logs from the local kubelet, accepts OTLP traffic from applications, and scrapes pprof endpoints off annotated pods for Pyroscope. Logs go to Loki, metrics fan out to both Prometheus and Mimir, traces go to Tempo, profiles go to Pyroscope. Config lives in [`deployment/alloy/cm.yml`](https://github.com/saidsef/grafana-loki-on-k8s/blob/main/deployment/alloy/cm.yml).
+Alloy is the collector that feeds everything else in this stack. One instance runs on every node as a DaemonSet, scrapes Prometheus targets and pod logs from the local kubelet, accepts OTLP traffic from applications, and scrapes pprof endpoints off annotated pods for Pyroscope. Logs go to Loki, metrics fan out to both Prometheus and Mimir, traces go to Tempo, profiles go to Pyroscope. Config lives in [`deployment/alloy/cm.yml`](https://github.com/saidsef/grafana-loki-on-k8s/blob/main/deployment/alloy/cm.yml).
 
 This stack uses Alloy in place of Promtail. The Promtail directory is still in the tree but is commented out in [`deployment/kustomization.yml`](https://github.com/saidsef/grafana-loki-on-k8s/blob/main/deployment/kustomization.yml).
 
@@ -8,7 +8,7 @@ This stack uses Alloy in place of Promtail. The Promtail directory is still in t
 
 - DaemonSet, image `docker.io/grafana/alloy:v1.19.2`.
 - Args: `run /etc/alloy/config.alloy --storage.path=/tmp/alloy --server.http.listen-addr=$(POD_IP):12345 --server.http.ui-path-prefix=/ --stability.level=public-preview --feature.community-components.enabled --cluster.enabled=true --cluster.name=$(CLUSTER_NAME) --cluster.wait-for-size=1`.
-- `CLUSTER_NAME` is read from the pod label `cluster` via the downward API, so it's set in the DaemonSet pod template rather than hardcoded in the args.
+- `CLUSTER_NAME` is read from the pod label `cluster` via the downward API. It is set in the DaemonSet pod template rather than hardcoded in the args.
 - Ports: 12345 (HTTP UI and self metrics), 4317 (OTLP gRPC), 4318 (OTLP HTTP).
 - Resources: requests 50m CPU / 512Mi, limits 100m CPU / 896Mi.
 - Storage: 1 Gi emptyDir at `/tmp/alloy` for remote_write WAL buffers.
@@ -87,9 +87,9 @@ Batch settings: 6 second timeout, 200 spans per batch, 300 max.
 
 Alloy generates **no** trace-derived metrics. `traces_service_graph_*` and `traces_spanmetrics_*` come from [Tempo's](./tempo.md) `metrics_generator`, which is the only producer in this stack.
 
-Alloy also does no sampling, deliberately. `otelcol.processor.tail_sampling` and `otelcol.connector.servicegraph` are both **stateful**: they need every span of a trace on one instance. Alloy runs as a DaemonSet behind a ClusterIP Service, so spans of a single trace land on different pods. Without an `otelcol.exporter.loadbalancing` tier routing on `traceID`, both components would work from partial traces — splitting the client/server span pairs that Tempo's service-graph processor has to match, and so producing an empty or truncated service graph.
+Alloy also does no sampling, deliberately. `otelcol.processor.tail_sampling` and `otelcol.connector.servicegraph` are both **stateful**: they need every span of a trace on one instance. Alloy runs as a DaemonSet behind a ClusterIP Service, so spans of a single trace land on different pods. Without an `otelcol.exporter.loadbalancing` tier routing on `traceID`, both components would work from partial traces — splitting the client/server span pairs that Tempo's service-graph processor has to match, and producing an empty or truncated service graph.
 
-Tail sampling also delays every span by `decision_wait` (30s by default) before releasing it. Tempo drops any span whose end time falls outside `metrics_ingestion_time_range_slack` (60s in [`deployment/tempo/cm.yml`](https://github.com/saidsef/grafana-loki-on-k8s/blob/main/deployment/tempo/cm.yml)), so that delay consumes most of the budget and silently discards spans from metric generation.
+Tail sampling also delays every span by `decision_wait` (30s by default) before releasing it. Tempo drops any span whose end time falls outside `metrics_ingestion_time_range_slack` (60s in [`deployment/tempo/cm.yml`](https://github.com/saidsef/grafana-loki-on-k8s/blob/main/deployment/tempo/cm.yml)). That delay consumes most of the budget and silently discards spans from metric generation.
 
 To sample at scale, add a second Alloy tier: DaemonSet agents exporting via `otelcol.exporter.loadbalancing` with `routing_key = "traceID"` into a separate Alloy Deployment behind a headless Service that runs `tail_sampling`.
 

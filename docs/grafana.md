@@ -71,7 +71,7 @@ providers:
       foldersFromFilesStructure: true
 ```
 
-The dashboards directory is an emptyDir, so nothing ships pre-loaded. Drop JSON files into the `dashboards` subPath of the PVC (or extend the `dashboards` ConfigMap) and Grafana will pick them up within 10 seconds.
+The dashboards directory is an emptyDir. Nothing ships pre-loaded. Drop JSON files into the `dashboards` subPath of the PVC (or extend the `dashboards` ConfigMap) and Grafana will pick them up within 10 seconds.
 
 ### Data sources
 
@@ -110,11 +110,11 @@ Reach the UI locally with:
 kubectl port-forward -n monitoring svc/grafana 3000:3000
 ```
 
-No Ingress is shipped in this repo, so exposing it externally is on you.
+No Ingress is shipped in this repo. Exposing it externally is on you.
 
 ## Plugins
 
-The Grafana ConfigMap sets `[plugins] preinstall=` so the listed plugins are downloaded and installed on Grafana start-up. There are 32 plugins in total, 26 published by Grafana Labs and 6 by community or third-party developers.
+The Grafana ConfigMap sets `[plugins] preinstall=`. The listed plugins are downloaded and installed on Grafana start-up. There are 32 plugins in total, 26 published by Grafana Labs and 6 by community or third-party developers.
 
 For the canonical plugin page (versions, screenshots, install size, signatures, source), substitute the slug into:
 

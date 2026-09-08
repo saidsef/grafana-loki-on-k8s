@@ -125,6 +125,6 @@ The Tempo data source also queries Mimir for its `tracesToMetrics` and `serviceM
 
 ## How it fits the stack
 
-- Long-term metrics home. Holds the same data [Prometheus](./prometheus.md) does, since [Alloy](./alloy.md) writes to both, so dashboards can pick either source.
+- Long-term metrics home. [Alloy](./alloy.md) writes the same data to both this and [Prometheus](./prometheus.md), and a dashboard can pick either source.
 - Tempo's span-derived metrics land here, which is what powers the service graph view in Grafana.
 - Exemplars carry trace IDs, so a click on a Mimir data point can jump straight into Tempo.

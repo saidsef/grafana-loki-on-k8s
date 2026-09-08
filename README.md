@@ -68,9 +68,9 @@ Grafana open and composable [observability stack](https://grafana.com/about/graf
 
 ## Instrumenting your applications
 
-[Beyla](./docs/beyla.md) gives you spans with no code changes, which is the fastest way to get traces flowing. It cannot propagate trace context across a process boundary, though, so traces stop at each service and Tempo's service graph can only draw virtual nodes for the peers it infers.
+[Beyla](./docs/beyla.md) gives you spans with no code changes, which is the fastest way to get traces flowing. It cannot propagate trace context across a process boundary, though. Traces stop at each service, and Tempo's service graph can only draw virtual nodes for the peers it infers.
 
-For NodeJS services, [`@saidsef/tracing-node`](https://github.com/saidsef/tracing-node) covers that gap. It wraps the OpenTelemetry SDK with HTTP, fetch/undici, Express, Elasticsearch, IORedis, AWS SDK and Pino instrumentation, and registers the W3C Trace Context propagator, so a call from one service to another arrives as a child span in the same trace. That is what turns Tempo's service graph from a list of virtual nodes into real service-to-service edges.
+For NodeJS services, [`@saidsef/tracing-node`](https://github.com/saidsef/tracing-node) covers that gap. It registers the W3C Trace Context propagator. With that in place, a call into another service arrives as a child span in the same trace and the service graph gains real edges.
 
 ```shell
 npm install @saidsef/tracing-node --save

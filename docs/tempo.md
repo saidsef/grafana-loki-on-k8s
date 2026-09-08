@@ -43,7 +43,7 @@ distributor:
         http: { endpoint: 0.0.0.0:4318 }
 ```
 
-Local filesystem, vParquet5 blocks. Tempo 3.0 still defaults to vParquet4, so this is opt-in.
+Local filesystem, vParquet5 blocks. The Tempo 3.0 default is still vParquet4, and this opts in.
 vParquet5 adds dedicated columns for integer and event attributes and the `span:childCount`
 intrinsic. Older blocks stay readable, and new blocks are written in the new format:
 
@@ -61,7 +61,7 @@ storage:
 ```
 
 Compaction is aggressive given the small storage budget, blocks live 48 hours. Tempo 3.0
-replaced the compactor with a backend scheduler that hands jobs to a backend worker, so the
+replaced the compactor with a backend scheduler that hands jobs to a backend worker. The
 same retention is set on both. Without it the 3.0 default of 336h applies:
 
 ```yaml
@@ -160,5 +160,5 @@ The generated span metrics arrive in Mimir and Prometheus, where Grafana reads t
 ## How it fits the stack
 
 - Spans in from [Alloy](./alloy.md), metrics out to [Prometheus](./prometheus.md) and [Mimir](./mimir.md), correlated jumps to [Loki](./loki.md) and [Pyroscope](./pyroscope.md) handled by the data-source config.
-- TraceQL metrics queries are served from the live-store and backend blocks. Tempo 3.0 removed the `local-blocks` processor that previously backed them, and only reads RF1 blocks written by 3.0, so coverage starts at the upgrade. Storage is an emptyDir here, so nothing predates it anyway.
+- TraceQL metrics queries are served from the live-store and backend blocks. Tempo 3.0 removed the `local-blocks` processor that previously backed them, and only reads RF1 blocks written by 3.0. Coverage starts at the upgrade, and with storage on an emptyDir here nothing predates it anyway.
 - Single replica means HA is not a goal here. The 10 Gi emptyDir caps how much history fits, the 48-hour retention is sized for it.
