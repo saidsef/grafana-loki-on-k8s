@@ -1,6 +1,6 @@
 # Loki
 
-Loki is the logs backend. It runs in single-binary mode (`-target=all`), stores log chunks and the TSDB index on a local filesystem, and serves the LogQL API on `:3100`. Config lives in [`deployment/loki/cm.yml`](../deployment/loki/cm.yml).
+Loki is the logs backend. It runs in single-binary mode (`-target=all`), stores log chunks and the TSDB index on a local filesystem, and serves the LogQL API on `:3100`. Config lives in [`deployment/loki/cm.yml`](https://github.com/saidsef/grafana-loki-on-k8s/blob/main/deployment/loki/cm.yml).
 
 It is single tenant (`auth_enabled: false`), no replication, no external ring. Anything older than 7 days is rejected at the ingester.
 
@@ -80,7 +80,7 @@ Pattern ingester is on (`pattern_ingester.enabled: true`) and self-tracing is on
 
 ## Inputs
 
-[Alloy](./alloy.md) is the only writer. From [`deployment/alloy/cm.yml`](../deployment/alloy/cm.yml):
+[Alloy](./alloy.md) is the only writer. From [`deployment/alloy/cm.yml`](https://github.com/saidsef/grafana-loki-on-k8s/blob/main/deployment/alloy/cm.yml):
 
 ```river
 loki.write "loki" {
@@ -94,7 +94,7 @@ That writer is fed by three sources in Alloy: pod logs, Kubernetes events and sy
 
 ## Outputs
 
-Grafana reads Loki at `http://loki:3100` (see `loki.yaml` in [`deployment/grafana/cm.yml`](../deployment/grafana/cm.yml)). A `derivedFields` rule on the data source extracts `"trace_id":"..."` substrings from log lines and renders them as click-through links into the [Tempo](./tempo.md) data source:
+Grafana reads Loki at `http://loki:3100` (see `loki.yaml` in [`deployment/grafana/cm.yml`](https://github.com/saidsef/grafana-loki-on-k8s/blob/main/deployment/grafana/cm.yml)). A `derivedFields` rule on the data source extracts `"trace_id":"..."` substrings from log lines and renders them as click-through links into the [Tempo](./tempo.md) data source:
 
 ```yaml
 derivedFields:

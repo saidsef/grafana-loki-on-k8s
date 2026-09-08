@@ -1,0 +1,36 @@
+site_name: grafana-loki-on-k8s
+repo_url: https://github.com/saidsef/grafana-loki-on-k8s
+strict: true
+theme:
+  name: material
+  palette:
+    primary: teal
+  features:
+  - content.code.copy
+  - content.tabs.link
+markdown_extensions:
+- codehilite
+- admonition
+- tables
+- toc:
+    permalink: true
+    toc_depth: 3
+- pymdownx.tabbed:
+    alternate_style: true
+- pymdownx.superfences:
+    custom_fences:
+    - name: mermaid
+      class: mermaid
+      format: !!python/name:pymdownx.superfences.fence_code_format
+nav:
+  - Overview: README.md
+  - Architecture: architecture.md
+  - Components:
+    - Alloy: alloy.md
+    - Beyla: beyla.md
+    - Loki: loki.md
+    - Prometheus: prometheus.md
+    - Mimir: mimir.md
+    - Tempo: tempo.md
+    - Pyroscope: pyroscope.md
+    - Grafana: grafana.md

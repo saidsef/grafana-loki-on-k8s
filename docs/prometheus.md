@@ -1,6 +1,6 @@
 # Prometheus
 
-Prometheus runs alongside [Mimir](./mimir.md) rather than in front of it. It scrapes Kubernetes via service discovery, accepts remote_write from Alloy, evaluates alerting and recording rules, and serves the query API to Grafana. Config lives in [`deployment/prometheus/cm.yml`](../deployment/prometheus/cm.yml).
+Prometheus runs alongside [Mimir](./mimir.md) rather than in front of it. It scrapes Kubernetes via service discovery, accepts remote_write from Alloy, evaluates alerting and recording rules, and serves the query API to Grafana. Config lives in [`deployment/prometheus/cm.yml`](https://github.com/saidsef/grafana-loki-on-k8s/blob/main/deployment/prometheus/cm.yml).
 
 The `remote_write` to Mimir is intentionally commented out. Alloy writes to both backends directly.
 

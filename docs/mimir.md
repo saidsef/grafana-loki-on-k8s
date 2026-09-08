@@ -1,6 +1,6 @@
 # Mimir
 
-Mimir is the long-term metrics store. It runs in single-binary mode (`target: all,overrides-exporter`) on filesystem storage, single tenant, single replica. The Prometheus-compatible API lives behind `/prometheus` on the service. Config lives in [`deployment/mimir/cm.yml`](../deployment/mimir/cm.yml).
+Mimir is the long-term metrics store. It runs in single-binary mode (`target: all,overrides-exporter`) on filesystem storage, single tenant, single replica. The Prometheus-compatible API lives behind `/prometheus` on the service. Config lives in [`deployment/mimir/cm.yml`](https://github.com/saidsef/grafana-loki-on-k8s/blob/main/deployment/mimir/cm.yml).
 
 ## What it runs
 
@@ -80,7 +80,7 @@ Distributors give up after 5 seconds, all experimental PromQL functions are unlo
 
 Two writers, both pushing to the same URL.
 
-[Alloy](./alloy.md), from [`deployment/alloy/cm.yml`](../deployment/alloy/cm.yml):
+[Alloy](./alloy.md), from [`deployment/alloy/cm.yml`](https://github.com/saidsef/grafana-loki-on-k8s/blob/main/deployment/alloy/cm.yml):
 
 ```river
 prometheus.remote_write "mimir" {
@@ -92,7 +92,7 @@ prometheus.remote_write "mimir" {
 }
 ```
 
-[Tempo](./tempo.md)'s `metrics_generator`, from [`deployment/tempo/cm.yml`](../deployment/tempo/cm.yml):
+[Tempo](./tempo.md)'s `metrics_generator`, from [`deployment/tempo/cm.yml`](https://github.com/saidsef/grafana-loki-on-k8s/blob/main/deployment/tempo/cm.yml):
 
 ```yaml
 metrics_generator:

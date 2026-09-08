@@ -1,6 +1,6 @@
 # Tempo
 
-Tempo is the traces backend. Single binary (`target: all`), filesystem storage, single replica, multi-protocol ingest. Config lives in [`deployment/tempo/cm.yml`](../deployment/tempo/cm.yml).
+Tempo is the traces backend. Single binary (`target: all`), filesystem storage, single replica, multi-protocol ingest. Config lives in [`deployment/tempo/cm.yml`](https://github.com/saidsef/grafana-loki-on-k8s/blob/main/deployment/tempo/cm.yml).
 
 Beyond storing spans, it runs a `metrics_generator` that converts spans into RED metrics and service-graph metrics, then writes them to Mimir.
 
@@ -120,7 +120,7 @@ querier:
 
 ## Inputs
 
-[Alloy](./alloy.md) pushes OTLP traces to `tempo:4317`, from [`deployment/alloy/cm.yml`](../deployment/alloy/cm.yml):
+[Alloy](./alloy.md) pushes OTLP traces to `tempo:4317`, from [`deployment/alloy/cm.yml`](https://github.com/saidsef/grafana-loki-on-k8s/blob/main/deployment/alloy/cm.yml):
 
 ```river
 otelcol.exporter.otlp "tempo" {

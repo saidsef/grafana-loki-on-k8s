@@ -1,9 +1,10 @@
 # Documentation
 
-Reference material for this repository. The root [`README.md`](../README.md) covers the stack overview and deployment, this directory holds longer-form notes that don't belong inline.
+Reference material for this repository. The root [`README.md`](https://github.com/saidsef/grafana-loki-on-k8s/blob/main/README.md) covers the stack overview and deployment, this directory holds longer-form notes that don't belong inline.
 
 ## Available documents
 
+- [Architecture](./architecture.md) - the four layers, the path each signal takes and the diagram of the whole stack.
 - [Alloy](./alloy.md) - the DaemonSet collector that fans telemetry out to Loki, Prometheus, Mimir and Tempo.
 - [Beyla](./beyla.md) - eBPF auto-instrumentation; privileges, host mounts and the glob-based discovery rules.
 - [Loki](./loki.md) - logs backend, single-binary mode on local filesystem.

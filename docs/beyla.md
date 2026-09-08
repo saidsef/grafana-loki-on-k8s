@@ -1,6 +1,6 @@
 # Beyla
 
-Beyla is the eBPF auto-instrumentation agent. It inspects application executables and the OS networking layer directly, producing RED metrics and trace spans for HTTP/S and gRPC services without touching application code. Manifests live in [`deployment/beyla/`](../deployment/beyla/).
+Beyla is the eBPF auto-instrumentation agent. It inspects application executables and the OS networking layer directly, producing RED metrics and trace spans for HTTP/S and gRPC services without touching application code. Manifests live in [`deployment/beyla/`](https://github.com/saidsef/grafana-loki-on-k8s/blob/main/deployment/beyla/).
 
 It runs as its own DaemonSet rather than inside [Alloy](./alloy.md). See [Why not `beyla.ebpf` in Alloy](#why-not-beylaebpf-in-alloy).
 
