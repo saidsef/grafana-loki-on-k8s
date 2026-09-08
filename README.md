@@ -30,99 +30,9 @@ I am assuming you are already familiar with [Grafana Stack](https://grafana.com/
 
 ## Architecture Diagram
 
-```ascii
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           GRAFANA DASHBOARD                                 │
-│  ┌─────────────────────────────────────────────────────────────────────────┐│
-│  │                         UNIFIED VISUALIZATION                           ││
-│  │  📊 Metrics  📝 Logs  🔗 Traces  🔥 Profiles  🚨 Alerts  📈 Dashboards    ││
-│  └─────────────────────────────────────────────────────────────────────────┘│
-└─────────────────────────────────┬───────────────────────────────────────────┘
-                                  │ Query APIs
-                                  ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                          DATA SOURCE BACKENDS                               │
-│                                                                             │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐         │
-│  │ PROMETHEUS  │  │    MIMIR    │  │    LOKI     │  │    TEMPO    │         │
-│  │             │  │             │  │             │  │             │         │
-│  │ PromQL API  │  │ PromQL API  │  │ LogQL API   │  │ TraceQL API │         │
-│  │ /api/v1/    │  │ /api/v1/    │  │ /loki/api/  │  │ /api/v2/    │         │
-│  │             │◄─┤             │◄─┤             │◄─┤             │         │
-│  │ Short-term  │  │ Long-term   │  │ Log Aggr.   │  │ Distributed │         │
-│  │ Metrics     │  │ Metrics     │  │ & Search    │  │ Tracing     │         │
-│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘         │
-│                                                                             │
-│                           ┌─────────────┐                                   │
-│                           │ PYROSCOPE   │                                   │
-│                           │             │                                   │
-│                           │ Pprof API   │◄─────────────────────────────────-┤
-│                           │ /api/v1/    │                                   │
-│                           │             │                                   │
-│                           │ Continuous  │                                   │
-│                           │ Profiling   │                                   │
-│                           └─────────────┘                                   │
-└─────────────────────────────┬───────────────────────────────────────────────┘
-                              │ Data Collection
-                              ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                       TELEMETRY AGGREGATION                                 │
-│                    ┌─────────────────────────────────┐                      │
-│                    │         GRAFANA ALLOY           │                      │
-│                    │                                 │                      │
-│                    │ • OTEL Receiver (4317/4318)     │                      │
-│                    │ • Prometheus Scraper (9090)     │                      │
-│                    │ • Log Processor & Router        │                      │
-│                    │ • Trace Processor & Exporter    │                      │
-│                    │ • Profile Collector & Forwarder │                      │
-│                    └─────────────┬───────────────────┘                      │
-│                                   │                                         │
-│                    ┌──────────────┴───────────────┐                         │
-│                    │         BEYLA (eBPF)         │                         │
-│                    │  Auto-instrumentation for    │                         │
-│                    │  RED metrics & traces        │                         │
-│                    └──────────────────────────────┘                         │
-└──────────────────────────────────┼──────────────────────────────────────────┘
-                                   │ Telemetry Collection
-                                   ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           KUBERNETES CLUSTER                                │
-│                                                                             │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐         │
-│  │ APPLICATION │  │ APPLICATION │  │ APPLICATION │  │OBSERVABILITY│         │
-│  │   POD A     │  │   POD B     │  │   POD C     │  │  SERVICES   │         │
-│  │             │  │             │  │             │  │             │         │
-│  │ /metrics    │  │ /metrics    │  │ /metrics    │  │ ConfigMaps  │         │
-│  │ stdout logs │  │ stdout logs │  │ stdout logs │  │ Services    │         │
-│  │ OTEL traces │  │ OTEL traces │  │ OTEL traces │  │ Ingress     │         │
-│  │ pprof/:6060 │  │ pprof/:6060 │  │ pprof/:6060 │  │ RBAC        │         │
-│  │             │  │             │  │             │  │ Secrets     │         │
-│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘         │
-└─────────────────────────────────────────────────────────────────────────────┘
+![Architecture of the LGTM+ stack: application pods and the node kernel emit telemetry, Alloy and Beyla collect it, five backends store it, and Grafana queries all five.](./docs/architecture.svg)
 
-VISUALIZATION QUERIES:
-======================
-📊 Metrics Query:   Grafana → PromQL → Prometheus/Mimir
-📝 Logs Query:      Grafana → LogQL  → Loki
-🔗 Traces Query:    Grafana → TraceQL→ Tempo  
-🔥 Profiles Query:  Grafana → Pprof  → Pyroscope
-
-DATA COLLECTION FLOW:
-=====================
-Applications → Beyla/Alloy → Storage Backends → Grafana Dashboards
-
-GRAFANA DATASOURCES:
-====================
-┌─────────────────┬─────────────────┬──────────────────────────────────────┐
-│ DATASOURCE      │ QUERY LANGUAGE  │ ENDPOINT                             │
-├─────────────────┼─────────────────┼──────────────────────────────────────┤
-│ Prometheus      │ PromQL          │ http://prometheus-server             │
-│ Mimir           │ PromQL          │ http://mimir/prometheus              │
-│ Loki            │ LogQL           │ http://loki:3100                     │
-│ Tempo           │ TraceQL         │ http://tempo:3100                    │
-│ Pyroscope       │ Pprof           │ http://pyroscope:4040                │
-└─────────────────┴─────────────────┴──────────────────────────────────────┘
-```
+[docs/architecture.md](./docs/architecture.md) covers the signal paths and how the four layers fit together.
 
 ## Deployment
 
@@ -158,9 +68,9 @@ Grafana open and composable [observability stack](https://grafana.com/about/graf
 
 ## Instrumenting your applications
 
-[Beyla](./docs/beyla.md) gives you spans with no code changes, which is the fastest way to get traces flowing. It cannot propagate trace context across a process boundary, though, so traces stop at each service and Tempo's service graph can only draw virtual nodes for the peers it infers.
+[Beyla](./docs/beyla.md) gives you spans with no code changes, which is the fastest way to get traces flowing. It cannot propagate trace context across a process boundary, though. Traces stop at each service, and Tempo's service graph can only draw virtual nodes for the peers it infers.
 
-For NodeJS services, [`@saidsef/tracing-node`](https://github.com/saidsef/tracing-node) covers that gap. It wraps the OpenTelemetry SDK with HTTP, fetch/undici, Express, Elasticsearch, IORedis, AWS SDK and Pino instrumentation, and registers the W3C Trace Context propagator, so a call from one service to another arrives as a child span in the same trace. That is what turns Tempo's service graph from a list of virtual nodes into real service-to-service edges.
+For NodeJS services, [`@saidsef/tracing-node`](https://github.com/saidsef/tracing-node) covers that gap. It registers the W3C Trace Context propagator. With that in place, a call into another service arrives as a child span in the same trace and the service graph gains real edges.
 
 ```shell
 npm install @saidsef/tracing-node --save

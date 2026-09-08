@@ -1,6 +1,6 @@
 # Grafana
 
-Grafana is the visualisation layer. It runs a single replica, mounts five provisioned data sources (Mimir, Prometheus, Loki, Tempo, Pyroscope), serves the UI on `:3000`, and pre-installs 32 plugins on first start. Config lives in [`deployment/grafana/cm.yml`](../deployment/grafana/cm.yml).
+Grafana is the visualisation layer. It runs a single replica, mounts five provisioned data sources (Mimir, Prometheus, Loki, Tempo, Pyroscope), serves the UI on `:3000`, and pre-installs 32 plugins on first start. Config lives in [`deployment/grafana/cm.yml`](https://github.com/saidsef/grafana-loki-on-k8s/blob/main/deployment/grafana/cm.yml).
 
 The cross-data-source linking (logs to traces, traces to logs / metrics / profiles, service map) is all defined here, not in the backends.
 
@@ -71,11 +71,11 @@ providers:
       foldersFromFilesStructure: true
 ```
 
-The dashboards directory is an emptyDir, so nothing ships pre-loaded. Drop JSON files into the `dashboards` subPath of the PVC (or extend the `dashboards` ConfigMap) and Grafana will pick them up within 10 seconds.
+The dashboards directory is an emptyDir. Nothing ships pre-loaded. Drop JSON files into the `dashboards` subPath of the PVC (or extend the `dashboards` ConfigMap) and Grafana will pick them up within 10 seconds.
 
 ### Data sources
 
-Five files in the `datasources` ConfigMap, one per backend. The full blocks live in [`deployment/grafana/cm.yml`](../deployment/grafana/cm.yml). Summary:
+Five files in the `datasources` ConfigMap, one per backend. The full blocks live in [`deployment/grafana/cm.yml`](https://github.com/saidsef/grafana-loki-on-k8s/blob/main/deployment/grafana/cm.yml). Summary:
 
 | Data source | Type | URL | Notes |
 |---|---|---|---|
@@ -98,7 +98,7 @@ tracesToProfiles:
 
 ## Inputs
 
-Grafana queries the five backends listed above. None of them push to Grafana. The data sources are provisioned from disk, not the UI, so any change requires editing [`deployment/grafana/cm.yml`](../deployment/grafana/cm.yml) and re-applying.
+Grafana queries the five backends listed above. None of them push to Grafana. The data sources are provisioned from disk, not the UI, so any change requires editing [`deployment/grafana/cm.yml`](https://github.com/saidsef/grafana-loki-on-k8s/blob/main/deployment/grafana/cm.yml) and re-applying.
 
 ## Outputs
 
@@ -110,11 +110,11 @@ Reach the UI locally with:
 kubectl port-forward -n monitoring svc/grafana 3000:3000
 ```
 
-No Ingress is shipped in this repo, so exposing it externally is on you.
+No Ingress is shipped in this repo. Exposing it externally is on you.
 
 ## Plugins
 
-The Grafana ConfigMap sets `[plugins] preinstall=` so the listed plugins are downloaded and installed on Grafana start-up. There are 32 plugins in total, 26 published by Grafana Labs and 6 by community or third-party developers.
+The Grafana ConfigMap sets `[plugins] preinstall=`. The listed plugins are downloaded and installed on Grafana start-up. There are 32 plugins in total, 26 published by Grafana Labs and 6 by community or third-party developers.
 
 For the canonical plugin page (versions, screenshots, install size, signatures, source), substitute the slug into:
 

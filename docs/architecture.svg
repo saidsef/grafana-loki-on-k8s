@@ -1,0 +1,197 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 966" width="1000" height="966" role="img" aria-labelledby="diagram-title diagram-desc" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif">
+  <title id="diagram-title">LGTM+ stack architecture</title>
+  <desc id="diagram-desc">Application pods and the node kernel emit telemetry. Alloy collects it and writes to Prometheus, Mimir, Loki, Tempo and Pyroscope. Beyla forwards metrics and traces to Alloy over OTLP and sends profiles straight to Pyroscope. Grafana queries all five backends.</desc>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748B"/>
+    </marker>
+
+    <symbol id="ic-chart" viewBox="0 0 20 20">
+      <path d="M3 3 V16 H17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M5.5 13 L9 8.5 L12 11 L16.5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="ic-flame" viewBox="0 0 20 20">
+      <path d="M10 2 C13.6 6.6 15 9.2 15 12.2 C15 15.1 12.8 17.5 10 17.5 C7.2 17.5 5 15.1 5 12.2 C5 9.2 6.4 6.6 10 2 Z" fill="currentColor"/>
+      <path d="M10 9.5 C11.5 11.4 12 12.4 12 13.4 C12 14.6 11.1 15.6 10 15.6 C8.9 15.6 8 14.6 8 13.4 C8 12.4 8.5 11.4 10 9.5 Z" fill="#FFFFFF"/>
+    </symbol>
+    <symbol id="ic-db" viewBox="0 0 20 20">
+      <ellipse cx="10" cy="5" rx="6.5" ry="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/>
+      <path d="M3.5 5 V15 C3.5 16.4 6.4 17.5 10 17.5 C13.6 17.5 16.5 16.4 16.5 15 V5" fill="none" stroke="currentColor" stroke-width="1.6"/>
+      <path d="M3.5 10 C3.5 11.4 6.4 12.5 10 12.5 C13.6 12.5 16.5 11.4 16.5 10" fill="none" stroke="currentColor" stroke-width="1.6"/>
+    </symbol>
+    <symbol id="ic-logs" viewBox="0 0 20 20">
+      <rect x="3" y="3" width="14" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/>
+      <path d="M6.2 7.5 H13.8 M6.2 10.5 H13.8 M6.2 13.5 H11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="ic-spans" viewBox="0 0 20 20">
+      <rect x="3" y="4" width="12" height="3" rx="1.5" fill="currentColor"/>
+      <rect x="6" y="8.5" width="10" height="3" rx="1.5" fill="currentColor"/>
+      <rect x="9" y="13" width="7" height="3" rx="1.5" fill="currentColor"/>
+    </symbol>
+    <symbol id="ic-flamegraph" viewBox="0 0 20 20">
+      <rect x="3" y="13" width="14" height="3" rx="1" fill="currentColor"/>
+      <rect x="3" y="8.5" width="6" height="3" rx="1" fill="currentColor"/>
+      <rect x="11" y="8.5" width="6" height="3" rx="1" fill="currentColor"/>
+      <rect x="4.5" y="4" width="4" height="3" rx="1" fill="currentColor"/>
+    </symbol>
+    <symbol id="ic-funnel" viewBox="0 0 20 20">
+      <path d="M2.5 4 H17.5 L12 11 V17 L8 15 V11 Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="ic-probe" viewBox="0 0 20 20">
+      <circle cx="7" cy="10" r="2.2" fill="currentColor"/>
+      <path d="M11.2 6.5 A5 5 0 0 1 11.2 13.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M14.4 3.8 A9.2 9.2 0 0 1 14.4 16.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="ic-pod" viewBox="0 0 20 20">
+      <path d="M10 2.4 L16.6 6.2 V13.8 L10 17.6 L3.4 13.8 V6.2 Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+      <circle cx="10" cy="10" r="2.2" fill="currentColor"/>
+    </symbol>
+    <symbol id="ic-chip" viewBox="0 0 20 20">
+      <rect x="5.5" y="5.5" width="9" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/>
+      <rect x="8.5" y="8.5" width="3" height="3" rx="0.6" fill="currentColor"/>
+      <path d="M8 5.5 V2.6 M12 5.5 V2.6 M8 14.5 V17.4 M12 14.5 V17.4 M5.5 8 H2.6 M5.5 12 H2.6 M14.5 8 H17.4 M14.5 12 H17.4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </symbol>
+
+    <style>
+      .band { fill: #F1F5F9; }
+      .box { fill: #FFFFFF; stroke-width: 1.5; }
+      text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+      .band-label { font-size: 11px; font-weight: 600; letter-spacing: 1.2px; fill: #94A3B8; }
+      .box-title { font-size: 13px; font-weight: 600; }
+      .box-line { font-size: 11px; fill: #475569; }
+      .bullet-text { font-size: 11px; fill: #475569; }
+      .bullet-dot { fill: #94A3B8; }
+      .edge { stroke: #64748B; stroke-width: 1.5; fill: none; }
+      .edge-label { font-size: 11px; font-style: italic; fill: #64748B; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1000" height="966" fill="#FFFFFF"/>
+
+  <!-- Band A: visualisation -->
+  <rect class="band" x="24" y="24" width="952" height="140" rx="8"/>
+  <text class="band-label" x="48" y="52">VISUALISATION</text>
+  <rect class="box" x="48" y="72" width="904" height="72" rx="6" stroke="#EA580C"/>
+  <use href="#ic-chart" x="458" y="88" width="20" height="20" color="#C2410C"/>
+  <text class="box-title" x="486" y="104" font-size="15" fill="#C2410C">Grafana</text>
+  <text class="box-line" x="500" y="128" text-anchor="middle">Metrics · Logs · Traces · Profiles · Alerts · Dashboards</text>
+
+  <!-- Band B: backends -->
+  <rect class="band" x="24" y="220" width="952" height="188" rx="8"/>
+  <text class="band-label" x="48" y="248">BACKENDS</text>
+
+  <rect class="box" x="48" y="268" width="164" height="120" rx="6" stroke="#D9541E"/>
+  <use href="#ic-flame" x="120" y="282" width="20" height="20" color="#D9541E"/>
+  <text class="box-title" x="130" y="322" text-anchor="middle" fill="#D9541E">Prometheus</text>
+  <text class="box-line" x="130" y="344" text-anchor="middle">Short-term metrics</text>
+  <text class="box-line" x="130" y="364" text-anchor="middle">PromQL</text>
+
+  <rect class="box" x="233" y="268" width="164" height="120" rx="6" stroke="#7C5CD6"/>
+  <use href="#ic-db" x="305" y="282" width="20" height="20" color="#7C5CD6"/>
+  <text class="box-title" x="315" y="322" text-anchor="middle" fill="#7C5CD6">Mimir</text>
+  <text class="box-line" x="315" y="344" text-anchor="middle">Long-term metrics</text>
+  <text class="box-line" x="315" y="364" text-anchor="middle">PromQL</text>
+
+  <rect class="box" x="418" y="268" width="164" height="120" rx="6" stroke="#B07A06"/>
+  <use href="#ic-logs" x="490" y="282" width="20" height="20" color="#B07A06"/>
+  <text class="box-title" x="500" y="322" text-anchor="middle" fill="#B07A06">Loki</text>
+  <text class="box-line" x="500" y="344" text-anchor="middle">Logs</text>
+  <text class="box-line" x="500" y="364" text-anchor="middle">LogQL</text>
+
+  <rect class="box" x="603" y="268" width="164" height="120" rx="6" stroke="#2C8EBB"/>
+  <use href="#ic-spans" x="675" y="282" width="20" height="20" color="#2C8EBB"/>
+  <text class="box-title" x="685" y="322" text-anchor="middle" fill="#2C8EBB">Tempo</text>
+  <text class="box-line" x="685" y="344" text-anchor="middle">Traces</text>
+  <text class="box-line" x="685" y="364" text-anchor="middle">TraceQL</text>
+
+  <rect class="box" x="788" y="268" width="164" height="120" rx="6" stroke="#C1436D"/>
+  <use href="#ic-flamegraph" x="860" y="282" width="20" height="20" color="#C1436D"/>
+  <text class="box-title" x="870" y="322" text-anchor="middle" fill="#C1436D">Pyroscope</text>
+  <text class="box-line" x="870" y="344" text-anchor="middle">Profiles</text>
+  <text class="box-line" x="870" y="364" text-anchor="middle">pprof</text>
+
+  <!-- Band C: collectors -->
+  <rect class="band" x="24" y="464" width="952" height="224" rx="8"/>
+  <text class="band-label" x="48" y="492">COLLECTORS</text>
+
+  <rect class="box" x="48" y="524" width="632" height="144" rx="6" stroke="#3B7DD8"/>
+  <use href="#ic-funnel" x="72" y="538" width="20" height="20" color="#3B7DD8"/>
+  <text class="box-title" x="100" y="554" fill="#3B7DD8">Grafana Alloy · DaemonSet</text>
+  <circle class="bullet-dot" cx="76" cy="578" r="1.8"/>
+  <text class="bullet-text" x="86" y="582">OTLP receiver for traces, metrics and logs</text>
+  <circle class="bullet-dot" cx="76" cy="598" r="1.8"/>
+  <text class="bullet-text" x="86" y="602">Scrapes pod and kubelet metrics</text>
+  <circle class="bullet-dot" cx="76" cy="618" r="1.8"/>
+  <text class="bullet-text" x="86" y="622">Tails pod logs and cluster events</text>
+  <circle class="bullet-dot" cx="76" cy="638" r="1.8"/>
+  <text class="bullet-text" x="86" y="642">Scrapes pprof endpoints on annotated pods</text>
+
+  <rect class="box" x="744" y="524" width="208" height="144" rx="6" stroke="#14919B"/>
+  <use href="#ic-probe" x="768" y="538" width="20" height="20" color="#14919B"/>
+  <text class="box-title" x="796" y="554" fill="#14919B">Beyla · eBPF</text>
+  <circle class="bullet-dot" cx="772" cy="578" r="1.8"/>
+  <text class="bullet-text" x="782" y="582">DaemonSet on every node</text>
+  <circle class="bullet-dot" cx="772" cy="598" r="1.8"/>
+  <text class="bullet-text" x="782" y="602">RED metrics and traces</text>
+  <circle class="bullet-dot" cx="772" cy="618" r="1.8"/>
+  <text class="bullet-text" x="782" y="622">No code changes</text>
+  <circle class="bullet-dot" cx="772" cy="638" r="1.8"/>
+  <text class="bullet-text" x="782" y="642">Profiles to Pyroscope</text>
+
+  <!-- Band D: cluster -->
+  <rect class="band" x="24" y="744" width="952" height="198" rx="8"/>
+  <text class="band-label" x="48" y="772">KUBERNETES CLUSTER</text>
+
+  <rect class="box" x="48" y="804" width="208" height="118" rx="6" stroke="#94A3B8"/>
+  <use href="#ic-pod" x="142" y="818" width="20" height="20" color="#64748B"/>
+  <text class="box-title" x="152" y="858" text-anchor="middle" fill="#334155">Application pod A</text>
+  <text class="box-line" x="152" y="880" text-anchor="middle">/metrics · stdout logs</text>
+  <text class="box-line" x="152" y="898" text-anchor="middle">OTLP traces · pprof</text>
+
+  <rect class="box" x="280" y="804" width="208" height="118" rx="6" stroke="#94A3B8"/>
+  <use href="#ic-pod" x="374" y="818" width="20" height="20" color="#64748B"/>
+  <text class="box-title" x="384" y="858" text-anchor="middle" fill="#334155">Application pod B</text>
+  <text class="box-line" x="384" y="880" text-anchor="middle">/metrics · stdout logs</text>
+  <text class="box-line" x="384" y="898" text-anchor="middle">OTLP traces · pprof</text>
+
+  <rect class="box" x="512" y="804" width="208" height="118" rx="6" stroke="#94A3B8"/>
+  <use href="#ic-pod" x="606" y="818" width="20" height="20" color="#64748B"/>
+  <text class="box-title" x="616" y="858" text-anchor="middle" fill="#334155">Application pod C</text>
+  <text class="box-line" x="616" y="880" text-anchor="middle">/metrics · stdout logs</text>
+  <text class="box-line" x="616" y="898" text-anchor="middle">OTLP traces · pprof</text>
+
+  <rect class="box" x="744" y="804" width="208" height="118" rx="6" stroke="#94A3B8"/>
+  <use href="#ic-chip" x="838" y="818" width="20" height="20" color="#64748B"/>
+  <text class="box-title" x="848" y="858" text-anchor="middle" fill="#334155">Node kernel</text>
+  <text class="box-line" x="848" y="880" text-anchor="middle">eBPF probes</text>
+  <text class="box-line" x="848" y="898" text-anchor="middle">network flows</text>
+
+  <!-- Edges: Grafana queries the backends -->
+  <text class="edge-label" x="48" y="196">queries</text>
+  <line class="edge" x1="130" y1="148" x2="130" y2="264" marker-end="url(#arrow)"/>
+  <line class="edge" x1="315" y1="148" x2="315" y2="264" marker-end="url(#arrow)"/>
+  <line class="edge" x1="500" y1="148" x2="500" y2="264" marker-end="url(#arrow)"/>
+  <line class="edge" x1="685" y1="148" x2="685" y2="264" marker-end="url(#arrow)"/>
+  <line class="edge" x1="870" y1="148" x2="870" y2="264" marker-end="url(#arrow)"/>
+
+  <!-- Edges: collectors write to the backends. The first bends around the COLLECTORS label. -->
+  <text class="edge-label" x="48" y="440">writes</text>
+  <path class="edge" d="M130,520 V512 Q130,506 136,506 H150 Q156,506 156,500 V392" marker-end="url(#arrow)"/>
+  <line class="edge" x1="315" y1="520" x2="315" y2="392" marker-end="url(#arrow)"/>
+  <line class="edge" x1="500" y1="520" x2="500" y2="392" marker-end="url(#arrow)"/>
+  <path class="edge" d="M600,520 V438 Q600,430 608,430 H677 Q685,430 685,422 V392" marker-end="url(#arrow)"/>
+  <path class="edge" d="M640,520 V478 Q640,470 648,470 H812 Q820,470 820,462 V392" marker-end="url(#arrow)"/>
+  <line class="edge" x1="870" y1="520" x2="870" y2="392" marker-end="url(#arrow)"/>
+
+  <!-- Edge: Beyla forwards to Alloy -->
+  <text class="edge-label" x="712" y="588" text-anchor="middle">OTLP</text>
+  <line class="edge" x1="740" y1="596" x2="684" y2="596" marker-end="url(#arrow)"/>
+
+  <!-- Edges: workloads to collectors. The first bends around the KUBERNETES CLUSTER label. -->
+  <text class="edge-label" x="48" y="720">telemetry</text>
+  <path class="edge" d="M152,800 V794 Q152,788 158,788 H214 Q220,788 220,782 V672" marker-end="url(#arrow)"/>
+  <line class="edge" x1="384" y1="800" x2="384" y2="672" marker-end="url(#arrow)"/>
+  <line class="edge" x1="616" y1="800" x2="616" y2="672" marker-end="url(#arrow)"/>
+  <line class="edge" x1="848" y1="800" x2="848" y2="672" marker-end="url(#arrow)"/>
+</svg>
