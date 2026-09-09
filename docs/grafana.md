@@ -1,6 +1,6 @@
 # Grafana
 
-Grafana is the visualisation layer. It runs a single replica, mounts five provisioned data sources (Mimir, Prometheus, Loki, Tempo, Pyroscope), serves the UI on `:3000`, and pre-installs 32 plugins on first start. Config lives in [`deployment/grafana/cm.yml`](https://github.com/saidsef/grafana-loki-on-k8s/blob/main/deployment/grafana/cm.yml).
+Grafana is the visualisation layer. It runs a single replica, mounts five provisioned data sources (Mimir, Prometheus, Loki, Tempo, Pyroscope), serves the UI on `:3000`, and pre-installs 30 plugins on first start. Config lives in [`deployment/grafana/cm.yml`](https://github.com/saidsef/grafana-loki-on-k8s/blob/main/deployment/grafana/cm.yml).
 
 The cross-data-source linking (logs to traces, traces to logs / metrics / profiles, service map) is all defined here, not in the backends.
 
@@ -53,7 +53,7 @@ preinstall_async=false
 preinstall=<comma-separated plugin slugs, see Plugins below>
 ```
 
-Notable choices: Explore is on, alpha plugins are allowed, the plugin admin UI is enabled, and the preinstall is synchronous (`preinstall_async=false`) so the pod will not report ready until all 32 plugins are downloaded.
+Notable choices: Explore is on, alpha plugins are allowed, the plugin admin UI is enabled, and the preinstall is synchronous (`preinstall_async=false`) so the pod will not report ready until all 30 plugins are downloaded.
 
 ### Dashboards provisioning
 
@@ -114,7 +114,7 @@ No Ingress is shipped in this repo. Exposing it externally is on you.
 
 ## Plugins
 
-The Grafana ConfigMap sets `[plugins] preinstall=`. The listed plugins are downloaded and installed on Grafana start-up. There are 32 plugins in total, 26 published by Grafana Labs and 6 by community or third-party developers.
+The Grafana ConfigMap sets `[plugins] preinstall=`. The listed plugins are downloaded and installed on Grafana start-up. There are 30 plugins in total, 24 published by Grafana Labs and 6 by community or third-party developers.
 
 For the canonical plugin page (versions, screenshots, install size, signatures, source), substitute the slug into:
 
@@ -147,10 +147,8 @@ Plugins signed by Grafana Labs.
 | `grafana-lokioperational-app` | Loki-Operational | Admin-only operational console for Loki clusters, rings, storage, tenants. |
 | `grafana-metrics-enterprise-app` | Enterprise Metrics (GEM) | Management app for Grafana Enterprise Metrics (Mimir-based) clusters. |
 | `grafana-metricsdrilldown-app` | Metrics Drilldown | Queryless browser for Prometheus-compatible metrics, finds related series without PromQL. |
-| `grafana-oncall-app` | OnCall | On-call rotations, escalation policies, and multi-channel alert routing including Slack, voice, and SMS. |
 | `grafana-opensearch-datasource` | OpenSearch | Queries OpenSearch and Elasticsearch instances. |
 | `grafana-pyroscope-app` | Profiles Drilldown | Queryless browse of Pyroscope continuous-profiling data with AI-assisted flame graph analysis. |
-| `grafana-resourcesexporter-app` | Resources Exporter | Exports Grafana resources from an instance or Grafana Cloud account as Terraform, Grizzly, or Crossplane definitions. |
 | `grafana-sentry-datasource` | Sentry | Queries and visualises Sentry error data. |
 | `grafana-synthetic-monitoring-app` | Synthetic Monitoring | Blackbox monitoring, schedules availability, performance, and correctness checks against external targets from worldwide probes. |
 | `grafana-x-ray-datasource` | AWS Application Signals | AWS application-observability data source. Renamed from "X-Ray" in v2.16.0, the slug is unchanged. |
