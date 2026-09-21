@@ -37,7 +37,7 @@ spec:
                       - arm64
       containers:
       - name: pyroscope
-        image: docker.io/grafana/pyroscope:2.3.0
+        image: docker.io/grafana/pyroscope:2.3.1
         imagePullPolicy: IfNotPresent
         args:
           - "-config.file=/etc/pyroscope/config.yaml"
