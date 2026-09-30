@@ -40,7 +40,7 @@ spec:
                       - arm64
       containers:
         - name: loki
-          image: docker.io/grafana/loki:3.7.7
+          image: docker.io/grafana/loki:3.7.8
           imagePullPolicy: IfNotPresent
           args:
             - -target=all
