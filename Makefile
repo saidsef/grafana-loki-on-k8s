@@ -1,4 +1,4 @@
-ALLOY_IMAGE    ?= docker.io/grafana/alloy:v1.19.2
+ALLOY_IMAGE    ?= docker.io/grafana/alloy:v1.20.1
 KIND_CLUSTER   ?= loki-stack
 KUBE_NAMESPACE ?= monitoring
 

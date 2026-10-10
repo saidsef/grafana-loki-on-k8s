@@ -40,8 +40,8 @@ data:
           wait: 60s
           max_items: 10000
           enable_client_server_prefix: true
-          # Suppresses virtual-node edges entirely on 3.0.3; every edge here is one
-          # (client spans to uninstrumented peers), so enabling it empties the graph.
+          # Empties the service graph on 3.0.3 and 3.1.0. The generator rebuilds the
+          # processor every 10s and drops its edges before collection.
           # enable_virtual_node_label: true
           enable_messaging_system_latency_histogram: true
           peer_attributes:
@@ -100,8 +100,8 @@ data:
       trace:
         backend: local
         block:
-          # Opt-in; 3.0 still defaults to vParquet4. Adds dedicated columns for
-          # integers and events, and the span:childCount intrinsic.
+          # The default from 3.1, kept explicit so the block format does not follow a
+          # future default. Adds integer and event columns, and span:childCount.
           version: vParquet5
           bloom_filter_false_positive: .05
         local:
