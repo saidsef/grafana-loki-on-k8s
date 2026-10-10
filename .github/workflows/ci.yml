@@ -21,7 +21,7 @@ jobs:
     - name: Check out repository code
       uses: actions/checkout@v7
     - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@master
+      uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
       with:
         scan-type: 'config'
         scan-ref: '.'
@@ -38,10 +38,10 @@ jobs:
     if: ${{ github.event_name == 'pull_request' }}
     steps:
       - name: Create k8s Kind Cluster
-        uses: helm/kind-action@v1.15.0
+        uses: helm/kind-action@v1.15.1
         with:
-          kubectl_version: v1.33.7 # Ensure compatibility with the latest APIs
-          node_image: kindest/node:v1.33.7 # Match node version with kubectl for consistency
+          kubectl_version: v1.37.1 # Same minor as the node image
+          node_image: kindest/node:v1.37.0 # Matches kind-config.yml, built for kind v0.33.0
       - name: Check out repository code
         uses: actions/checkout@v7
       - name: Run K8s test
