@@ -27,7 +27,7 @@ spec:
         runAsUser: 65534
       initContainers:
         - name: curl
-          image: docker.io/curlimages/curl:latest
+          image: docker.io/curlimages/curl:8.22.0
           imagePullPolicy: IfNotPresent
           command:
             - /bin/sh
@@ -44,7 +44,7 @@ spec:
               subPath: dashboards
       containers:
       - name: grafana
-        image: docker.io/grafana/grafana:13.2.2
+        image: docker.io/grafana/grafana:13.2.3
         imagePullPolicy: IfNotPresent
         env:
         - name: GOMAXPROCS

@@ -6,7 +6,7 @@ It runs as its own DaemonSet rather than inside [Alloy](./alloy.md). See [Why no
 
 ## What it runs
 
-- DaemonSet, image `docker.io/grafana/beyla:3.32.0`, one pod per node.
+- DaemonSet, image `docker.io/grafana/beyla:3.38.0`, one pod per node.
 - `hostPID: true` so Beyla can see and inspect processes in other containers' PID namespaces. Mandatory in DaemonSet mode.
 - `hostNetwork: true` with `dnsPolicy: ClusterFirstWithHostNet`, required for the network-level context propagation described below.
 - Health, readiness and liveness on port 9090 (`/healthz`), probed at `127.0.0.1`. Beyla 3.31.0 began binding this endpoint to loopback only and ignores `health_check.listen_address`; `hostNetwork` puts that loopback on the node, so the kubelet can still reach it.
@@ -85,6 +85,6 @@ msg="metadata does not match" attr=k8s_namespace value=<namespace>
 
 Alloy ships a `beyla.ebpf` component that would fold this DaemonSet into the Alloy one. It is not used here:
 
-- Alloy's embedded Beyla is several versions behind the standalone image. The tracefs mount above, needed from 3.28.0, is not in it.
+- Alloy's embedded Beyla trails the standalone image by a few releases. Like any Beyla from 3.28.0 it needs the tracefs mount above, and the Alloy DaemonSet does not mount tracefs.
 - The component requires Alloy to run with administrative privileges (or the same capability list), plus `hostPID: true` and an **Unconfined** AppArmor profile. Alloy currently runs unprivileged with all capabilities dropped, and it carries every log, metric, trace and profile pipeline in the stack — a much larger blast radius.
 - Beyla needs `hostNetwork: true` for context propagation, which would collide with Alloy's ports 4317, 4318 and 12345 on every node.

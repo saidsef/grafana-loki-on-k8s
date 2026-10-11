@@ -6,7 +6,7 @@ Beyond storing spans, it runs a `metrics_generator` that converts spans into RED
 
 ## What it runs
 
-- StatefulSet, single replica, image `docker.io/grafana/tempo:3.0.3`.
+- StatefulSet, single replica, image `docker.io/grafana/tempo:3.1.0`.
 - Args: `-config.file=/conf/tempo.yaml -config.expand-env=true -generator.instance-id=$(POD_IP) -log.level=warn`.
 - Ports: 3100 (HTTP query), 9095 (gRPC), 4317 (OTLP gRPC), 4318 (OTLP HTTP), 14250 (Jaeger gRPC), 14268 (Jaeger Thrift HTTP), 6831 / 6832 (Jaeger Thrift UDP), 9411 (Zipkin).
 - Resources: requests 50m CPU / 512Mi, limits 100m CPU / 896Mi.
@@ -43,9 +43,10 @@ distributor:
         http: { endpoint: 0.0.0.0:4318 }
 ```
 
-Local filesystem, vParquet5 blocks. The Tempo 3.0 default is still vParquet4, and this opts in.
-vParquet5 adds dedicated columns for integer and event attributes and the `span:childCount`
-intrinsic. Older blocks stay readable, and new blocks are written in the new format:
+Local filesystem, vParquet5 blocks. Tempo 3.1 writes vParquet5 by default, and the config sets
+it explicitly. The format adds dedicated columns for integer and event attributes and the
+`span:childCount` intrinsic. Older blocks stay readable, and new blocks are written in the new
+format:
 
 ```yaml
 storage:
@@ -93,7 +94,7 @@ overrides:
 
 `host-info` emits a `traces_host_info` gauge keyed on `k8s.node.name` and `host.id`. `service-graphs` is tuned with a 60s wait to allow time for cross-node span pairs, plus peer_attributes and dimensions for richer label coverage.
 
-`enable_virtual_node_label` is deliberately left off. On 3.0.3 it stops virtual-node edges being emitted at all, and every edge here is a virtual node - client spans naming an uninstrumented peer through `peer.service`, which is what produces the `client=<service>` to `server=elasticsearch` edges. Turning it on empties the service graph while span metrics carry on unaffected, so the generator looks healthy.
+`enable_virtual_node_label` is deliberately left off. On 3.0.3 and 3.1.0, turning it on makes the metrics generator replace the service-graph processor every 10 seconds. Each replacement discards the edges still waiting to pair, so an edge to an inferred peer never reaches Mimir. Database edges and edges between two instrumented services still appear. Span metrics carry on unaffected, so the generator looks healthy.
 
 The generator writes metrics to Mimir:
 

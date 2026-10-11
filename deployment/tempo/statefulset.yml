@@ -36,7 +36,7 @@ spec:
         - -generator.instance-id=$(POD_IP)
         - -log.level=warn
         - -config.expand-env=true
-        image: docker.io/grafana/tempo:3.0.3
+        image: docker.io/grafana/tempo:3.1.0
         imagePullPolicy: IfNotPresent
         name: tempo
         env:
