@@ -94,7 +94,7 @@ overrides:
 
 `host-info` emits a `traces_host_info` gauge keyed on `k8s.node.name` and `host.id`. `service-graphs` is tuned with a 60s wait to allow time for cross-node span pairs, plus peer_attributes and dimensions for richer label coverage.
 
-`enable_virtual_node_label` is deliberately left off. On 3.0.3 and 3.1.0 it empties the service graph, database edges included. With the option on, the metrics generator rebuilds the service-graph processor every 10 seconds and drops its edges before they are collected. Span metrics carry on unaffected, so the generator looks healthy.
+`enable_virtual_node_label` is deliberately left off. On 3.0.3 and 3.1.0, turning it on makes the metrics generator replace the service-graph processor every 10 seconds. Each replacement discards the edges still waiting to pair, so an edge to an inferred peer never reaches Mimir. Database edges and edges between two instrumented services still appear. Span metrics carry on unaffected, so the generator looks healthy.
 
 The generator writes metrics to Mimir:
 

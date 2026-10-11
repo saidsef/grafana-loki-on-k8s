@@ -40,8 +40,8 @@ data:
           wait: 60s
           max_items: 10000
           enable_client_server_prefix: true
-          # Empties the service graph on 3.0.3 and 3.1.0. The generator rebuilds the
-          # processor every 10s and drops its edges before collection.
+          # On 3.0.3 and 3.1.0 this drops every edge to an inferred peer. The generator
+          # replaces the processor every 10s, before a pending edge can expire.
           # enable_virtual_node_label: true
           enable_messaging_system_latency_histogram: true
           peer_attributes:
