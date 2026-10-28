@@ -6,7 +6,7 @@ Beyond storing spans, it runs a `metrics_generator` that converts spans into RED
 
 ## What it runs
 
-- StatefulSet, single replica, image `docker.io/grafana/tempo:3.1.0`.
+- StatefulSet, single replica, image `docker.io/grafana/tempo:3.1.1`.
 - Args: `-config.file=/conf/tempo.yaml -config.expand-env=true -generator.instance-id=$(POD_IP) -log.level=warn`.
 - Ports: 3100 (HTTP query), 9095 (gRPC), 4317 (OTLP gRPC), 4318 (OTLP HTTP), 14250 (Jaeger gRPC), 14268 (Jaeger Thrift HTTP), 6831 / 6832 (Jaeger Thrift UDP), 9411 (Zipkin).
 - Resources: requests 50m CPU / 512Mi, limits 100m CPU / 896Mi.
