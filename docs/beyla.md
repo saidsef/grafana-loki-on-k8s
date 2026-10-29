@@ -6,7 +6,7 @@ It runs as its own DaemonSet rather than inside [Alloy](./alloy.md). See [Why no
 
 ## What it runs
 
-- DaemonSet, image `docker.io/grafana/beyla:3.38.0`, one pod per node.
+- DaemonSet, image `docker.io/grafana/beyla:3.40.0`, one pod per node.
 - `hostPID: true` so Beyla can see and inspect processes in other containers' PID namespaces. Mandatory in DaemonSet mode.
 - `hostNetwork: true` with `dnsPolicy: ClusterFirstWithHostNet`, required for the network-level context propagation described below.
 - Health, readiness and liveness on port 9090 (`/healthz`), probed at `127.0.0.1`. Beyla 3.31.0 began binding this endpoint to loopback only and ignores `health_check.listen_address`; `hostNetwork` puts that loopback on the node, so the kubelet can still reach it.
