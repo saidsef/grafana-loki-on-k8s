@@ -29,6 +29,8 @@ loki.write "loki" {
 
 Two log sources feed that writer: pod logs (`loki.source.kubernetes "pods"`, filtered to drop anything older than 1 hour) and cluster events (`loki.source.kubernetes_events "cluster"`).
 
+The events source runs with clustering enabled. The config does not list any namespaces, so one Alloy pod collects every event in the cluster and Loki receives each event once. When ownership moves to another pod, that pod may send again any event still inside the Kubernetes event TTL, which defaults to one hour.
+
 Metrics fan out to both Prometheus and Mimir, with exemplars and native histograms on each:
 
 ```river
