@@ -11,6 +11,7 @@ This stack uses Alloy in place of Promtail. The Promtail directory is still in t
 - `CLUSTER_NAME` is read from the pod label `cluster` via the downward API. It is set in the DaemonSet pod template rather than hardcoded in the args.
 - Ports: 12345 (HTTP UI and self metrics), 4317 (OTLP gRPC), 4318 (OTLP HTTP).
 - Resources: requests 50m CPU / 512Mi, limits 100m CPU / 896Mi.
+- Scheduling: a required node affinity admits amd64 and arm64 nodes, and a toleration admits every `NoSchedule` taint. Alloy collects pod logs and kubelet metrics from its own node, so a taint that keeps it off a node drops that node's telemetry. `NoExecute` taints still evict it.
 - Storage: 1 Gi emptyDir at `/tmp/alloy` for remote_write WAL buffers.
 - Security: unprivileged — `privileged: false`, `allowPrivilegeEscalation: false`, `readOnlyRootFilesystem: true`, `runAsNonRoot: true`, `runAsUser: 473`, all capabilities dropped, `seccompProfile: RuntimeDefault`.
 - RBAC: ClusterRole grants list/watch on pods, services, nodes, endpoints, endpointslices, ingresses, events, configmaps and replicasets, plus the Prometheus operator CRDs (`podmonitors`, `servicemonitors`, `probes`, `scrapeconfigs`, `prometheusrules`) and `monitoring.grafana.com/podlogs`.
@@ -28,6 +29,8 @@ loki.write "loki" {
 ```
 
 Two log sources feed that writer: pod logs (`loki.source.kubernetes "pods"`, filtered to drop anything older than 1 hour) and cluster events (`loki.source.kubernetes_events "cluster"`).
+
+The events source runs with clustering enabled. The config does not list any namespaces, so one Alloy pod collects every event in the cluster and Loki receives each event once. When ownership moves to another pod, that pod may send again any event still inside the Kubernetes event TTL, which defaults to one hour.
 
 Metrics fan out to both Prometheus and Mimir, with exemplars and native histograms on each:
 

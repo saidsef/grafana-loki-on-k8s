@@ -147,7 +147,12 @@ data:
       forward_to = [loki.write.loki.receiver]
     }
 
+    // Without clustering every Alloy pod watches every event, and Loki stores each
+    // event once per node.
     loki.source.kubernetes_events "cluster" {
+      clustering {
+        enabled = true
+      }
       forward_to = [loki.write.loki.receiver]
     }
 
