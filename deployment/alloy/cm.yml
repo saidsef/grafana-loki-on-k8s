@@ -59,10 +59,29 @@ data:
         replacement   = "kubelet_pods"
         action        = "replace"
       }
+      // The scrape is opt-in, so ports that do not speak HTTP, such as Redis, never
+      // receive a GET /metrics. See #306.
       rule {
         source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_scrape"]
-        regex         = "false"
-        action        = "drop"
+        regex         = "true"
+        action        = "keep"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_port"]
+        regex         = ".+"
+        action        = "keep"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_scheme"]
+        regex         = "(https?)"
+        target_label  = "__scheme__"
+        action        = "replace"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_path"]
+        regex         = "(.+)"
+        target_label  = "__metrics_path__"
+        action        = "replace"
       }
       rule {
         source_labels = ["__address__"]
@@ -86,6 +105,26 @@ data:
       rule {
         action = "labeldrop"
         regex  = "pod_template_hash|controller_revision_hash|checksum_.*|pod_uid|instance|job"
+      }
+    }
+
+    // prometheus.io/port holds a number on some pods and a port name on others. A
+    // regex cannot compare two labels, so each form gets its own keepequal block.
+    discovery.relabel "pod_targets_by_number" {
+      targets = discovery.relabel.pod_targets.output
+      rule {
+        source_labels = ["__meta_kubernetes_pod_container_port_number"]
+        target_label  = "__meta_kubernetes_pod_annotation_prometheus_io_port"
+        action        = "keepequal"
+      }
+    }
+
+    discovery.relabel "pod_targets_by_name" {
+      targets = discovery.relabel.pod_targets.output
+      rule {
+        source_labels = ["__meta_kubernetes_pod_container_port_name"]
+        target_label  = "__meta_kubernetes_pod_annotation_prometheus_io_port"
+        action        = "keepequal"
       }
     }
 
@@ -185,7 +224,7 @@ data:
     }
 
     prometheus.scrape "default" {
-      targets    = discovery.relabel.pod_targets.output
+      targets    = array.concat(discovery.relabel.pod_targets_by_number.output, discovery.relabel.pod_targets_by_name.output)
       forward_to = [prometheus.remote_write.prometheus.receiver, prometheus.remote_write.mimir.receiver]
     }
 

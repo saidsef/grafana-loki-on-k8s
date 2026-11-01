@@ -4,9 +4,6 @@ metadata:
   name: tempo
   labels:
     app.kubernetes.io/name: tempo
-  annotations:
-    prometheus.io/port: prom-metrics
-    prometheus.io/scrape: "true"
 spec:
   revisionHistoryLimit: 1
   selector:
@@ -17,6 +14,11 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: tempo
+      # The port is a number because Prometheus rewrites the address only for numeric
+      # ports, and would otherwise scrape every Tempo port.
+      annotations:
+        prometheus.io/port: "3100"
+        prometheus.io/scrape: "true"
     spec:
       serviceAccountName: tempo
       automountServiceAccountToken: false
