@@ -54,7 +54,20 @@ prometheus.remote_write "mimir" {
 }
 ```
 
-Two `prometheus.scrape` blocks feed both writers. `prometheus.scrape "default"` walks the node-local kubelet pod targets; targets with `prometheus.io/scrape: "false"` get dropped during relabel. `prometheus.scrape "nodes"` scrapes each node's kubelet over HTTPS with the ServiceAccount token, distributed across Alloy instances by clustering.
+Two `prometheus.scrape` blocks feed both writers. `prometheus.scrape "default"` scrapes the pods on the local node that opt in through annotations on the pod template:
+
+```yaml
+metadata:
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port:   "8080"       # number or name of a declared container port
+    # prometheus.io/path:   "/metrics" # optional, default /metrics
+    # prometheus.io/scheme: "https"    # optional, default http
+```
+
+Alloy scrapes only the container port that `prometheus.io/port` names, and that port must appear in the container's `ports` list. Alloy does not scrape a pod that lacks either of the first two annotations, and it does not scrape the other ports on an annotated pod. Alloy reads the annotations from the pod, so annotations on a Deployment, StatefulSet or DaemonSet do not take effect.
+
+`prometheus.scrape "nodes"` scrapes each node's kubelet over HTTPS with the ServiceAccount token, distributed across Alloy instances by clustering.
 
 Cluster-wide `role = "service"` discovery was removed in [#271](https://github.com/saidsef/grafana-loki-on-k8s/issues/271). It re-scraped the same endpoints through the ClusterIP - round-robining across replicas, from every Alloy pod - and accounted for 48% of scraped samples while contributing no target the kubelet path did not already cover.
 
@@ -171,6 +184,7 @@ pyroscope.write "pyroscope" {
 
 - Applications send OTLP logs, metrics and traces to the `alloy` Service on port 4317 (gRPC) or 4318 (HTTP). Note this is a ClusterIP Service with `internalTrafficPolicy: Cluster`, so traffic is balanced across every Alloy pod — it is not pinned to the local node.
 - The kubelet at `https://$NODE_IP:10250` is the source for pod targets and pod logs.
+- Alloy scrapes metrics from pods annotated with `prometheus.io/scrape: "true"` and `prometheus.io/port: "<n>"`.
 - Pods with `profiles.grafana.com/port: "<n>"` or per-type `profiles.grafana.com/<type>.scrape: "true"` annotations are scraped for pprof profiles.
 
 ## Outputs
