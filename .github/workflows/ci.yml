@@ -38,7 +38,7 @@ jobs:
     if: ${{ github.event_name == 'pull_request' }}
     steps:
       - name: Create k8s Kind Cluster
-        uses: helm/kind-action@v1.15.1
+        uses: helm/kind-action@v1.15.2
         with:
           kubectl_version: v1.37.1 # Same minor as the node image
           node_image: kindest/node:v1.37.0 # Matches kind-config.yml, built for kind v0.33.0
